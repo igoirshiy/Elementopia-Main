@@ -3,7 +3,7 @@ import { Box, Grid } from "@mui/material";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import Sidebar from "../components/Sidebar";
-import DailyChallengeCard from "../components/Student Components/DailyChallengeCard";
+
 import AchievementsCard from "../components/Student Components/AchievementsCard";
 import DiscoveriesCard from "../components/Student Components/DiscoveriesCard";
 import UserCard from "../components/Student Components/UserCard";
@@ -41,7 +41,7 @@ const StudentHomePage = () => {
         {location.pathname === "/student-home-page" && (
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
-              <DailyChallengeCard />
+
               <DiscoveriesCard />
               <AchievementsCard />
             </Grid>
