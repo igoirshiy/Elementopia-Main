@@ -39,28 +39,14 @@ const ChemistrySimulation = () => {
   const [selectedElement, setSelectedElement] = useState("H");
   const [moleculeOutput, setMoleculeOutput] = useState("");
   const [eraseMode, setEraseMode] = useState(false);
-  const [showChallengeModal, setShowChallengeModal] = useState(false);
-  const [dailyChallengeCompound, setDailyChallengeCompound] = useState(null);
-  const [completedSymbols, setCompletedSymbols] = useState([]);
+
   const [loadingDefinition, setLoadingDefinition] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false); // New state for discovery modal
   const [discoveredCompoundInfo, setDiscoveredCompoundInfo] = useState(null); // New state for discovered compound info
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const challengeFromStorage = JSON.parse(
-      localStorage.getItem("dailyChallengeCompound")
-    );
-    if (challengeFromStorage) {
-      setDailyChallengeCompound(challengeFromStorage);
-    } else {
-      setDailyChallengeCompound(compoundElements[0]);
-    }
 
-    const stored = JSON.parse(localStorage.getItem("completedSymbols")) || [];
-    setCompletedSymbols(stored);
-  }, []);
 
   useEffect(() => {
     checkMolecule();
@@ -127,17 +113,7 @@ const ChemistrySimulation = () => {
       });
       setShowDiscoveryModal(true);
 
-      if (
-        dailyChallengeCompound &&
-        foundCompound.Symbol === dailyChallengeCompound.Symbol &&
-        !completedSymbols.includes(foundCompound.Symbol)
-      ) {
-        const updated = [...completedSymbols, foundCompound.Symbol];
-        setCompletedSymbols(updated);
-        localStorage.setItem("completedSymbols", JSON.stringify(updated));
-        localStorage.removeItem("dailyChallengeCompound");
-        setShowChallengeModal(true);
-      }
+
     } else {
       setMoleculeOutput("No known molecule formed.");
       setDiscoveredCompoundInfo(null); // Clear info if no compound formed
@@ -388,39 +364,7 @@ const ChemistrySimulation = () => {
         </Box>
       </Box>
 
-      {/* Completion Modal (Existing) */}
-      {showChallengeModal && (
-        <Box
-          sx={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "#222",
-            padding: 4,
-            borderRadius: 4,
-            border: "2px solid #ffcc00",
-            zIndex: 9999,
-            color: "white",
-          }}
-        >
-          <Typography variant="h6" sx={{ color: "#ffcc00", marginBottom: 2 }}>
-            🎉 Challenge Completed!
-          </Typography>
-          <Typography>
-            You've successfully discovered the daily challenge compound!
-          </Typography>
-          <Box sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setShowChallengeModal(false)}
-            >
-              Close
-            </Button>
-          </Box>
-        </Box>
-      )}
+
 
       {/* Discovery Modal (New) */}
       <Modal
