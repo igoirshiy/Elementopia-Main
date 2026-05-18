@@ -1,0 +1,10 @@
+
+How to use the FeatureCard Component?
+*(import FeatureCard from "../components/featurecard";)
+
+---Format---
+<FeatureCard
+    title="Sample Title"
+    description="Sample description"
+    gradient="<choices>(purple, pink, yellow, mixed)<Try them all>"
+/>

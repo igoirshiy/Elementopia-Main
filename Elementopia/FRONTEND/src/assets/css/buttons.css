@@ -1,0 +1,25 @@
+.buttons-container {
+  border: 2px solid white;
+  border-radius: 10px;
+  align-items: center;
+  width: 50vw;
+  height: 50vh;
+  left: 0;
+  display: flex;
+  justify-content: center;
+}
+.gradient-button {
+  display: inline-block;
+  background: linear-gradient(to right, #714dff, #e151ff);
+  border-radius: 5px;
+  text-decoration: none;
+  color: white;
+  font-weight: bolder;
+  padding: 10px;
+  box-shadow: -2px 2px 5px rgba(255, 255, 255, 0.103);
+  font-size: 1.5rem;
+}
+.gradient-button:hover {
+  transition: all 0.1s ease-in-out;
+  transform: scale(1.05);
+}

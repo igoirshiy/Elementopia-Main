@@ -1,0 +1,107 @@
+.feature-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease-in-out;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Gradient Borders */
+.feature-card.purple {
+  border-color: rgba(113, 77, 255, 0.3);
+}
+.feature-card.purple:hover {
+  border-color: rgba(113, 77, 255, 0.6);
+}
+
+.feature-card.pink {
+  border-color: rgba(225, 81, 255, 0.3);
+}
+.feature-card.pink:hover {
+  border-color: rgba(225, 81, 255, 0.6);
+}
+
+.feature-card.yellow {
+  border-color: rgba(255, 247, 89, 0.3);
+}
+.feature-card.yellow:hover {
+  border-color: rgba(255, 247, 89, 0.6);
+}
+
+.feature-card.mixed {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.feature-card.mixed:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Gradient Accent Bar */
+.feature-card-accent {
+  height: 4px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.feature-card-accent.purple {
+  background: linear-gradient(to right, #714dff, #9c83ff);
+}
+.feature-card-accent.pink {
+  background: linear-gradient(to right, #9c83ff, #e151ff);
+}
+.feature-card-accent.yellow {
+  background: linear-gradient(to right, #e151ff, #fff759);
+}
+.feature-card-accent.mixed {
+  background: linear-gradient(to right, #714dff, #9c83ff, #e151ff, #fff759);
+}
+
+/* Header */
+.feature-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature-card-icon {
+  color: #9c83ff;
+}
+
+/* Title */
+.feature-card-title.purple {
+  color: #9c83ff;
+}
+.feature-card-title.pink {
+  color: #e151ff;
+}
+.feature-card-title.yellow {
+  color: #fff759;
+}
+.feature-card-title.mixed {
+  background: linear-gradient(to right, #714dff, #fff759);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Content */
+.feature-card-description {
+  color: #d1d5db;
+}
+.Logo {
+  width: 40vh;
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  margin: 10px 0;
+  flex-grow: 1;
+  min-width: 0;
+  max-width: 100%;
+}

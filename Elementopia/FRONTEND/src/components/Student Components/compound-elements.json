@@ -1,0 +1,184 @@
+[
+    {
+        "NAME": "Water",
+        "Symbol": "H2O",
+        "Description": "A colorless, tasteless, and odorless liquid essential for most forms of life.",
+        "Elements": ["H", "H", "O"],
+        "Uses": ["Drinking", "Cooking", "Industrial processes"]
+    },
+    {
+        "NAME": "Sodium Chloride",
+        "Symbol": "NaCl",
+        "Description": "Commonly known as table salt, it is a white crystalline solid.",
+        "Elements": ["Na", "Cl"],
+        "Uses": ["Food seasoning", "Food preservation", "Deicing agent"]
+    },
+    {
+        "NAME": "Carbon Dioxide",
+        "Symbol": "CO2",
+        "Description": "A colorless gas with a faint sharp odor and a sour taste.",
+        "Elements": ["C", "O", "O"],
+        "Uses": ["Carbonation of beverages", "Fire extinguishing", "Plant photosynthesis"]
+    },
+    {
+        "NAME": "Ammonia",
+        "Symbol": "NH3",
+        "Description": "A colorless gas with a characteristic pungent smell.",
+        "Elements": ["N", "H", "H", "H"],
+        "Uses": ["Fertilizer production", "Household cleaners", "Refrigerant"]
+    },
+    {
+        "NAME": "Calcium Carbonate",
+        "Symbol": "CaCO3",
+        "Description": "A white insoluble solid occurring naturally as chalk, limestone, marble, and calcite.",
+        "Elements": ["Ca", "C", "O", "O", "O"],
+        "Uses": ["Antacid", "Calcium supplement", "Building material"]
+    },
+    {
+        "NAME": "Methane",
+        "Symbol": "CH4",
+        "Description": "A colorless, odorless, flammable gas that is the simplest alkane.",
+        "Elements": ["C", "H", "H", "H", "H"],
+        "Uses": ["Fuel", "Natural gas component", "Hydrogen production"]
+    },
+    {
+        "NAME": "Hydrochloric Acid",
+        "Symbol": "HCl",
+        "Description": "A strong, corrosive acid that is commonly used as a laboratory reagent.",
+        "Elements": ["H", "Cl"],
+        "Uses": ["Food processing", "Leather processing", "Household cleaning"]
+    },
+    {
+        "NAME": "Sulfuric Acid",
+        "Symbol": "H2SO4",
+        "Description": "A highly corrosive strong mineral acid.",
+        "Elements": ["H", "H", "S", "O", "O", "O", "O"],
+        "Uses": ["Industrial processes", "Battery acid", "pH regulator"]
+    },
+    {
+        "NAME": "Ethanol",
+        "Symbol": "C2H5OH",
+        "Description": "A volatile, flammable, colorless liquid with a slight characteristic odor.",
+        "Elements": ["C", "C", "H", "H", "H", "H", "H", "O"],
+        "Uses": ["Alcoholic beverages", "Solvent", "Fuel"]
+    },
+    {
+        "NAME": "Glucose",
+        "Symbol": "C6H12O6",
+        "Description": "A simple sugar that is an important energy source in living organisms.",
+        "Elements": ["C", "C", "C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "O", "O", "O", "O", "O", "O"],
+        "Uses": ["Energy source", "Food production"]
+    },
+    {
+        "NAME": "Hydrogen Peroxide",
+        "Symbol": "H2O2",
+        "Description": "A pale blue liquid in its pure form, commonly used as a disinfectant and bleaching agent.",
+        "Elements": ["H", "H", "O", "O"],
+        "Uses": ["Antiseptic", "Bleaching", "Rocket propellant"]
+    },
+    {
+        "NAME": "Nitric Acid",
+        "Symbol": "HNO3",
+        "Description": "A highly corrosive and toxic strong acid used in fertilizer and explosives production.",
+        "Elements": ["H", "N", "O", "O", "O"],
+        "Uses": ["Fertilizers", "Explosives", "Etching"]
+    },
+    {
+        "NAME": "Calcium Hydroxide",
+        "Symbol": "Ca(OH)2",
+        "Description": "Also known as slaked lime, a white powder or crystal used in construction and agriculture.",
+        "Elements": ["Ca", "O", "H", "H"],
+        "Uses": ["Soil treatment", "Water purification", "Construction (plaster, mortar)"]
+    },
+    {
+        "NAME": "Magnesium Oxide",
+        "Symbol": "MgO",
+        "Description": "A white powder used as a refractory material and antacid.",
+        "Elements": ["Mg", "O"],
+        "Uses": ["Refractory bricks", "Medical antacids", "Insulation"]
+    },
+    {
+        "NAME": "Silicon Dioxide",
+        "Symbol": "SiO2",
+        "Description": "Also known as silica, a major component of sand, quartz, and glass.",
+        "Elements": ["Si", "O", "O"],
+        "Uses": ["Glass production", "Construction", "Semiconductors"]
+    },
+    {
+        "NAME": "Aluminum Oxide",
+        "Symbol": "Al2O3",
+        "Description": "A white or nearly colorless crystalline substance used as an abrasive and in ceramics.",
+        "Elements": ["Al", "Al", "O", "O", "O"],
+        "Uses": ["Abrasives", "Refractories", "Catalyst support"]
+    },
+    {
+        "NAME": "Phosphoric Acid",
+        "Symbol": "H3PO4",
+        "Description": "A colorless, odorless acid used in fertilizers and food flavoring.",
+        "Elements": ["H", "H", "H", "P", "O", "O", "O", "O"],
+        "Uses": ["Fertilizers", "Food additives", "Rust removal"]
+    },
+    {
+        "NAME": "Potassium Nitrate",
+        "Symbol": "KNO3",
+        "Description": "A white crystalline salt used in fertilizers and explosives.",
+        "Elements": ["K", "N", "O", "O", "O"],
+        "Uses": ["Gunpowder", "Fertilizers", "Food preservation"]
+    },
+    {
+        "NAME": "Calcium Phosphate",
+        "Symbol": "Ca3(PO4)2",
+        "Description": "A white powder used in animal feed, fertilizers, and toothpaste.",
+        "Elements": ["Ca", "Ca", "Ca", "P", "O", "O", "O", "P", "O", "O", "O"],
+        "Uses": ["Dental products", "Fertilizers", "Calcium supplements"]
+    },
+    {
+        "NAME": "Acetic Acid",
+        "Symbol": "CH3COOH",
+        "Description": "An organic acid giving vinegar its sour taste and strong smell.",
+        "Elements": ["C", "H", "H", "H", "C", "O", "O", "H"],
+        "Uses": ["Food preservative", "Chemical reagent", "Cleaning agent"]
+    },
+    {
+        "NAME": "Baking Soda",
+        "Symbol": "NaHCO3",
+        "Description": "Also known as sodium bicarbonate, a white solid that is commonly used as a leavening agent.",
+        "Elements": ["Na", "H", "C", "O", "O", "O"],
+        "Uses": ["Baking", "Cleaning", "Fire extinguishers"]
+    },
+    {
+        "NAME": "Sodium Hydroxide",
+        "Symbol": "NaOH",
+        "Description": "Also known as lye or caustic soda, a highly caustic base used in many industries.",
+        "Elements": ["Na", "O", "H"],
+        "Uses": ["Soap making", "Drain cleaning", "Paper manufacturing"]
+    },
+    {
+        "NAME": "Calcium Chloride",
+        "Symbol": "CaCl2",
+        "Description": "A white crystalline salt that is highly soluble in water, often used for de-icing.",
+        "Elements": ["Ca", "Cl", "Cl"],
+        "Uses": ["De-icing", "Dust control", "Food additive"]
+    },
+    {
+        "NAME": "Iron(III) Oxide",
+        "Symbol": "Fe2O3",
+        "Description": "Commonly known as rust, a reddish-brown solid formed when iron oxidizes.",
+        "Elements": ["Fe", "Fe", "O", "O", "O"],
+        "Uses": ["Pigments", "Polishing", "Thermite reactions"]
+    },
+    {
+        "NAME": "Zinc Oxide",
+        "Symbol": "ZnO",
+        "Description": "A white powder used in rubber, cosmetics, and sunscreen.",
+        "Elements": ["Zn", "O"],
+        "Uses": ["Skin protectant", "Rubber manufacturing", "Sunscreen"]
+    },
+    {
+        "NAME": "Sodium Carbonate",
+        "Symbol": "Na2CO3",
+        "Description": "Also known as washing soda, used in manufacturing glass and in water softening.",
+        "Elements": ["Na", "Na", "C", "O", "O", "O"],
+        "Uses": ["Glass manufacturing", "Water softening", "Cleaning"]
+    }
+]
