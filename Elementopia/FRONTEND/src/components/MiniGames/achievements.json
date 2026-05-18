@@ -1,0 +1,62 @@
+[
+    {
+      "codeName": "MEMORY_NOVICE",
+      "title": "MEMORY_NOVICE",
+      "description": "Complete the Easy level in the Element Memory Match game"
+    },
+    {
+      "codeName": "MEMORY_INTERMEDIATE",
+      "title": "Memory Intermediate",
+      "description": "Complete the Medium level in the Element Memory Match game"
+    },
+    {
+      "codeName": "MEMORY_MASTER",
+      "title": "Memory Master",
+      "description": "Complete the Hard level in the Element Memory Match game"
+    },
+    {
+      "codeName": "QUICK_MATCHMAKER",
+      "title": "QUICK_MATCHMAKER",
+      "description": "Complete the Easy level within 20 turns"
+    },
+    {
+      "codeName": "SCORE_HUNTER",
+      "title": "Score Hunter",
+      "description": "Accumulate a total score of 100 points or more"
+    },
+    {
+      "codeName": "MASTER_MATCHER",
+      "title": "Master Matcher",
+      "description": "Complete all three difficulty levels in the Element Memory Match game"
+    },
+    {
+    "codeName": "STREAK_STARTER",
+    "title": "Streak Starter",
+    "description": "Achieve a 5-match streak without any mistakes"
+  },
+  {
+    "codeName": "PERFECT_EASY",
+    "title": "Perfect Easy",
+    "description": "Complete the Easy level without making a single wrong match"
+  },
+  {
+    "codeName": "TIME_CHALLENGER",
+    "title": "Time Challenger",
+    "description": "Complete the Medium level in under 60 seconds"
+  },
+  {
+    "codeName": "ELEMENT_EXPERT",
+    "title": "Element Expert",
+    "description": "Match all elements correctly on the Hard level with less than 5 mistakes"
+  },
+  {
+    "codeName": "SPEED_MASTER",
+    "title": "Speed Master",
+    "description": "Complete any level in half the average number of turns"
+  },
+  {
+    "codeName": "FLAWLESS_FINISH",
+    "title": "Flawless Finish",
+    "description": "Finish the Hard level without a single incorrect match"
+  }
+  ]
