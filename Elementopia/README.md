@@ -23,11 +23,24 @@ Elementopia is an interactive, gamified platform designed to enhance high school
 # Contributors
 - Kent Bausin
 
-# Implementation
-1. Run "**git clone https://github.com/mellowieee/Capstone-Elementopia.git**" on your command prompt on your chosen local directory.
-2. TYPE on your command prompt or your terminal in your IDE the following code to **change directory**, "**cd FRONTEND**".
-3. TYPE on your command prompt or your terminal in your IDE the following code to download dependencies, "**npm install**".
-4. TYPE "**npm run dev**" in the terminal to start the application.
+# How to Run Locally (For the Team)
 
+### Prerequisites:
+- **Node.js** installed (for the frontend).
+- **Java 17 or higher** installed and added to your system `PATH` (for the backend).
 
-Note: For the IDE's, We are using VSCode for Frontend and Intellij for Backend. However, you can always use your preffered IDE.
+### Step 1: Clone the Repository
+Run the following command in your terminal:
+`git clone https://github.com/igoirshiy/Elementopia-Main.git`
+
+### Step 2: Install Frontend Dependencies
+1. Open a terminal and type: `cd Elementopia/FRONTEND`
+2. Run: `npm install`
+
+### Step 3: Run the Application!
+We have created two shortcut batch scripts to easily run the servers.
+1. Open the `Elementopia` root folder.
+2. Double-click **`start-backend.bat`** (or run `.\start-backend.bat` in terminal) to start the Spring Boot server.
+3. Double-click **`start-frontend.bat`** (or run `.\start-frontend.bat` in terminal) to start the React UI.
+
+> **Note:** If the backend fails saying `JAVA_HOME not found`, make sure you have Java installed and set up correctly in your system environment variables.
