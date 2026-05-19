@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Navbar from "../components/NavBar";
 import Sidebar from "../components/Sidebar";
-import ChemSim from "../components/Student Components/ChemSim";
+import ChemSim from "../components/student-components/ChemSim";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,

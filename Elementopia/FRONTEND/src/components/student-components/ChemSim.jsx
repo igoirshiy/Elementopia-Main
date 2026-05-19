@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ElementTable from "./ElementTable";
-import compoundElements from "../Student Components/compound-elements.json";
+import compoundElements from "./compound-elements.json";
 import DiscoveryService from "../../services/DiscoveryService";
 import UserService from "../../services/UserService";
 import periodicTableData from "./periodic-table-lookup.json";

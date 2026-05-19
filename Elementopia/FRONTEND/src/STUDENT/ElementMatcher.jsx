@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import Navbar from '../components/NavBar';
 import Sidebar from '../components/Sidebar';
 import AchievementService from '../services/AchievementService';
-import achievements from '../components/MiniGames/achievements.json';
+import achievements from './achievements.json';
 import UserService from '../services/UserService';
 import './ElementMatcher.css';
 

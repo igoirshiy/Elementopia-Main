@@ -1,16 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Student Pages
-import LandingPage from "./STUDENT/LandingPage";
-import LoginCard from "./STUDENT/login-card";
-import RegisterCard from "./STUDENT/register-card";
-import AboutUs from "./STUDENT/about-us";
-import StudentHomePage from "./STUDENT/StudentHomePage";
-import StudentSandboxPage from "./STUDENT/StudentSandboxPage";
+import LandingPage from "./student/LandingPage";
+import LoginCard from "./student/login-card";
+import RegisterCard from "./student/register-card";
+import AboutUs from "./student/about-us";
+import StudentHomePage from "./student/StudentHomePage";
+import StudentSandboxPage from "./student/StudentSandboxPage";
 
-import StudentElementMatcher from "./STUDENT/ElementMatcher";
-import StudentStateChanges from "./STUDENT/StudentStateChanges";
-import StudentCardMinigame from "./STUDENT/StudentCardMinigame";
+import StudentElementMatcher from "./student/ElementMatcher";
+import StudentStateChanges from "./student/StudentStateChanges";
+import StudentCardMinigame from "./student/StudentCardMinigame";
 
 
 export default function App() {
