@@ -1,3 +1,6 @@
 FRONTEND/node_modules/
-node_modules/ 
- 
+node_modules/
+
+# Editor directories
+.idea/
+.vscode/

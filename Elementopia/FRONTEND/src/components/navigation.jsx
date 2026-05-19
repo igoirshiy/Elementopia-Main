@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import "../assets/css/navigation.css";
-import LoginCard from "../STUDENT/login-card";
-import SignupCard from "../STUDENT/register-card";
+import LoginCard from "../student/login-card";
+import SignupCard from "../student/register-card";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);

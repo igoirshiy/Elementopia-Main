@@ -4,9 +4,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import Sidebar from "../components/Sidebar";
 
-import AchievementsCard from "../components/Student Components/AchievementsCard";
-import DiscoveriesCard from "../components/Student Components/DiscoveriesCard";
-import UserCard from "../components/Student Components/UserCard";
+import AchievementsCard from "../components/student-components/AchievementsCard";
+import DiscoveriesCard from "../components/student-components/DiscoveriesCard";
+import UserCard from "../components/student-components/UserCard";
 
 const StudentHomePage = () => {
   const [open, setOpen] = useState(false);
