@@ -11,6 +11,7 @@ import StudentSandboxPage from "./student/StudentSandboxPage";
 import StudentElementMatcher from "./student/ElementMatcher";
 import StudentStateChanges from "./student/StudentStateChanges";
 import StudentCardMinigame from "./student/StudentCardMinigame";
+import StudentDiscoveryPage from "./student/StudentDiscoveryPage";
 
 
 export default function App() {
@@ -31,6 +32,9 @@ export default function App() {
         <Route path="/student/game1" element={<StudentElementMatcher />} />
         <Route path="/student/game2" element={<StudentStateChanges />} />
         <Route path="/student/game3" element={<StudentCardMinigame />} />
+        
+        {/* New Discovery Route */}
+        <Route path="/student/discovery" element={<StudentDiscoveryPage />} />
       </Routes>
     </Router>
   );

@@ -44,6 +44,7 @@ const Drawer = styled(MuiDrawer)(({ theme, open }) => ({
 const menuItems = [
   { text: "Home", icon: home, path: "/student-home-page" },
   { text: "Chem-Simulation", icon: chemSimulation, path: "/student/Chem-Simulation" },
+  { text: "Discoveries", icon: discovery, path: "/student/discovery" },
 ];
 
 const Sidebar = ({ open, handleDrawerOpen, handleDrawerClose }) => {
