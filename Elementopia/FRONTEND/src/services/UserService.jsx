@@ -30,7 +30,7 @@ const UserService = {
       user = {
         userId: Date.now().toString(),
         username: username || "Guest",
-        firstName: "Guest",
+        firstName: username || "Guest",
         lastName: "User",
         role: "STUDENT"
       };

@@ -1,0 +1,69 @@
+.game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: url("../background/game_background_3.1.png") repeat-x;
+  background-size: cover;
+  overflow: hidden;
+}
+
+.sprite {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.lesson-station {
+  position: absolute;
+  bottom: 60px;
+  width: 100px;
+  height: 150px;
+  background: gold;
+  border: 3px solid #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px yellow;
+}
+
+.lesson-popup {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.quiz-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.doors {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.door {
+  padding: 20px 40px;
+  background: #444;
+  border: 2px solid white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.door.selected {
+  background: #2ecc71;
+  border-color: yellow;
+}

@@ -1,0 +1,281 @@
+/* --- Keyframe Animations --- */
+@keyframes atom-builder-fadeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes atom-builder-fade-in-text {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes atom-builder-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes atom-builder-pulse-glow {
+    0% { box-shadow: 0 0 20px rgba(44, 62, 80, 0.6); }
+    50% { box-shadow: 0 0 35px rgba(52, 152, 219, 0.8); }
+    100% { box-shadow: 0 0 20px rgba(44, 62, 80, 0.6); }
+}
+
+@keyframes atom-builder-success-pop {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes atom-builder-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* --- NEW Intro Screen Styling --- */
+.atom-builder-intro-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 2rem;
+    animation: atom-builder-fade-in-text 1s ease-out;
+}
+
+.atom-builder-title {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+
+.atom-builder-intro-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 2rem;
+    color: #ecf0f1;
+}
+
+.atom-builder-start-btn {
+    padding: 12px 25px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #2ecc71;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.atom-builder-start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+}
+
+/* --- Main Modal Styling --- */
+.atom-builder-modal.atom-builder-intro,
+.atom-builder-modal.atom-builder-main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 800px;
+    height: 90vh;
+    max-height: 600px;
+    background: radial-gradient(circle, #2c3e50, #161e27);
+    border: 2px solid #3498db;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    z-index: 100;
+    animation: atom-builder-fadeIn 0.5s ease-out;
+}
+
+/* --- Info Box Styling --- */
+.atom-builder-info {
+    width: 100%;
+    height: 20%;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(52, 152, 219, 0.5);
+    animation: atom-builder-fade-in-text 0.6s ease-out;
+}
+
+.atom-builder-info h3 {
+    margin: 0 0 8px 0;
+    color: #3498db;
+    font-size: 1.4rem;
+}
+
+.atom-builder-info p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #ecf0f1;
+}
+
+/* --- Atom Diagram Styling --- */
+.atom-builder-diagram {
+    width: 100%;
+    height: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    margin: 20%
+}
+
+.atom-builder-shell {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 2px dotted white;
+    position: absolute; 
+    transition: border-color 0.3s ease;
+    z-index: 1;
+}
+
+.atom-builder-nucleus {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #3a536e, #2c3e50);
+    border-radius: 50%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px;
+    animation: atom-builder-pulse-glow 4s infinite ease-in-out;
+    transition: box-shadow 0.3s ease;
+    z-index: 2;
+}
+
+.atom-builder-shell.atom-builder-hovering::before { border-color: #3498db; }
+.atom-builder-nucleus.atom-builder-hovering { box-shadow: 0 0 40px #e74c3c; }
+
+/* --- Particle Styling --- */
+.atom-builder-bin {
+    width: 95%;
+    height: auto;
+    background-color: #2c3e50;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 3%;
+}
+
+.atom-builder-particles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    height: 70%;
+}
+
+.atom-builder-particle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: grab;
+    touch-action: none;
+    box-shadow: inset 0 -3px 5px rgba(0,0,0,0.4), 0 3px 5px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+    visibility: visible;
+    z-index: 3;
+}
+
+.atom-builder-particle:hover {
+    transform: scale(1.15);
+}
+
+.atom-builder-particle.proton { background-color: #e74c3c; }
+.atom-builder-particle.proton::after { content: 'p+'; }
+.atom-builder-particle.neutron { background-color: #95a5a6; }
+.atom-builder-particle.neutron::after { content: 'n'; }
+.atom-builder-particle.electron { 
+    background-color: #3498db; 
+    width: 26px;
+    height: 26px;
+    color: #161e27;
+}
+.atom-builder-particle.electron::after { content: 'e-'; }
+
+/* --- Controls & Feedback --- */
+.atom-builder-controls {
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.atom-builder-check-btn, .atom-builder-complete-btn, .atom-builder-challenge-btn {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.atom-builder-check-btn, .atom-builder-complete-btn {
+    background-color: #2ecc71;
+}
+
+.atom-builder-challenge-btn {
+    background-color: #3498db;
+    animation: atom-builder-success-pop 0.5s ease-out;
+}
+
+.atom-builder-check-btn:hover, .atom-builder-complete-btn:hover, .atom-builder-challenge-btn:hover {
+    transform: scale(1.05);
+}
+
+.atom-builder-challenge-btn:hover {
+    background-color: #2980b9;
+}
+
+.atom-builder-check-btn.incorrect {
+    background-color: #e74c3c;
+    animation: atom-builder-shake 0.5s;
+}
+
+.atom-builder-success {
+    text-align: center;
+    animation: atom-builder-success-pop 0.5s ease-out;
+}
+
+.atom-builder-success p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+/* --- Drag Overlay Style --- */
+.atom-builder-particle.atom-builder-dragging {
+    cursor: grabbing;
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    transform: scale(1.15);
+}

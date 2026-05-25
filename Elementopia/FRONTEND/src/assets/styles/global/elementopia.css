@@ -1,0 +1,193 @@
+/* =============================================
+   Elementopia Game — Scoped Tailwind Theme
+   All global html/body rules are scoped to
+   .elementopia-scope to avoid conflicts
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Press+Start+2P&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Tell Tailwind v4 to scan the parent src/ folder for our JSX files */
+@source "../";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-magenta: var(--magenta);
+  --color-cyan: var(--cyan);
+  --color-violet: var(--violet);
+  --color-success: var(--success);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+/* ---- Scoped to .elementopia-scope only ---- */
+.elementopia-scope {
+  --radius: 0.5rem;
+  --background: oklch(0.12 0.01 270);
+  --foreground: oklch(0.97 0.01 280);
+  --card: oklch(0.15 0.02 270);
+  --card-foreground: oklch(0.97 0.01 280);
+  --popover: oklch(0.15 0.02 270);
+  --popover-foreground: oklch(0.97 0.01 280);
+  --primary: oklch(0.72 0.28 340);
+  --primary-foreground: oklch(0.12 0.02 270);
+  --secondary: oklch(0.25 0.04 270);
+  --secondary-foreground: oklch(0.97 0.01 280);
+  --muted: oklch(0.22 0.03 270);
+  --muted-foreground: oklch(0.68 0.04 280);
+  --accent: oklch(0.78 0.18 200);
+  --accent-foreground: oklch(0.12 0.02 270);
+  --destructive: oklch(0.65 0.27 25);
+  --destructive-foreground: oklch(0.97 0.01 280);
+  --border: oklch(0.22 0.04 275 / 0.4);
+  --input: oklch(0.18 0.03 270);
+  --ring: oklch(0.72 0.28 340);
+  --magenta: oklch(0.72 0.28 340);
+  --cyan: oklch(0.82 0.18 200);
+  --violet: oklch(0.62 0.22 295);
+  --success: oklch(0.78 0.20 155);
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-pixel: "Press Start 2P", monospace;
+
+  --gradient-bg: radial-gradient(ellipse at top, oklch(0.20 0.06 295) 0%, oklch(0.10 0.02 270) 60%);
+  --gradient-magenta: linear-gradient(135deg, oklch(0.72 0.28 340), oklch(0.62 0.22 295));
+  --gradient-cyan: linear-gradient(135deg, oklch(0.82 0.18 200), oklch(0.62 0.22 240));
+  --gradient-violet: linear-gradient(135deg, oklch(0.62 0.22 295), oklch(0.48 0.20 280));
+  --gradient-forge: linear-gradient(135deg, oklch(0.68 0.22 35), oklch(0.55 0.22 15));
+
+  --glow-magenta: 0 0 24px oklch(0.72 0.28 340 / 0.5), 0 0 60px oklch(0.72 0.28 340 / 0.25);
+  --glow-cyan: 0 0 24px oklch(0.82 0.18 200 / 0.5), 0 0 60px oklch(0.82 0.18 200 / 0.2);
+  --glow-violet: 0 0 24px oklch(0.62 0.22 295 / 0.5);
+  --glow-success: 0 0 28px oklch(0.78 0.20 155 / 0.6);
+
+  /* Base styles scoped inside the game wrapper */
+  background: var(--gradient-bg);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ---- Utilities ---- */
+.elementopia-scope .font-display { font-family: var(--font-display); }
+.elementopia-scope .font-mono    { font-family: var(--font-mono); }
+.elementopia-scope .font-pixel   { font-family: var(--font-pixel); }
+.elementopia-scope .text-magenta { color: var(--magenta); }
+.elementopia-scope .text-cyan    { color: var(--cyan); }
+.elementopia-scope .text-violet  { color: var(--violet); }
+.elementopia-scope .bg-gradient-magenta { background: var(--gradient-magenta); }
+.elementopia-scope .bg-gradient-cyan    { background: var(--gradient-cyan); }
+.elementopia-scope .bg-gradient-violet  { background: var(--gradient-violet); }
+.elementopia-scope .bg-gradient-forge   { background: var(--gradient-forge); }
+.elementopia-scope .glow-magenta { box-shadow: var(--glow-magenta); }
+.elementopia-scope .glow-cyan    { box-shadow: var(--glow-cyan); }
+.elementopia-scope .glow-violet  { box-shadow: var(--glow-violet); }
+.elementopia-scope .glow-success { box-shadow: var(--glow-success); }
+.elementopia-scope .text-glow-magenta { text-shadow: 0 0 12px oklch(0.72 0.28 340 / 0.7); }
+.elementopia-scope .text-glow-cyan    { text-shadow: 0 0 12px oklch(0.82 0.18 200 / 0.7); }
+.elementopia-scope .grid-bg {
+  background-image:
+    linear-gradient(oklch(0.72 0.28 340 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.72 0.28 340 / 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.elementopia-scope .scan-lines {
+  background-image: repeating-linear-gradient(0deg, transparent 0, transparent 2px, oklch(1 0 0 / 0.015) 2px, oklch(1 0 0 / 0.015) 3px);
+}
+
+/* ---- Lovable Prototype Classes ---- */
+.elementopia-scope .text-glow-pink {
+  color: #f472b6;
+  text-shadow: 0 0 8px #ec4899, 0 0 20px #ec4899;
+}
+.elementopia-scope .text-glow-yellow {
+  color: #fef08a;
+  text-shadow: 0 0 8px #eab308, 0 0 20px #eab308;
+}
+.elementopia-scope .card-glass {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.elementopia-scope .btn-gradient {
+  background: linear-gradient(135deg, #d946ef, #ec4899);
+  color: white;
+  transition: all 0.2s;
+}
+.elementopia-scope .btn-gradient:hover {
+  background: linear-gradient(135deg, #c026d3, #db2777);
+  box-shadow: 0 0 15px rgba(236,72,153,0.5);
+}
+
+/* ---- Resonance Specific ---- */
+.elementopia-scope .bg-gradient-hero { background: radial-gradient(ellipse at top, oklch(0.20 0.06 295) 0%, oklch(0.10 0.02 270) 60%); }
+.elementopia-scope .bg-gradient-primary { background: linear-gradient(135deg, oklch(0.72 0.28 340), oklch(0.62 0.22 295)); }
+.elementopia-scope .shadow-glow { box-shadow: 0 0 24px oklch(0.72 0.28 340 / 0.5); }
+.elementopia-scope .text-victory { color: oklch(0.78 0.20 155); }
+.elementopia-scope .bg-victory { background-color: oklch(0.78 0.20 155); }
+.elementopia-scope .border-victory { border-color: oklch(0.78 0.20 155); }
+.elementopia-scope .ring-victory { --tw-ring-color: oklch(0.78 0.20 155); }
+.elementopia-scope .text-defeat { color: oklch(0.65 0.27 25); }
+.elementopia-scope .bg-defeat { background-color: oklch(0.65 0.27 25); }
+.elementopia-scope .border-defeat { border-color: oklch(0.65 0.27 25); }
+
+/* ---- Keyframes ---- */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 oklch(0.72 0.28 340 / 0); }
+  50%       { box-shadow: 0 0 32px oklch(0.72 0.28 340 / 0.8); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(4px); }
+}
+@keyframes block-disintegrate {
+  0%   { opacity: 1; transform: scale(1) rotate(0deg); }
+  50%  { opacity: 0.6; transform: scale(1.15) rotate(8deg); }
+  100% { opacity: 0; transform: scale(0.2) rotate(-20deg); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+
+.elementopia-scope .animate-pulse-glow  { animation: pulse-glow 1.8s ease-in-out infinite; }
+.elementopia-scope .animate-shake       { animation: shake 0.45s ease-in-out; }
+.elementopia-scope .animate-disintegrate { animation: block-disintegrate 0.6s ease-out forwards; }
+.elementopia-scope .animate-fade-up     { animation: fade-up 0.4s ease-out; }
+.elementopia-scope .animate-float       { animation: float-slow 3s ease-in-out infinite; }

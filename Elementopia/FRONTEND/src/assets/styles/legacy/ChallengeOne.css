@@ -1,0 +1,393 @@
+/* === General Modal === */
+.ionic-lesson-modal.ionic-bonding-challenge {
+  background: radial-gradient(circle at center, #050513 0%, #000010 100%);
+  color: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.15);
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Subtle moving glow effect */
+.ionic-lesson-modal.ionic-bonding-challenge::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.15), transparent 70%);
+  animation: ionic-float-glow 8s infinite alternate;
+  z-index: 0;
+}
+
+@keyframes ionic-float-glow {
+  0% { transform: translate(0, 0); opacity: 0.5; }
+  100% { transform: translate(100px, 100px); opacity: 0.9; }
+}
+
+.ionic-challenge-box {
+  position: relative;
+  z-index: 1;
+}
+
+.ionic-challenge-box h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #00eaff;
+  text-shadow: 0 0 20px rgba(0, 234, 255, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.ionic-challenge-box p {
+  color: #c8d7ff;
+  font-size: 1.1rem;
+  margin-bottom: 1.6rem;
+}
+
+/* === Electron Counters === */
+.ionic-electron-counters {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.ionic-counter {
+  background: rgba(0, 234, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 234, 255, 0.3);
+  font-weight: 600;
+}
+
+/* === Congrats Banner === */
+.ionic-congrats-banner {
+  background: linear-gradient(90deg, #00ffae, #00b36b);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  font-weight: 600;
+  animation: ionic-pulse 1.2s infinite alternate;
+}
+
+@keyframes ionic-pulse {
+  from { opacity: 0.8; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.02); }
+}
+
+/* === Workspace === */
+.ionic-workspace {
+  display: flex;
+  height: 320px;
+  justify-content: center;
+  align-items: center;
+  gap: 180px;
+  margin: 2rem 0;
+  position: relative;
+  transition: all 0.6s ease;
+  perspective: 800px;
+  border: 2px dotted rgba(0, 234, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(0, 234, 255, 0.05);
+}
+/* === Atom Styles === */
+.ionic-atom {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 255, 255, 0.7);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.3rem;
+  position: relative;
+  text-transform: capitalize;
+  color: #fff;
+  transition: transform 0.8s ease, box-shadow 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.ionic-atom.ionic-hovering {
+  box-shadow: 0 0 35px rgba(0, 255, 150, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* === Individual Atom Colors === */
+.ionic-left-atom.ionic-sodium {
+  background: radial-gradient(circle, #007bff 0%, #002f88 100%);
+}
+
+.ionic-right-atom.ionic-chlorine {
+  background: radial-gradient(circle, #00ff9d 0%, #007a55 100%);
+}
+
+.ionic-left-atom.ionic-magnesium {
+  background: radial-gradient(circle, #cfd8dc 0%, #546e7a 100%);
+}
+
+.ionic-left-atom.ionic-calcium {
+  background: radial-gradient(circle, #f9f871 0%, #b59f00 100%);
+}
+
+.ionic-right-atom.ionic-oxy {
+  background: radial-gradient(circle, #ff6b6b 0%, #a30000 100%);
+}
+
+/* === Atom Symbol === */
+.ionic-atom-symbol {
+  position: absolute;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+  pointer-events: none;
+}
+
+/* === Electrons === */
+.ionic-electron {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00eaff 0%, #007bff 90%);
+  position: absolute;
+  box-shadow: 0 0 20px rgba(0, 234, 255, 0.9);
+  cursor: grab;
+  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  z-index: 10;
+}
+
+.ionic-electron:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 1);
+}
+
+.ionic-electron.ionic-is-dragging {
+  box-shadow: 0 0 35px rgba(0, 255, 255, 1);
+  transform: scale(1.3);
+  cursor: grabbing;
+}
+
+/* === Bond Animation === */
+@keyframes ionic-attract {
+  0% { transform: translateX(0) scale(1); }
+  100% { transform: translateX(165px) scale(0.98); }
+}
+
+.ionic-atom.ionic-final-state {
+  animation: ionic-attract 1.4s ease-in-out forwards;
+}
+
+.ionic-atom.ionic-final-state.ionic-opposite {
+  animation-direction: reverse;
+}
+
+/* === Spark Effect === */
+.ionic-workspace.ionic-bonded::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 25px;
+  height: 25px;
+  background: radial-gradient(circle, #00ffff 0%, transparent 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 100px 40px rgba(0, 255, 255, 0.6);
+  transform: translate(-50%, -50%) scale(0);
+  animation: ionic-bond-spark 0.7s ease-out forwards;
+}
+
+@keyframes ionic-bond-spark {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+  40% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+}
+
+/* === Atom Attraction Animation (when bond forms) === */
+.ionic-workspace.ionic-bonded .ionic-left-atom {
+  transform: translateX(80px) scale(1.05);
+  transition: transform 1.2s ease-in-out;
+}
+
+.ionic-workspace.ionic-bonded .ionic-right-atom {
+  transform: translateX(-80px) scale(1.05);
+  transition: transform 1.2s ease-in-out;
+}
+
+/* === Button Group === */
+.ionic-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 15px;
+}
+
+.ionic-reset-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ionic-reset-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.ionic-check-btn {
+  background-color: #2ecc71;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ionic-check-btn:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+.ionic-check-btn.ionic-incorrect {
+  background-color: #e74c3c;
+}
+
+.ionic-check-btn.ionic-correct {
+  background-color: #27ae60;
+}
+
+/* === Trash Bin === */
+.ionic-trash-bin {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #95a5a6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: 2px solid #7f8c8d;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.ionic-trash-bin.ionic-hovering {
+  background-color: #e74c3c;
+  border: 2px solid #c0392b;
+}
+
+/* === Completed State === */
+.ionic-lesson-modal.ionic-bonding-challenge.ionic-completed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.ionic-lesson-modal.ionic-bonding-challenge.ionic-completed h2 {
+  color: #00eaff;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.ionic-lesson-modal.ionic-bonding-challenge.ionic-completed p {
+  color: #c8d7ff;
+  font-size: 1.2rem;
+}
+
+/* === Success Message === */
+.ionic-success-message {
+  margin-top: 1rem;
+  color: #00ffae;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 15px rgba(0, 255, 174, 0.6);
+  animation: ionic-pulse 1.2s infinite alternate;
+}
+
+/* === Additional Atom Colors === */
+.ionic-left-atom.ionic-potassium {
+  background: radial-gradient(circle, #ff6b9d 0%, #8a0036 100%);
+}
+
+.ionic-right-atom.ionic-fluorine {
+  background: radial-gradient(circle, #9dff6b 0%, #368a00 100%);
+}
+
+.ionic-left-atom.ionic-aluminum {
+  background: radial-gradient(circle, #cccccc 0%, #666666 100%);
+}
+
+/* === Bonded State for Challenge Box === */
+.ionic-challenge-box.ionic-bonded {
+  position: relative;
+}
+
+
+@keyframes ionic-border-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* === Additional Atom Colors for IonicChallenge3 === */
+.ionic-left-atom.ionic-lithium {
+  background: radial-gradient(circle, #ffeb3b 0%, #f57f17 100%);
+}
+
+.ionic-right-atom.ionic-fluorine {
+  background: radial-gradient(circle, #9dff6b 0%, #368a00 100%);
+}
+
+.ionic-left-atom.ionic-sodium {
+  background: radial-gradient(circle, #007bff 0%, #002f88 100%);
+}
+
+.ionic-left-atom.ionic-magnesium {
+  background: radial-gradient(circle, #cfd8dc 0%, #546e7a 100%);
+}
+
+.ionic-right-atom.ionic-oxy {
+  background: radial-gradient(circle, #ff6b6b 0%, #a30000 100%);
+}
+
+.ionic-right-atom.ionic-chlorine {
+  background: radial-gradient(circle, #00ff9d 0%, #007a55 100%);
+}
+
+/* === Bonded State for Challenge Box === */
+.ionic-challenge-box.ionic-bonded {
+  position: relative;
+}
+
+.ionic-challenge-box.ionic-bonded::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 1.5rem;
+  z-index: -1;
+  animation: ionic-border-glow 2s ease-in-out infinite;
+}
+
+@keyframes ionic-border-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}

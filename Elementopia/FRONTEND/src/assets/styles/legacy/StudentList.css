@@ -1,0 +1,416 @@
+.student-list-container {
+  padding: 20px;
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.student-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.back-button {
+  background: transparent;
+  color: #6a51ff;
+  border: 1px solid #6a51ff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.back-button:hover {
+  background: #6a51ff;
+  color: white;
+}
+
+.room-info h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.room-info p {
+  color: #b0b0b0;
+  margin: 5px 0 0 0;
+  font-size: 14px;
+}
+
+.room-code-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.student-count {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.btn-secondary {
+  background: #374151;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+  border-color: #6b7280;
+}
+
+.table-container {
+  background: #2d2d2d;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid #404040;
+  overflow: visible;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table th {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: #ffffff;
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #404040;
+}
+
+.students-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #404040;
+  font-size: 14px;
+}
+
+.students-table tr:hover {
+  background-color: #3a3a3a;
+  transition: background-color 0.2s ease;
+}
+
+.students-table tr:last-child td {
+  border-bottom: none;
+}
+
+.student-id {
+  background: #374151;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.join-date {
+  font-size: 12px;
+  color: #b0b0b0;
+  margin-top: 4px;
+}
+
+.student-email {
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: #374151;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-high {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.progress-medium {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.progress-low {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  min-width: 35px;
+}
+
+.score {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.score-high {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.score-medium {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.score-low {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: #27ae60;
+  color: #ffffff;
+}
+
+.status-inactive {
+  background-color: #e74c3c;
+  color: #ffffff;
+}
+
+.last-activity {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+/* Dropdown Styles */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  background: #404040;
+  color: #ffffff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-trigger:hover {
+  background: #505050;
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  background: #3a3a3a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  min-width: 200px;
+  z-index: 1000;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.dropdown-menu.top {
+  top: 100%;
+  bottom: auto;
+}
+
+.dropdown-menu.bottom {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #4a4a4a;
+}
+
+.dropdown-item.view:hover {
+  color: #3498db;
+}
+
+.dropdown-item.progress:hover {
+  color: #f39c12;
+}
+
+.dropdown-item.message:hover {
+  color: #9b59b6;
+}
+
+.dropdown-item.remove:hover {
+  color: #e74c3c;
+}
+
+.dropdown-item .icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  font-size: 18px;
+  color: #b0b0b0;
+  background-color: #2d2d2d;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.no-students {
+  text-align: center;
+  padding: 60px;
+  color: #b0b0b0;
+  font-style: italic;
+  background-color: #2d2d2d;
+  border-radius: 12px;
+  margin: 20px;
+  font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .student-list-container {
+    padding: 15px;
+  }
+  
+  .students-table {
+    font-size: 13px;
+  }
+  
+  .students-table th,
+  .students-table td {
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .student-list-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .header-right {
+    align-items: flex-start;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .students-table {
+    min-width: 1000px;
+  }
+}
+
+/* Animation for dropdown */
+.dropdown-menu {
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

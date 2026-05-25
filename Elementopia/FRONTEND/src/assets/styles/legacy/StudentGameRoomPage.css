@@ -1,0 +1,53 @@
+@keyframes moveBackground {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.game-card {
+  width: 220px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: moveBackground 10s linear infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.game-card:hover {
+  transform: scale(1.05);
+  border: 2px solid #4fc3f7;
+  box-shadow: 0 6px 15px rgba(79, 195, 247, 0.4);
+}
+
+.selected {
+  border: 2px solid #03a9f4;
+  box-shadow: 0 0 15px rgba(3, 169, 244, 0.6);
+  transform: scale(1.07);
+}
+
+.card-text {
+  font-weight: 600;
+  font-size: 18px;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.85);
+  z-index: 2;
+  text-align: center;
+  padding: 0 10px;
+  font-family: 'Poppins', sans-serif;
+}

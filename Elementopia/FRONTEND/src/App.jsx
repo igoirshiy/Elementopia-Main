@@ -1,18 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Student Pages
-import LandingPage from "./student/LandingPage";
-import LoginCard from "./student/login-card";
-import RegisterCard from "./student/register-card";
-import AboutUs from "./student/about-us";
-import StudentHomePage from "./student/StudentHomePage";
-import StudentSandboxPage from "./student/StudentSandboxPage";
+import LandingPage from '@/pages/public/LandingPage';
+import AboutUs from '@/pages/public/AboutUs';
+import StudentSandboxPage from '@/pages/student/StudentSandboxPage';
 
-import StudentElementMatcher from "./student/ElementMatcher";
-import StudentStateChanges from "./student/StudentStateChanges";
-import StudentCardMinigame from "./student/StudentCardMinigame";
-import StudentDiscoveryPage from "./student/StudentDiscoveryPage";
-
+import StudentElementMatcher from '@/pages/student/ElementMatcher';
+import StudentStateChanges from '@/pages/student/StudentStateChanges';
+import StudentCardMinigame from '@/pages/student/StudentCardMinigame';
+import StudentDiscoveryPage from '@/pages/student/StudentDiscoveryPage';
+import ElementopiaGame from '@/pages/student/ElementopiaGame';
+import ChallengeLobby from '@/pages/student/ChallengeLobby';
+import ResonanceSetup from '@/pages/student/ResonanceSetup';
+import ChallengeMatch from '@/pages/student/ChallengeMatch';
 
 export default function App() {
   return (
@@ -21,11 +21,9 @@ export default function App() {
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/login" element={<LoginCard />} />
-        <Route path="/sign-up" element={<RegisterCard />} />
 
         {/* Student Routes - Public Now */}
-        <Route path="/student-home-page" element={<StudentHomePage />} />
+        <Route path="/student-home-page" element={<ElementopiaGame />} />
         <Route path="/student/sandbox" element={<StudentSandboxPage />} />
         <Route path="/student/Chem-Simulation" element={<StudentSandboxPage />} />
 
@@ -35,6 +33,14 @@ export default function App() {
         
         {/* New Discovery Route */}
         <Route path="/student/discovery" element={<StudentDiscoveryPage />} />
+
+        {/* Elementopia Game */}
+        <Route path="/student/elementopia" element={<ElementopiaGame />} />
+
+        {/* Challenge Routes */}
+        <Route path="/challenge" element={<ChallengeLobby />} />
+        <Route path="/challenge/setup" element={<ResonanceSetup />} />
+        <Route path="/challenge/:code" element={<ChallengeMatch />} />
       </Routes>
     </Router>
   );

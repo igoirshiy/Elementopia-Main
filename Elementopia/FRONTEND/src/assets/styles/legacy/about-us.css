@@ -1,0 +1,116 @@
+/* Container for the whole page */
+.about-us-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  font-family: 'Poppins', sans-serif;
+  margin-top: 2%;
+}
+
+.about-content {
+  flex: 1; /* Pushes footer to bottom */
+  padding: 50px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header Styling */
+.about-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.about-title {
+  font-size: 3rem;
+  color: #557799;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.highlight {
+  color: #4f9bf1; /* Elementopia Blue */
+}
+
+.about-description {
+  font-size: 1.2rem;
+  color: #ffffff;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Team Grid Layout */
+.team-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+
+/* Individual Card Styling */
+.team-card {
+  background: rgb(255, 255, 255);
+  width: 280px;
+  border-radius: 20px;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Image Styling */
+.image-container {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #4a90e2; /* Border color matches theme */
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.2);
+}
+
+.team-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures faces aren't stretched */
+}
+
+/* Text Styling */
+.member-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.member-role {
+  display: inline-block;
+  padding: 5px 12px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 2.2rem;
+  }
+  
+  .team-card {
+    width: 100%;
+    max-width: 320px;
+  }
+}

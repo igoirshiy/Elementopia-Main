@@ -1,0 +1,414 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@500;700;900&family=Montserrat:wght@400;500;600;700&display=swap");
+
+/* ========== General Reset & Styling ========== */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+body {
+  background-color: #07040f;
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    rgba(88, 54, 180, 0.15) 0%,
+    rgba(7, 4, 15, 1) 70%
+  );
+  font-family: "Montserrat", sans-serif;
+  overflow-x: hidden;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.root {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+}
+
+.landingpage-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== Custom Navigation Header ========== */
+.custom-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 90px;
+  width: 100%;
+}
+
+.custom-logo {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #ec4899;
+  text-decoration: none;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.6), 0 0 20px rgba(236, 72, 153, 0.2);
+  transition: all 0.3s ease;
+}
+
+.custom-logo:hover {
+  text-shadow: 0 0 15px rgba(236, 72, 153, 0.9), 0 0 30px rgba(236, 72, 153, 0.4);
+}
+
+.custom-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.custom-nav-link {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.custom-nav-link:hover {
+  color: #ffffff;
+}
+
+.user-pill {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: #12101e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-pill:hover {
+  background-color: #1d1835;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* ========== Hero Section ========== */
+.hero-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 60px;
+  padding-bottom: 80px;
+}
+
+.hero-left {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Hero Typography */
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.25;
+  margin-bottom: 28px;
+}
+
+.title-row-white {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.3rem;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.title-row-pink {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.3rem;
+  color: #ec4899;
+  letter-spacing: 1px;
+  text-shadow: 0 0 15px rgba(236, 72, 153, 0.8), 0 0 30px rgba(236, 72, 153, 0.3);
+}
+
+.title-row-combined {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-row-yellow {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.3rem;
+  color: #eab308;
+  letter-spacing: 1px;
+  text-shadow: 0 0 15px rgba(234, 179, 8, 0.8), 0 0 30px rgba(234, 179, 8, 0.3);
+}
+
+.hero-desc {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 500px;
+  margin-bottom: 40px;
+}
+
+/* Hero Buttons */
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-get-started-gradient {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  border: none;
+  padding: 14px 36px;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(168, 85, 247, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-get-started-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 0 50px rgba(168, 85, 247, 0.4);
+  opacity: 0.95;
+}
+
+.btn-get-started-gradient:active {
+  transform: translateY(0);
+}
+
+.btn-learn-more-outline {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 36px;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.btn-learn-more-outline:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+}
+
+/* ========== Interactive 2D Atom Rendering ========== */
+.hero-right {
+  width: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.atom-container {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Central Nucleus with 3D gradient look & backlight */
+.atom-nucleus {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fbbf24 0%, #f59e0b 40%, #4f46e5 100%);
+  box-shadow: 
+    0 0 40px rgba(245, 158, 11, 0.7),
+    0 0 80px rgba(79, 70, 229, 0.4),
+    inset -10px -10px 20px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+/* Outer circular orbit spinning infinitely */
+.atom-orbit {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: rotateOrbit 22s linear infinite;
+  z-index: 1;
+}
+
+@keyframes rotateOrbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Orbiting Electrons */
+.atom-electron {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 
+    0 0 10px #ffffff,
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 35px rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  animation: electronPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes electronPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* 10 Symmetrical Polar Coordinate Positions along the Orbit Ring */
+.atom-electron.e1 { top: 50%; left: 100%; }
+.atom-electron.e2 { top: 79.5%; left: 90.5%; }
+.atom-electron.e3 { top: 97.5%; left: 65.5%; }
+.atom-electron.e4 { top: 97.5%; left: 34.5%; }
+.atom-electron.e5 { top: 79.5%; left: 9.5%; }
+.atom-electron.e6 { top: 50%; left: 0%; }
+.atom-electron.e7 { top: 20.5%; left: 9.5%; }
+.atom-electron.e8 { top: 2.5%; left: 34.5%; }
+.atom-electron.e9 { top: 2.5%; left: 65.5%; }
+.atom-electron.e10 { top: 20.5%; left: 90.5%; }
+
+/* ========== Popup Authentication Modals ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content-wrapper {
+  background-color: #0d0a1b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  padding: 30px;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 1024px) {
+  .hero-container {
+    flex-direction: column-reverse;
+    gap: 60px;
+    margin-top: 30px;
+    padding-bottom: 40px;
+  }
+  
+  .hero-left, .hero-right {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .hero-left {
+    margin-top: 20px;
+  }
+
+  .hero-desc {
+    max-width: 600px;
+    margin-bottom: 30px;
+  }
+
+  .hero-title {
+    align-items: center;
+  }
+  
+  .title-row-combined {
+    justify-content: center;
+  }
+  
+  .title-row-white, .title-row-pink, .title-row-yellow {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .landingpage-container {
+    padding: 0 20px;
+  }
+
+  .custom-nav-right {
+    gap: 16px;
+  }
+
+  .user-pill {
+    padding: 6px 16px;
+  }
+
+  .title-row-white, .title-row-pink, .title-row-yellow {
+    font-size: 1.3rem;
+  }
+
+  .atom-container {
+    width: 280px;
+    height: 280px;
+  }
+
+  .atom-nucleus {
+    width: 80px;
+    height: 80px;
+  }
+
+  .atom-orbit {
+    width: 280px;
+    height: 280px;
+  }
+}

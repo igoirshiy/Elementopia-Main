@@ -1,0 +1,184 @@
+/* General Game Container */
+.game-container {
+  background: rgba(20, 25, 50, 0.9);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: #f0faff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+.game-container h2 {
+  color: #62b0ff;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #a8c4ff;
+  margin-bottom: 20px;
+}
+
+/* Layout for Atoms & Workspace */
+.game-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.atom-panel,
+.workspace {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+  min-width: 260px;
+}
+
+.atom-panel h3,
+.workspace h3 {
+  color: #a8e4ff;
+  margin-bottom: 10px;
+}
+
+/* Atoms */
+.atom-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.atom-item {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.atom-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Atom Colors */
+.atom-h {
+  background: radial-gradient(circle, #fff, #d9f1ff);
+  color: #000;
+}
+.atom-o {
+  background: radial-gradient(circle, #ffdbdb, #ff9b9b);
+  color: #000;
+}
+.atom-c {
+  background: radial-gradient(circle, #caffca, #96ff96);
+  color: #000;
+}
+.atom-n {
+  background: radial-gradient(circle, #dbdbff, #9999ff);
+  color: #000;
+}
+
+/* Workspace */
+.workspace-display {
+  min-height: 100px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.workspace-atom {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #03c9a9, #027a68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+}
+
+.workspace-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Buttons */
+.game-btn {
+  background: linear-gradient(90deg, #62b0ff, #2e83ff);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.game-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.clear {
+  background: linear-gradient(90deg, #ff7f7f, #ff4f4f);
+}
+
+/* Feedback */
+.game-message {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #b6eaff;
+}
+
+/* Quiz-type layouts */
+.quiz-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.quiz-option {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  width: 80%;
+  max-width: 400px;
+}
+
+.quiz-option:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.02);
+}
+
+.quiz-option.correct {
+  background: #4caf50;
+  color: white;
+}
+
+.quiz-option.wrong {
+  background: #f44336;
+  color: white;
+}
