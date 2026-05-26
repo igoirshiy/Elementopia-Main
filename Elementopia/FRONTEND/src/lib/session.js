@@ -34,6 +34,28 @@ export function getStoredNickname() {
 export function setStoredNickname(name) {
   if (typeof window === "undefined") return;
   localStorage.setItem(NICK_KEY, name);
+  try {
+    const userStr = localStorage.getItem("elementopia_current_user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user) {
+        user.username = name;
+        user.firstName = name;
+        localStorage.setItem("elementopia_current_user", JSON.stringify(user));
+      }
+    } else {
+      const user = {
+        userId: "user_" + Math.floor(Math.random() * 1000000),
+        username: name,
+        firstName: name,
+        lastName: "User",
+        role: "STUDENT"
+      };
+      localStorage.setItem("elementopia_current_user", JSON.stringify(user));
+    }
+  } catch (e) {
+    // Ignore
+  }
 }
 
 const CHEM_NAMES = [
