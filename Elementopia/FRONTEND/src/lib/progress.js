@@ -1,4 +1,6 @@
+// Persistent per-device and cloud-synchronized progression service
 const KEY = "elementopia.progress.v1";
+const BASE_URL = "http://localhost:8080/api/progress";
 
 const DEFAULT = {
   nickname: "", sessions: [], clearedDomains: [], wins: 0, losses: 0,
@@ -21,6 +23,22 @@ export function saveProgress(p) {
   if (typeof window === "undefined") return;
   localStorage.setItem(KEY, JSON.stringify(p));
   window.dispatchEvent(new Event("elementopia:progress"));
+  
+  // Asynchronously sync to the cloud database
+  syncProgressToCloud(p);
+}
+
+export async function syncProgressToCloud(p) {
+  if (!p.nickname || p.nickname === "Guest Alchemist") return;
+  try {
+    await fetch(BASE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(p)
+    });
+  } catch (e) {
+    console.warn("Backend down. Saved locally, cloud sync deferred:", e.message);
+  }
 }
 
 export function recordMatch(opponent, result, ms, fails) {
@@ -48,15 +66,42 @@ export function generateAccessCode() {
   return Math.floor(10000 + Math.random()*90000).toString();
 }
 
-// Keep the old API for compatibility with any un-migrated components (like GameBoard) for now,
-// but map it to the new structure.
+// REST Sync: Retrieve latest state from cloud and merge with local copy
 export async function fetchProgress(nickname) {
-  const p = loadProgress();
-  // Ensure the nickname matches if we want
+  let p = loadProgress();
+  
+  if (nickname && nickname !== "Guest Alchemist") {
+    try {
+      const response = await fetch(`${BASE_URL}/${nickname}`);
+      if (response.ok) {
+        const cloudData = await response.json();
+        
+        // Merge cloud data with default/local structures
+        p = {
+          ...p,
+          nickname: cloudData.nickname || nickname,
+          rating: cloudData.rating !== undefined ? cloudData.rating : p.rating,
+          wins: cloudData.wins !== undefined ? cloudData.wins : p.wins,
+          losses: cloudData.losses !== undefined ? cloudData.losses : p.losses,
+          clearedDomains: cloudData.clearedDomains || p.clearedDomains || [],
+          sessions: cloudData.sessions || p.sessions || []
+        };
+        
+        // Commit update locally
+        localStorage.setItem(KEY, JSON.stringify(p));
+        window.dispatchEvent(new Event("elementopia:progress"));
+      }
+    } catch (e) {
+      console.warn("Backend down. Operating purely with cached local progress:", e.message);
+    }
+  }
+
+  // Ensure nickname matches if we fell back
   if (p.nickname !== nickname) {
     p.nickname = nickname;
     saveProgress(p);
   }
+
   return p.sessions.map(s => ({
     domain: s.domainId,
     attempts: s.incorrect + (s.cleared ? 1 : 0),
@@ -78,8 +123,6 @@ export async function upsertProgress(row) {
     p.clearedDomains.push(row.domain);
   }
   
-  // We'll just push a new session for every attempt/row update to simulate it,
-  // or update the last one if it matches the domain.
   const lastSessionIdx = p.sessions.findIndex(s => s.domainId === row.domain);
   if (lastSessionIdx >= 0) {
     const s = p.sessions[lastSessionIdx];
