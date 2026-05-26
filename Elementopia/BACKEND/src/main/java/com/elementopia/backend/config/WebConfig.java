@@ -1,4 +1,4 @@
-package com.elementopia.database.config;
+package com.elementopia.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;

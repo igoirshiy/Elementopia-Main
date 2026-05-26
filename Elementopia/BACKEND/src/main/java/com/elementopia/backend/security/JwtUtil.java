@@ -1,4 +1,4 @@
-package com.elementopia.database.util;
+package com.elementopia.backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

@@ -1,4 +1,4 @@
-package com.elementopia.database;
+package com.elementopia.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

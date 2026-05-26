@@ -1,4 +1,4 @@
-package com.elementopia.database.controller;
+package com.elementopia.backend.infrastructure;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
