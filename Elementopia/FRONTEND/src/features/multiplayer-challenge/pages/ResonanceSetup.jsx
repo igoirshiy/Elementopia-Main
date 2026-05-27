@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Atom, Plus, Zap, Timer, Trophy, KeyRound, Share2, FlaskConical, Medal } from "lucide-react";
 import { SiteHeader } from "@/components/common/SiteHeader";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -12,7 +11,7 @@ import { getStoredNickname, setStoredNickname } from "@/features/auth-user/lib/s
 
 export default function ResonanceSetup() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState("create");
+  const [mode] = useState("create");
   const [nickname, setNickname] = useState(getStoredNickname());
   const [teamSize, setTeamSize] = useState(1);
   const [loading, setLoading] = useState(false);

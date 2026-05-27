@@ -14,11 +14,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     return () => window.removeEventListener("elementopia:progress", h);
   }, []);
 
-  const elementDomains = DOMAINS.filter((d) => d.type === "element");
-  const compoundDomains = DOMAINS.filter((d) => d.type === "compound");
-  const elementsCleared = elementDomains.every((d) =>
-    progress.clearedDomains.includes(d.id),
-  );
+
 
   const modules = [
     {
@@ -106,7 +102,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
             return (
               <button
                 key={d.id}
-                disabled={!unlocked}
+                //disabled={!unlocked}
                 onClick={() => onPlayDomain(d)}
                 className={`group relative overflow-hidden rounded-[24px] border border-border/40 bg-card p-8 text-left transition
                   ${unlocked ? "hover:-translate-y-1 hover:border-magenta/40 hover:shadow-2xl" : "opacity-60 cursor-not-allowed"}`}

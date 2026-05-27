@@ -9,7 +9,6 @@ import segalleImg from '@/assets/images/segalle.png';
 import huyoaImg  from '@/assets/images/huyoa.jpg'
 import dakayImg from '@/assets/images/dakay.jpg'
 
-import defaultAvatar from '@/assets/images/robo-avatar.png'; 
 
 const teamMembers = [
   {

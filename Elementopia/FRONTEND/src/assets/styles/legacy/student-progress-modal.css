@@ -29,6 +29,7 @@
     font-size: 1.5rem;
     background: linear-gradient(to right, #714dff, #e151ff);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
@@ -116,7 +117,7 @@
   .experiment-meta {
     display: flex;
     justify-content:flex-start;
-    margin-left: 100px
+    margin-left: 100px;
     font-size: 0.875rem;
     color: #a1a1aa;
     flex-wrap: wrap;

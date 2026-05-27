@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Button, Modal, Paper, Stack, Chip, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Navbar from '@/components/common/NavBar';
@@ -63,11 +63,9 @@ const StudentElementMatcher = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [errorUser, setErrorUser] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Original UI and game state
   const [open, setOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [cards, setCards] = useState([]);
   const [turns, setTurns] = useState(0);
   const [firstChoice, setFirstChoice] = useState(null);
@@ -89,11 +87,6 @@ const StudentElementMatcher = () => {
     hard: false
   });
 
-  const getAchievementTitle = (codeName) => {
-    const match = achievements.find(ach => ach.codeName === codeName);
-    return match ? match.title : codeName;
-  };
-
   // Enhanced user fetching with achievements
   useEffect(() => {
     const fetchUserAndAchievements = async () => {
@@ -105,7 +98,6 @@ const StudentElementMatcher = () => {
           return;
         }
         
-        // Handle both id and userId properties
         const userIdValue = currentUser.id || currentUser.userId;
         if (!userIdValue) {
           setErrorUser('No valid user ID found');
@@ -115,7 +107,6 @@ const StudentElementMatcher = () => {
 
         setUser(currentUser);
         setUserId(userIdValue);
-        setIsLoggedIn(true);
         setLoadingUser(false);
 
         // Fetch user achievements and extract codeNames
@@ -139,10 +130,10 @@ const StudentElementMatcher = () => {
     if (userId) {
       shuffleCards("easy");
     }
-  }, [userId]);
+  }, [userId, shuffleCards]); // <-- Added shuffleCards here
 
   // Updated createAchievement function
-   const formattedDate = new Date().toISOString().split("T")[0];
+  const formattedDate = new Date().toISOString().split("T")[0];
   const createAchievement = async (codeName) => {
     if (!user || !userId || unlockedAchievements.includes(codeName)) {
       return;
@@ -187,8 +178,8 @@ const StudentElementMatcher = () => {
     }
   };
 
-  const shuffleCards = (difficultyLevel = difficulty) => {
-    if (!userId) return; // Don't shuffle if no user is loaded
+  const shuffleCards = useCallback((difficultyLevel = difficulty) => {
+    if (!userId) return; 
     
     const elementPairs = elementSets[difficultyLevel];
     const cardPairs = [...elementPairs].flatMap(element => ([ 
@@ -207,14 +198,14 @@ const StudentElementMatcher = () => {
     setGameOver(false);
     setFeedback("");
     setDifficulty(difficultyLevel);
-  };
+  }, [difficulty, userId]); // <-- Dependencies added
 
   const handleDrawerOpen = () => {
-    setDrawerOpen(true);
+    setOpen(true);
   };
   
   const handleDrawerClose = () => {
-    setDrawerClose(false);
+    setOpen(false);
   };
 
   const handleChoice = (card) => {
@@ -293,6 +284,7 @@ const StudentElementMatcher = () => {
         setTimeout(() => setModalOpen(true), 1000);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, difficulty, score, userId, turns, totalScore, completedDifficulties, gameOver]);
 
   const resetTurn = () => {
