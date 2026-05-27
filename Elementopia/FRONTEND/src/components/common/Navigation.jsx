@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Menu } from "lucide-react";
 import '@/assets/styles/legacy/navigation.css';
 
 export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="landingpage-container">

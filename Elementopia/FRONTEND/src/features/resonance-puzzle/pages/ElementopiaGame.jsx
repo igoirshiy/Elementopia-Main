@@ -1,5 +1,5 @@
 import '@/assets/styles/global/elementopia.css';
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Beaker, Lock, BarChart3, Gamepad2, X } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { fetchProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -9,9 +9,8 @@ import { GameBoard } from "@/features/resonance-puzzle";
 import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 export default function ElementopiaGame() {
-  const [nickname, setNickname] = useState(null);
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [nickname, setNickname] = useState(null);
   const [view, setView] = useState("home");
   const [activeDomain, setActiveDomain] = useState(null);
   const [storyOpen, setStoryOpen] = useState(false);
@@ -19,10 +18,8 @@ export default function ElementopiaGame() {
   const [error, setError] = useState(null);
 
   const refresh = useCallback(async (nick) => {
-    setLoading(true);
     try { setRows(await fetchProgress(nick)); }
     catch (e) { setError(e?.message ?? "Failed to load progress"); }
-    finally { setLoading(false); }
   }, []);
 
   useEffect(() => { 
@@ -39,18 +36,35 @@ export default function ElementopiaGame() {
     initNickname();
   }, [refresh]);
 
-  const completedIds = useMemo(() => new Set(rows.filter(r => r.completed).map(r => r.domain)), [rows]);
+  // const completedIds = useMemo(() => new Set(rows.filter(r => r.completed).map(r => r.domain)), [rows]);
 
-  const isUnlocked = (idx) => {
-    if (idx === 0) return true;
-    return completedIds.has(DOMAINS[idx - 1].id);
-  };
+  // const isUnlocked = (idx) => {
+  //   if (idx === 0) return true;
+  //   return completedIds.has(DOMAINS[idx - 1].id);
+  // };
 
-  const enterDomain = (d, idx) => {
-    if (!isUnlocked(idx)) return;
-    setActiveDomain(d);
-    setStoryOpen(true);
-    setView("playing");
+  const enterDomain = async (d, idx) => {
+    // Rooms are 1-indexed in the backend, but array indices are 0-indexed
+    const roomId = idx + 1;
+
+    try {
+      // Ask the Spring Boot backend for permission
+      const response = await fetch(`http://localhost:8080/api/features/progression/verify-access?nicknameWithTag=${encodeURIComponent(nickname)}&roomId=${roomId}`);
+      const data = await response.json();
+
+      if (data.action === "LAUNCH_PUZZLE_ARENA") {
+        // Backend granted access
+        setActiveDomain(d);
+        setStoryOpen(true);
+        setView("playing");
+        setError(null); // Clear any old warnings
+      } else if (data.action === "DISPLAY_LOCKED_WARNING") {
+        // Backend denied access - Display the Spring Boot message!
+        setError(data.message); 
+      }
+    } catch (err) {
+      setError("Network error: Could not verify domain access with the server.", err);
+    }
   };
 
   const onCleared = async () => {

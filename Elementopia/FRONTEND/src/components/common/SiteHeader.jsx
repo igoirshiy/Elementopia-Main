@@ -8,7 +8,6 @@ export function SiteHeader({ view, setView }) {
   const isMainPage = pathname === "/student-home-page" || pathname === "/student/elementopia";
   const isDashboardActive = isMainPage && (view === "home" || !view); 
   const isMasteryActive = isMainPage && view === "dashboard";
-  const isChemSimActive = pathname === "/student/Chem-Simulation";
   const isDiscoveryActive = pathname === "/student/discovery";
   const isChallengeActive = pathname.startsWith("/challenge");
 

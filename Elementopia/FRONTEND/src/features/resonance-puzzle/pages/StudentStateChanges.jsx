@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from '@/components/common/NavBar';
 import Sidebar from '@/components/common/Sidebar';
 import '@/assets/styles/legacy/StudentStateChanges.css';
@@ -475,15 +475,18 @@ const StateChangesChallenge = () => {
       "Explore mode: Change temperature and pressure to see different states of matter!"
     );
     setTimeout(() => setFeedback(""), 3000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Animation loop for particles
   useEffect(() => {
-    if (particles.length === 0) return;
-
+    // We only want to set this interval up ONCE when the component mounts.
     const interval = setInterval(() => {
-      setParticles((prevParticles) =>
-        prevParticles.map((p) => {
+      setParticles((prevParticles) => {
+        // If there are no particles, just return empty array
+        if (prevParticles.length === 0) return prevParticles;
+        
+        return prevParticles.map((p) => {
           // Update position
           let newX = p.x + p.speedX;
           let newY = p.y + p.speedY;
@@ -499,17 +502,13 @@ const StateChangesChallenge = () => {
             newY = p.y + p.speedY;
           }
 
-          return {
-            ...p,
-            x: newX,
-            y: newY,
-          };
-        })
-      );
+          return { ...p, x: newX, y: newY };
+        });
+      });
     }, 50);
 
     return () => clearInterval(interval);
-  }, [particles]);
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>

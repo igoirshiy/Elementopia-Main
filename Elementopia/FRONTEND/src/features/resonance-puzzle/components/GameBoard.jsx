@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ELEMENTS, matchCompound, explainFailure, shuffle, liveCommentary } from "@/features/resonance-puzzle/lib/game-data";
+import { ELEMENTS, shuffle, liveCommentary } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -29,8 +29,6 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)), 250);
     return () => clearInterval(t);
   }, []);
-
-  const failTimestamps = useRef([]);
   const cleared = solved.length * BLOCKS_PER_REACTION;
 
   const addElement = (s) => {
@@ -90,7 +88,7 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
       const data = await response.json();
 
       switch (data.action) {
-        case "UNLOCK_PATH":
+        case "UNLOCK_PATH": {
           const newSolved = [...solved, elementList.join("-")];
           const newCorrect = correct + 1;
           
@@ -104,25 +102,28 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           setTimeout(() => setGlow(false), 900);
           setTimeout(() => setJustCleared(0), 1400);
 
-          failTimestamps.current = [];
           if (hazmat) setHazmat(false);
-
           const done = newSolved.length >= requiredOrder.length;
           persist({ attempts: newAttempts, correct: newCorrect, completed: done });
           if (done) setTimeout(() => onCleared(), 1500);
-          
           break;
-
+        }
+        
         case "TRIGGER_DIAGNOSTIC":
+          // The standard diagnostic (less than 5 failures)
           setByproduct(data.message); 
           setShake(true);
           setTimeout(() => setShake(false), 500);
+          
+          persist({ attempts: newAttempts });
+          break;
 
-          const now = Date.now();
-          failTimestamps.current.push(now);
-          failTimestamps.current = failTimestamps.current.filter(t => now - t < 15000);
-
-          if (!hazmat && failTimestamps.current.length >= 5) {
+        case "LOCK_POINTER_INTERACTIONS":
+          setByproduct(data.message); 
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+          
+          if (!hazmat) {
             setHazmat(true);
             const newHazmat = hazmatCount + 1;
             setHazmatCount(newHazmat);
@@ -135,7 +136,7 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
         default:
           console.warn("Unknown network routing action:", data.action);
       }
-    } catch (err) {
+    } catch {
       onError("Resonance communication link failure. Check backend server.");
     }
   };

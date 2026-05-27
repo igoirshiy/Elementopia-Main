@@ -28,7 +28,7 @@ const StudentCardMinigame = () => {
   const [open, setOpen] = useState(false);
   const [lives, setLives] = useState(3);
   const [gameOver, setGameOver] = useState(false);
-  const [achievements, setAchievements] = useState([]); // for future use
+
 
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);

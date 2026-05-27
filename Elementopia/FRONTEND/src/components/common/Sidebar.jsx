@@ -16,7 +16,6 @@ import { Link, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import home from '@/assets/images/home.png';
-import career from '@/assets/images/career.png';
 import discovery from '@/assets/images/discovery.png';
 import chemSimulation from '@/assets/images/chemSimulation.png'
 

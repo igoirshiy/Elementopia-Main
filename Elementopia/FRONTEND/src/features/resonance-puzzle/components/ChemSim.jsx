@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Stage, Layer, Circle, Text, Line } from "react-konva";
 import {
     Box,
@@ -90,7 +90,7 @@ const ChemSim = () => {
 
     useEffect(() => {
         checkMolecule();
-    }, [atoms]);
+    }, [checkMolecule]);
 
     const fetchDefinition = async (word) => {
         if (definitionCache[word]) return definitionCache[word];
@@ -116,7 +116,7 @@ const ChemSim = () => {
         }
     };
 
-    const checkMolecule = async () => {
+    const checkMolecule = useCallback(async () => {
         const currentElements = atoms.map((atom) => atom.element);
         const foundCompound = compoundElements.find((compound) => {
             const compoundElementsSorted = [...compound.Elements].sort();
@@ -155,7 +155,7 @@ const ChemSim = () => {
             setMoleculeOutput("No known molecule formed.");
             setDiscoveredCompoundInfo(null);
         }
-    };
+    }, [atoms]);
 
     const saveDiscovery = async (compound) => {
         const user = await UserService.getCurrentUser();

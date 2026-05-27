@@ -1,43 +1,43 @@
-package com.elementopia.backend.features.diagnostic_feedback;
+package com.elementopia.backend.features.domain_interaction;
 
 import org.springframework.stereotype.Service;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class FeedbackLibraryService {
 
-    private final FailedAttemptLogRepository attemptLogRepository;
-
-    public FeedbackLibraryService(FailedAttemptLogRepository attemptLogRepository) {
-        this.attemptLogRepository = attemptLogRepository;
-    }
-
-    public String analyzeAndLogFailure(String nicknameWithTag, List<String> submittedElements) {
-        // 1. Format the submission into a readable string (e.g., "H, O, O")
-        String submissionString = String.join(" + ", submittedElements);
-
-        // 2. Query diagnostic syntax (Mocked here, but would query your FEEDBACK_LIBRARY table)
-        String diagnosticMessage = queryDiagnosticSyntax(submissionString);
-        String messageId = "MSG-" + Math.abs(submissionString.hashCode()); // Simulated ID
-
-        // 3. Log the failed attempt to the database (Supabase)
-        FailedAttemptLog logEntry = new FailedAttemptLog(nicknameWithTag, submissionString, messageId);
-        attemptLogRepository.save(logEntry);
-
-        // 4. Return the educational lesson
-        return diagnosticMessage;
-    }
-
-    private String queryDiagnosticSyntax(String submissionString) {
-        // In a full DB implementation, this runs a SELECT on the FEEDBACK_LIBRARY table.
-        // For now, we use a curriculum-based switch statement.
-        if (submissionString.contains("He") || submissionString.contains("Ne")) {
-            return "Noble gases like Helium (He) are inert and rarely form compounds. Try combining halogens or alkali metals instead!";
-        } else if (submissionString.contains("Na") && submissionString.contains("H2O")) {
-            return "Warning: Sodium (Na) reacts explosively with water! This creates Sodium Hydroxide and Hydrogen gas.";
+    public String generateDiagnosticFeedback(List<String> elements) {
+        if (elements == null || elements.isEmpty()) {
+            return "Your workbench is empty. Add elements to begin synthesis.";
         }
 
-        // Fallback Principle as defined in the SDD
-        return "These elements do not share compatible valence electrons. Review their groups on the periodic table.";
+        // Sort to ensure predictable string matching regardless of drop order
+        Collections.sort(elements);
+        String formula = String.join("", elements);
+
+        // Targeted Micro-lessons for common Grade 8 chemistry mistakes
+        if (formula.equals("HO") || formula.equals("OH")) {
+            return "Hydrogen and Oxygen need a 2:1 ratio to form Water. Hydrogen only has 1 valence electron to share, but Oxygen needs 2 to complete its shell!";
+        }
+
+        if (formula.equals("OO") || formula.equals("O2")) {
+            return "O2 is Oxygen gas, a valid molecule! However, this domain requires compounds (molecules made of at least two DIFFERENT elements).";
+        }
+
+        if (formula.contains("C") && formula.contains("H") && elements.size() < 5) {
+            return "Carbon needs 4 bonds to be stable. To make Methane, you need one Carbon to bond with four individual Hydrogens.";
+        }
+
+        if (formula.equals("ClNa")) {
+            return "You have the right elements for Salt! But remember standard notation: the metal (Na) always comes before the non-metal (Cl). Try NaCl.";
+        }
+
+        if (elements.size() == 1) {
+            return "A compound requires at least two elements to form a bond. You only placed one.";
+        }
+
+        // Fallback for completely random guesses
+        return "Unstable reaction. Review the valence electrons of your chosen elements to find a stable bonding ratio.";
     }
 }

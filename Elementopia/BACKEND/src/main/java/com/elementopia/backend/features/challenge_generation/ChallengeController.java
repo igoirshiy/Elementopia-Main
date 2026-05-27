@@ -4,10 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/features/challenges")
+@CrossOrigin(origins = "*")
 public class ChallengeController {
 
     private final ChallengeRandomizerService randomizerService;
@@ -18,20 +18,16 @@ public class ChallengeController {
 
     @GetMapping("/random-set")
     public ResponseEntity<?> getRandomChallengeSet(
-            @RequestParam String sessionId,
+            @RequestParam String sessionId, // This is now safely the Nickname String
             @RequestParam int domainId) {
 
-        UUID sessionUuid;
-        try {
-            sessionUuid = UUID.fromString(sessionId);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Malformed session token identifier.");
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid session identifier."));
         }
 
-        // Generate the randomized selection structure
-        List<Challenge> challengeSet = randomizerService.selectChallengesForSession(sessionUuid, domainId);
+        // Generate the randomized selection structure cross-referenced with User entities
+        List<Challenge> challengeSet = randomizerService.selectChallengesForSession(sessionId, domainId);
 
-        // Return a structural metrics wrapper payload optimized for client-side state caching
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "domainId", domainId,

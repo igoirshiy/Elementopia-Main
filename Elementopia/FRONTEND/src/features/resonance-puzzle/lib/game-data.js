@@ -132,7 +132,7 @@ export function liveCommentary(workbench) {
   return `${parts} — ${detail}. Check the ratio: every electron offered should find a home.`;
 }
 
-export function explainFailure(workbench, domain) {
+export function explainFailure(workbench) {
   const entries = Object.entries(workbench).filter(([, n]) => (n ?? 0) > 0);
   if (entries.length === 0) return "Empty workbench. Add at least two elements before synthesizing.";
 

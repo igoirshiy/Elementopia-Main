@@ -1,40 +1,55 @@
 package com.elementopia.backend.features.challenge_generation;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.elementopia.backend.features.user.User;
+import com.elementopia.backend.features.user.UserRepository;
+import com.elementopia.backend.features.user.UserDiscovery;
+import com.elementopia.backend.features.user.UserDiscoveryRepository;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ChallengeRandomizerService {
 
     private final ChallengeRepository challengeRepository;
-    private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
+    private final UserDiscoveryRepository discoveryRepository;
 
-    public ChallengeRandomizerService(ChallengeRepository challengeRepository, JdbcTemplate jdbcTemplate) {
+    public ChallengeRandomizerService(ChallengeRepository challengeRepository,
+                                      UserRepository userRepository,
+                                      UserDiscoveryRepository discoveryRepository) {
         this.challengeRepository = challengeRepository;
-        this.jdbcTemplate = jdbcTemplate;
+        this.userRepository = userRepository;
+        this.discoveryRepository = discoveryRepository;
     }
 
-    public List<Challenge> selectChallengesForSession(UUID sessionId, int domainId) {
-        // 1. Fetch historical completed milestones from the active session logs to clear duplicate paths
-        String sql = "SELECT submission_string FROM FAILED_ATTEMPT_LOG WHERE is_correct = true";
-        // Note: Real deployment would filter WHERE session_id = ? based on state trackers
+    public List<Challenge> selectChallengesForSession(String sessionNickname, int domainId) {
+        // 1. Fetch historical completed milestones directly from the student's User profile
+        List<String> completedCompoundNames = Collections.emptyList();
 
-        List<String> completedFormulas = jdbcTemplate.queryForList(sql, String.class);
+        Optional<User> userOpt = userRepository.findByUsername(sessionNickname);
+        if (userOpt.isPresent()) {
+            String userId = userOpt.get().getUserId();
+            // Pull all discoveries tied to this specific user UUID
+            List<UserDiscovery> discoveries = discoveryRepository.findByUserId(userId);
+            completedCompoundNames = discoveries.stream()
+                    .map(UserDiscovery::getName)
+                    .collect(Collectors.toList());
+        }
 
         // 2. Fetch the standard pool strictly targeted to high school/Grade 8 constraints
         List<Challenge> candidatePool = challengeRepository.findByDomainAndGrade(domainId, "Grade 8");
 
-        // 3. Filter out rows that matches previously cleared milestones in this current session block
+        // 3. Filter out rows that match previously cleared milestones (Sandbox Discoveries)
+        List<String> finalCompleted = completedCompoundNames; // Required for lambda scope
         List<Challenge> filteredPool = candidatePool.stream()
-                .filter(c -> !completedFormulas.contains(c.getCompoundFormula()))
+                .filter(c -> !finalCompleted.contains(c.getCompoundName()))
                 .collect(Collectors.toList());
 
         // Fallback: If everything has been solved, reset the pool to avoid breaking game flow
-        if (filteredPool.isEmpty()) {
+        if (filteredPool.size() < 3) {
             filteredPool = candidatePool;
         }
 
