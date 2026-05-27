@@ -88,10 +88,6 @@ const ChemSim = () => {
         }
     }, [selectedElement]);
 
-    useEffect(() => {
-        checkMolecule();
-    }, [checkMolecule]);
-
     const fetchDefinition = async (word) => {
         if (definitionCache[word]) return definitionCache[word];
 
@@ -156,6 +152,10 @@ const ChemSim = () => {
             setDiscoveredCompoundInfo(null);
         }
     }, [atoms]);
+
+    useEffect(() => {
+        checkMolecule();
+    }, [checkMolecule]);
 
     const saveDiscovery = async (compound) => {
         const user = await UserService.getCurrentUser();

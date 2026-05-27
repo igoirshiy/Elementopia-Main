@@ -5,7 +5,7 @@ import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService from "@/features/auth-user";
 import { StoryCard } from "@/features/resonance-puzzle/components/StoryCard";
-import { GameBoard } from "@/features/resonance-puzzle";
+import { GameBoard } from "../components/GameBoard";
 import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 export default function ElementopiaGame() {

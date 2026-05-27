@@ -6,16 +6,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.elementopia.backend.features.match_consolidation.ProficiencyRepository;
+import com.elementopia.backend.features.match_consolidation.StudentProficiencyEntity;
 
 @RestController
 @RequestMapping("/api/progress")
 public class UserProgressController {
 
     private final UserProgressRepository progressRepository;
+    private final ProficiencyRepository proficiencyRepository;
     private final ObjectMapper objectMapper;
 
-    public UserProgressController(UserProgressRepository progressRepository, ObjectMapper objectMapper) {
+    public UserProgressController(UserProgressRepository progressRepository, ProficiencyRepository proficiencyRepository, ObjectMapper objectMapper) {
         this.progressRepository = progressRepository;
+        this.proficiencyRepository = proficiencyRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -26,20 +30,29 @@ public class UserProgressController {
         }
 
         Optional<UserProgress> progressOpt = progressRepository.findByNickname(nickname);
+        Optional<StudentProficiencyEntity> profOpt = proficiencyRepository.findById(nickname);
+        
         if (progressOpt.isPresent()) {
             UserProgress p = progressOpt.get();
-            return ResponseEntity.ok(mapToResponse(p));
+            Map<String, Object> response = mapToResponse(p);
+            
+            if (profOpt.isPresent()) {
+                response.put("rating", profOpt.get().getEloRating());
+                response.put("wins", profOpt.get().getWins());
+                response.put("losses", profOpt.get().getLosses());
+            }
+            return ResponseEntity.ok(response);
         }
 
         // Return a default mock profile if they don't exist yet, keeping it friction-free!
-        Map<String, Object> defaultProfile = Map.of(
-            "nickname", nickname,
-            "rating", 1200,
-            "wins", 0,
-            "losses", 0,
-            "clearedDomains", List.of(),
-            "sessions", List.of()
-        );
+        Map<String, Object> defaultProfile = new HashMap<>();
+        defaultProfile.put("nickname", nickname);
+        defaultProfile.put("rating", profOpt.isPresent() ? profOpt.get().getEloRating() : 1200);
+        defaultProfile.put("wins", profOpt.isPresent() ? profOpt.get().getWins() : 0);
+        defaultProfile.put("losses", profOpt.isPresent() ? profOpt.get().getLosses() : 0);
+        defaultProfile.put("clearedDomains", List.of());
+        defaultProfile.put("sessions", List.of());
+        
         return ResponseEntity.ok(defaultProfile);
     }
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { SiteHeader } from '@/components/common/SiteHeader';
-import { ChemSim } from '@/features/resonance-puzzle';
+import ChemSim from '../components/ChemSim';
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
