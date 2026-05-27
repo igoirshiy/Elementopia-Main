@@ -8,6 +8,7 @@ import {
     CircularProgress,
     Modal,
 } from "@mui/material";
+import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ElementTable from "./ElementTable";
 import compoundElements from "../data/compound-elements.json";
@@ -356,37 +357,75 @@ const ChemSim = () => {
                 </div>
             </div>
 
-            {/* Discovery Modal */}
+            {/* Premium Discovery Modal */}
             <Modal
                 open={showDiscoveryModal}
                 onClose={() => setShowDiscoveryModal(false)}
             >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] bg-background border border-magenta/40 rounded-3xl p-8 shadow-[0_0_50px_rgba(236,72,153,0.2)] text-center">
-                    <h2 className="font-display text-3xl font-bold text-white mb-6" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
-                        🌟 Compound Discovered!
-                    </h2>
-                    {discoveredCompoundInfo && (
-                        <div className="mb-8">
-                            <p className="text-muted-foreground text-lg mb-2">
-                                You discovered:{" "}
-                                <strong className="text-magenta font-display text-2xl tracking-wide">
-                                    {discoveredCompoundInfo.name}
-                                </strong>
-                            </p>
-                            <p className="text-sm text-muted-foreground/80 mb-2 leading-relaxed">
-                                {discoveredCompoundInfo.description}
-                            </p>
-                            <p className="text-xs font-mono text-cyan uppercase tracking-wider mt-4">
-                                Uses: {discoveredCompoundInfo.uses}
-                            </p>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[95vw] outline-none">
+                    {/* Glowing Backdrop Element */}
+                    <div className="absolute -inset-4 bg-gradient-to-tr from-magenta/30 to-cyan/30 rounded-[2.5rem] blur-2xl opacity-60 animate-pulse pointer-events-none" />
+                    
+                    {/* Main Glass Card */}
+                    <div className="relative bg-[#0d0f1a]/85 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 sm:p-10 text-center shadow-2xl overflow-hidden">
+                        
+                        {/* Decorative Top Highlight */}
+                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan via-magenta to-cyan opacity-80" />
+
+                        <div className="flex justify-center mb-6">
+                            <div className="p-4 rounded-full bg-magenta/10 border border-magenta/20 shadow-[0_0_30px_rgba(236,72,153,0.4)]">
+                                <Sparkles className="w-10 h-10 text-magenta" strokeWidth={1.5} />
+                            </div>
                         </div>
-                    )}
-                    <button
-                        onClick={handleGoToDiscovery}
-                        className="px-6 py-3 rounded-xl bg-gradient-magenta text-white font-bold uppercase tracking-wider text-sm transition hover:scale-105 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
-                    >
-                        Go to Discoveries
-                    </button>
+
+                        <h2 className="font-display text-4xl font-extrabold text-white mb-2 tracking-tight">
+                            Synthesized!
+                        </h2>
+                        
+                        {discoveredCompoundInfo && (
+                            <div className="mt-6 mb-8 space-y-4">
+                                <div>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] mb-1 font-mono">
+                                        Compound Verified
+                                    </p>
+                                    <h3 className="text-3xl font-bold bg-gradient-to-r from-magenta to-cyan bg-clip-text text-transparent pb-1">
+                                        {discoveredCompoundInfo.name}
+                                    </h3>
+                                </div>
+
+                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left backdrop-blur-sm mt-4">
+                                    <p className="text-[14px] text-white/90 leading-relaxed">
+                                        {discoveredCompoundInfo.description}
+                                    </p>
+                                </div>
+
+                                <div className="bg-cyan/5 border border-cyan/20 rounded-2xl p-5 text-left">
+                                    <h4 className="text-[11px] font-mono text-cyan uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse" />
+                                        Primary Applications
+                                    </h4>
+                                    <p className="text-[13px] text-cyan/90 leading-relaxed font-medium">
+                                        {discoveredCompoundInfo.uses}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex gap-4 justify-center mt-2">
+                            <button
+                                onClick={() => setShowDiscoveryModal(false)}
+                                className="px-6 py-3.5 rounded-xl border border-white/20 bg-white/5 text-white font-bold uppercase tracking-wider text-[11px] transition hover:bg-white/10"
+                            >
+                                Continue
+                            </button>
+                            <button
+                                onClick={handleGoToDiscovery}
+                                className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-magenta to-violet-600 text-white font-bold uppercase tracking-wider text-[11px] transition hover:scale-105 hover:shadow-[0_0_25px_rgba(236,72,153,0.5)]"
+                            >
+                                Log to Database
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </Modal>
         </div>
