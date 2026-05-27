@@ -4,12 +4,9 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 export function SiteHeader({ view, setView }) {
   const navigate = useNavigate();
   const location = useLocation();
-
   const pathname = location.pathname;
-  
-  // If we are on the main game page, check the `view` state. Otherwise, check the path.
   const isMainPage = pathname === "/student-home-page" || pathname === "/student/elementopia";
-  const isDashboardActive = isMainPage && (view === "home" || !view); // Fallback to home if view is missing on main page
+  const isDashboardActive = isMainPage && (view === "home" || !view); 
   const isMasteryActive = isMainPage && view === "dashboard";
   const isChemSimActive = pathname === "/student/Chem-Simulation";
   const isDiscoveryActive = pathname === "/student/discovery";
@@ -22,16 +19,16 @@ export function SiteHeader({ view, setView }) {
 
   const handleMasteryClick = () => {
     if (setView) setView("dashboard");
-    else navigate("/student-home-page"); // Or whatever route opens mastery directly if we set that up
+    else navigate("/student-home-page"); 
   };
 
   return (
     <header className="border-b border-border/60 backdrop-blur-md bg-background/60 sticky top-0 z-50">
       <div className="mx-auto max-w-[1600px] w-full px-6 py-4 flex items-center justify-between">
-        <button onClick={handleDashboardClick} className="font-mono text-base sm:text-lg text-magenta tracking-wider font-bold uppercase">
+        <h1 className="font-mono text-base sm:text-lg text-magenta tracking-wider font-bold uppercase">
           ELEMENTOPIA
-        </button>
-        <nav className="flex items-center gap-2 sm:gap-4 text-sm font-mono uppercase tracking-wider">
+        </h1>
+        <nav className="flex items-center gap-2 sm:gap-4 text-sm font-mono tracking-wider">
           <button 
             onClick={handleDashboardClick}
             className={`transition ${isDashboardActive ? "text-white font-bold" : "text-muted-foreground hover:text-white"}`}
