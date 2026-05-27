@@ -6,6 +6,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/features/match-consolidation")
+@CrossOrigin(origins = "*")
 public class MatchConsolidationController {
 
     private final ProficiencyRecalculationService recalculationService;

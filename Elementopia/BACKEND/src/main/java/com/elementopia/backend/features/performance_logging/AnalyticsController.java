@@ -6,6 +6,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/features/analytics")
+@CrossOrigin(origins = "*")
 public class AnalyticsController {
 
     private final TelemetryLoggingService telemetryLoggingService;

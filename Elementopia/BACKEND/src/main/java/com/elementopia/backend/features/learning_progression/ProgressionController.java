@@ -6,6 +6,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/features/progression")
+@CrossOrigin(origins = "*")
 public class ProgressionController {
 
     private final ProgressionValidationService validationService;

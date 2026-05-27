@@ -387,6 +387,22 @@ function Result({ room, players, me, isHost }) {
   const teamA = players.filter((p) => p.team === "A");
   const teamB = players.filter((p) => p.team === "B");
 
+  useEffect(() => {
+    if (!me || !winning) return;
+    const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
+    const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
+    
+    fetch("http://localhost:8080/api/features/match-consolidation/record-result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionNickname: me.nickname,
+        matchResult,
+        reactionPathEfficiency: efficiency
+      })
+    }).catch(console.error);
+  }, [me, winning, draw, youWon]);
+
   return (
     <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14">
       {draw ? (
