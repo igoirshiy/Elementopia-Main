@@ -1,18 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Student Pages
-import LandingPage from '@/pages/public/LandingPage';
-import AboutUs from '@/pages/public/AboutUs';
-import StudentSandboxPage from '@/pages/student/StudentSandboxPage';
+// Feature Slices Pages
+import { LandingPage, AboutUs } from '@/features/public-marketing';
+import { ElementopiaGame, StudentSandboxPage, StudentElementMatcher, StudentStateChanges, StudentCardMinigame } from '@/features/resonance-puzzle';
+import { ChallengeLobby, ResonanceSetup, ChallengeMatch } from '@/features/multiplayer-challenge';
+import { StudentDiscoveryPage } from '@/features/student-discovery';
 
-import StudentElementMatcher from '@/pages/student/ElementMatcher';
-import StudentStateChanges from '@/pages/student/StudentStateChanges';
-import StudentCardMinigame from '@/pages/student/StudentCardMinigame';
-import StudentDiscoveryPage from '@/pages/student/StudentDiscoveryPage';
-import ElementopiaGame from '@/pages/student/ElementopiaGame';
-import ChallengeLobby from '@/pages/student/ChallengeLobby';
-import ResonanceSetup from '@/pages/student/ResonanceSetup';
-import ChallengeMatch from '@/pages/student/ChallengeMatch';
 
 export default function App() {
   return (

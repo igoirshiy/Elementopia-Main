@@ -9,16 +9,12 @@ export default function Navigation() {
     <div className="landingpage-container">
       <nav className="nav-bar">
 
-        {/* Left Side - Logo */}
         <a className="logo" href="/">
           ELEMENTOPIA
         </a>
 
         <div className="nav-links">
         </div>
-
-        {/* Removed auth-links */}
-        
       </nav>
     </div>
   );

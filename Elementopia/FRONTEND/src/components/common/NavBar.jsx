@@ -9,12 +9,12 @@ import {
   Avatar,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useNavigate } from "react-router-dom"; // ✨ Added for navigation
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ open }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
-  const navigate = useNavigate(); // ✨ For redirecting
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,7 +40,6 @@ const Navbar = ({ open }) => {
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* App Name */}
         <Typography
           variant="h6"
           noWrap
