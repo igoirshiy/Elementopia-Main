@@ -1,4 +1,5 @@
 // Persistent per-device and cloud-synchronized progression service
+import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 const KEY = "elementopia.progress.v1";
 const BASE_URL = "http://localhost:8080/api/progress";
 
@@ -146,4 +147,33 @@ export async function upsertProgress(row) {
   }
   
   saveProgress(p);
+
+  if (row.completed) {
+    try {
+      fetch("http://localhost:8080/api/features/analytics/session/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionNickname: p.nickname,
+          domainId: row.domain,
+          completionSpeedSeconds: row.time_seconds || 0,
+          compoundAccuracyPercentage: row.attempts ? (row.correct / row.attempts) * 100 : 0
+        })
+      }).catch(e => console.warn("Telemetry log failed:", e));
+
+      const roomId = DOMAINS.findIndex(d => d.id === row.domain) + 1;
+      fetch("http://localhost:8080/api/features/progression/log-reaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionNickname: p.nickname,
+          roomId: roomId,
+          correctReactionCount: row.correct || 3
+        })
+      }).catch(e => console.warn("Progression log failed:", e));
+
+    } catch (e) {
+      console.warn("Telemetry/Progression sync failed", e);
+    }
+  }
 }

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ELEMENTS, shuffle, liveCommentary } from "@/features/resonance-puzzle/lib/game-data";
+import { ELEMENTS, shuffle, liveCommentary, matchCompound } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
+import DiscoveryService from "@/features/student-discovery/services/DiscoveryService";
+import UserService from "@/features/auth-user";
 import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw } from "lucide-react";
 
 const BLOCKS_PER_REACTION = 8;
@@ -95,6 +97,27 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           setSolved(newSolved);
           setCorrect(newCorrect);
           setSynthLog(l => [`✓ Resonance Achieved: ${elementList.join(" + ")}`, ...l].slice(0, 12));
+
+          const matchedCompound = matchCompound(workbench, domain);
+          if (matchedCompound) {
+            // The first compound in the required array is the "primary" goal (e.g., Water for Domain 1).
+            // We only want to save the "secret" alternative compounds as discoveries.
+            const isPrimary = matchedCompound.formula === domain.required[0].formula;
+            
+            if (!isPrimary) {
+              UserService.getCurrentUser().then(user => {
+                if (user && user.userId) {
+                  const discoveryData = {
+                    name: matchedCompound.name,
+                    dateDiscovered: new Date().toISOString(),
+                    submissionString: elementList.join(" + ")
+                  };
+                  DiscoveryService.createDiscovery(user.userId, discoveryData).catch(e => console.warn("Discovery save failed:", e));
+                }
+              }).catch(e => console.warn("Failed to get user:", e));
+            }
+          }
+
           setWorkbench({});
           setByproduct(null);
           setGlow(true);

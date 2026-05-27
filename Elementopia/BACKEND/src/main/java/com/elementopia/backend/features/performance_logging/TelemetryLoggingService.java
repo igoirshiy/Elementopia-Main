@@ -19,6 +19,8 @@ public class TelemetryLoggingService {
         long startTime = System.currentTimeMillis();
 
         String nickname = (String) payloadDTO.get("sessionNickname");
+        String domainId = (String) payloadDTO.get("domainId");
+        if (domainId == null) domainId = "unknown";
         double speed = ((Number) payloadDTO.get("completionSpeedSeconds")).doubleValue();
         double accuracy = ((Number) payloadDTO.get("compoundAccuracyPercentage")).doubleValue();
 
@@ -26,7 +28,7 @@ public class TelemetryLoggingService {
         double efficiency = computeReactionEfficiency(speed, accuracy);
 
         // Build our entity representation map matching persistent database schema rules
-        SessionPerformance entity = new SessionPerformance(nickname, speed, accuracy, efficiency);
+        SessionPerformance entity = new SessionPerformance(nickname, domainId, speed, accuracy, efficiency);
 
         // Orchestrate persistent Supabase write execution paths
         repository.save(entity);

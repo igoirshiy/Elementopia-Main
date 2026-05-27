@@ -21,6 +21,10 @@ public class SessionPerformance {
     private String sessionNickname;
 
     @Setter
+    @Column(name = "domain_id", length = 50, nullable = false)
+    private String domainId;
+
+    @Setter
     @Column(name = "completion_speed_seconds", nullable = false)
     private double completionSpeedSeconds;
 
@@ -39,10 +43,11 @@ public class SessionPerformance {
         this.loggedAt = Instant.now();
     }
 
-    public SessionPerformance(String sessionNickname, double completionSpeedSeconds,
+    public SessionPerformance(String sessionNickname, String domainId, double completionSpeedSeconds,
                                     double compoundAccuracyPercentage, double reactionPathEfficiency) {
         this();
         this.sessionNickname = sessionNickname;
+        this.domainId = domainId;
         this.completionSpeedSeconds = completionSpeedSeconds;
         this.compoundAccuracyPercentage = compoundAccuracyPercentage;
         this.reactionPathEfficiency = reactionPathEfficiency;

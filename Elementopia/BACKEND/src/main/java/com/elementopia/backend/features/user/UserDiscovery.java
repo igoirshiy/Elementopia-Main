@@ -24,14 +24,18 @@ public class UserDiscovery {
     @Column(name = "date_discovered", length = 50, nullable = false)
     private String dateDiscovered;
 
+    @Column(name = "submission_string", length = 200, nullable = true)
+    private String submissionString;
+
     public UserDiscovery() {
         this.id = UUID.randomUUID().toString();
     }
 
-    public UserDiscovery(String userId, String name, String dateDiscovered) {
+    public UserDiscovery(String userId, String name, String dateDiscovered, String submissionString) {
         this();
         this.userId = userId;
         this.name = name;
         this.dateDiscovered = dateDiscovered;
+        this.submissionString = submissionString;
     }
 }

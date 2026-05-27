@@ -1,27 +1,39 @@
 # Capstone-Elementopia
-Capstone Project
+Capstone Project: 2526-sem2-it332-53
+
 # 1. Introduction
-Elementopia is a standalone web application, developed using React.js for the frontend and SpringBoot for the backend, with MySQL as the database. It will be hosted on a cloud-based infrastructure, allowing high availability and scalability. The platform offers a unique blend of education and entertainment by integrating game mechanics into the learning process.
+Elementopia is an interactive, web-based gamified learning platform that transforms complex chemistry concepts into engaging adventures for high school students. It is developed using React.js for the frontend, SpringBoot for the backend, and Supabase (PostgreSQL) for persistent session data storage and real-time synchronization.
+
 # 1.1 Purpose
-The purpose of this Software Requirements Specification (SRS) document is to provide a detailed description of the "Elementopia" gamified learning platform for chemistry. It outlines the system's functional and non-functional requirements, design constraints, and provides an overview of the project for stakeholders, developers, and testers.
+The purpose of this project is to address the limitations of existing quiz-based chemistry platforms by extending the original Elementopia system. It introduces three new modules:
+1. **Elemental Resonance Puzzle Module:** Environmental puzzle rooms where students synthesize compounds to clear obstacles.
+2. **Assessment and Progress Module:** Automated session performance logging and a visual Mastery Dashboard for self-directed knowledge gap identification.
+3. **Opponent-Based Challenge Module:** Real-time peer-to-peer matchmaking and Speed-to-Compound evaluation.
+
 # 1.2 Scope
-Elementopia is an interactive, gamified platform designed to enhance high school students' learning experience in chemistry. The platform allows students to combine elements to form compounds, visualize reactions, and complete chemistry-related challenges through game mechanics like rewards and progression levels. It aims to increase engagement and retention of chemistry concepts among students and provide teachers with a tool to monitor student progress.
+The platform targets high school students who struggle with traditional text-heavy chemistry instruction. The functional scope is strictly bounded to the three modules mentioned above, designed to develop applied chemistry knowledge and algorithmic thinking through interactive visual problem-solving. The platform maintains mobile responsiveness and does not require user registration (bypassing traditional authentication via temporary session nicknames).
+
 # 1.3 Definitions, Acronyms and Abbreviations
 -  SRS: Software Requirements Specification
 -  UI/UX: User Interface/User Experience
--  MySQL: Relational Database Management System
+-  PostgreSQL: Relational Database Management System (via Supabase)
 -  Agile: A software development methodology
--  KPIs: Key Performance Indicator
+-  KPIs: Key Performance Indicators
 
-# Developers
+# Current Developers (Extension Team)
+- Ocampo, Danielle Maxine P.
+- Benolirao, Clyde C.
+- Ceniza, Jian Marc
+- Dabalos, Erica Y.
+- Dibdib, Wayne Kenji B.
+
+# Original Developers
 - Rey Mar Segalle
 - Mark Edwin Huyo-a
 - Jericho Sam Dollano
 - Miguel Antonio Dakay
 - Abram John Hortezano
-
-# Contributors
-- Kent Bausin
+- Kent Bausin (Contributor)
 
 # How to Run Locally (For the Team)
 

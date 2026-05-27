@@ -22,12 +22,13 @@ public class MasteryAggregationService {
         long startTime = System.currentTimeMillis();
 
         // Standard SQL Aggregation: Averages out the raw rows logged by Module 2.1
-        // (Assuming a JOIN or grouping by domain category for the scatter plot)
-        String sql = "SELECT 'Foundational Elements' AS domain_name, " +
+        // Groups by domain_id to provide correct scatter plot metrics for each domain
+        String sql = "SELECT domain_id AS domain_name, " +
                 "AVG(compound_accuracy_percentage) AS avg_acc, " +
                 "AVG(completion_speed_seconds) AS avg_speed " +
                 "FROM SESSION_PERFORMANCE " +
                 "WHERE session_nickname = ? " +
+                "GROUP BY domain_id " +
                 "HAVING COUNT(*) > 0"; // Prevents division by zero on empty sets
 
         List<DomainMasteryDTO> masteryList = jdbcTemplate.query(sql, (rs, rowNum) -> {

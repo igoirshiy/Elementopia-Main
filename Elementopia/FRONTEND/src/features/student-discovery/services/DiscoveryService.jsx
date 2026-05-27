@@ -65,7 +65,8 @@ const DiscoveryService = {
         body: JSON.stringify({
           userId: userId,
           name: discoveryData.name,
-          dateDiscovered: discoveryData.dateDiscovered || new Date().toLocaleDateString()
+          dateDiscovered: discoveryData.dateDiscovered || new Date().toLocaleDateString(),
+          submissionString: discoveryData.submissionString
         })
       });
       if (response.ok) {

@@ -27,6 +27,7 @@ public class UserDiscoveryController {
         String userId = payload.get("userId");
         String name = payload.get("name");
         String dateDiscovered = payload.get("dateDiscovered");
+        String submissionString = payload.get("submissionString");
 
         if (userId == null || name == null || dateDiscovered == null) {
             return ResponseEntity.badRequest().body("userId, name, and dateDiscovered are required.");
@@ -40,7 +41,7 @@ public class UserDiscoveryController {
             return ResponseEntity.ok(Map.of("message", "Already discovered", "success", true));
         }
 
-        UserDiscovery discovery = new UserDiscovery(userId, name, dateDiscovered);
+        UserDiscovery discovery = new UserDiscovery(userId, name, dateDiscovered, submissionString);
         UserDiscovery saved = discoveryRepository.save(discovery);
         return ResponseEntity.ok(saved);
     }

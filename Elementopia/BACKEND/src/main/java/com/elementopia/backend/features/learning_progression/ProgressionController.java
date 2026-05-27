@@ -44,4 +44,15 @@ public class ProgressionController {
             ));
         }
     }
+
+    @PostMapping("/log-reaction")
+    public ResponseEntity<?> logReaction(@RequestBody Map<String, Object> payload) {
+        String nickname = (String) payload.get("sessionNickname");
+        int roomId = ((Number) payload.get("roomId")).intValue();
+        int correctReactionCount = ((Number) payload.get("correctReactionCount")).intValue();
+
+        validationService.logRoomCompletion(nickname, roomId, correctReactionCount);
+
+        return ResponseEntity.ok(Map.of("success", true, "message", "Progression logged successfully"));
+    }
 }

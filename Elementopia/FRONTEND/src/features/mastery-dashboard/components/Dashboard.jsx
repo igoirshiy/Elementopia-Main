@@ -1,7 +1,22 @@
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
-import { Trophy, AlertCircle, Clock } from "lucide-react";
+import { Trophy, AlertCircle, Clock, Cloud } from "lucide-react";
+import MasteryService from "../services/MasteryService";
+import { useEffect, useState } from "react";
 
 export function Dashboard({ nickname, rows }) {
+  const [cloudMetrics, setCloudMetrics] = useState(null);
+
+  useEffect(() => {
+    if (nickname) {
+      MasteryService.getPersonalProficiencyMap(nickname).then(data => {
+        if (data && data.success && data.metrics) {
+          const map = new Map(data.metrics.map(m => [m.domainName, m]));
+          setCloudMetrics(map);
+        }
+      });
+    }
+  }, [nickname]);
+
   const byDomain = new Map(rows.map(r => [r.domain, r]));
   const completedCount = rows.filter(r => r.completed).length;
   const totalAttempts = rows.reduce((a, r) => a + r.attempts, 0);
@@ -24,9 +39,23 @@ export function Dashboard({ nickname, rows }) {
       <div className="space-y-3">
         {DOMAINS.map(d => {
           const r = byDomain.get(d.id);
+          const cloud = cloudMetrics?.get(d.id);
           const attempts = r?.attempts ?? 0;
           const correct = r?.correct ?? 0;
-          const acc = attempts ? Math.round((correct / attempts) * 100) : null;
+          
+          let acc = null;
+          let time = null;
+          let isCloud = false;
+
+          // Prefer cloud telemetry data if available for this domain
+          if (cloud) {
+            acc = Math.round(cloud.accuracyPercentage);
+            time = cloud.speedSeconds;
+            isCloud = true;
+          } else if (attempts) {
+            acc = Math.round((correct / attempts) * 100);
+            time = r?.time_seconds ?? null;
+          }
           const lowAcc = acc !== null && acc < 60;
           return (
             <div key={d.id} className="rounded-2xl border border-border bg-card/70 p-4">
@@ -45,11 +74,12 @@ export function Dashboard({ nickname, rows }) {
                   )}
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
                 <Mini label="Accuracy" value={acc === null ? "—" : `${acc}%`} warn={lowAcc} />
                 <Mini label="Attempts" value={`${attempts}`} />
-                <Mini label="Time" value={r ? fmtTime(r.time_seconds) : "—"} />
+                <Mini label="Time" value={time !== null ? fmtTime(time) : "—"} />
                 <Mini label="Hazmat" value={`${r?.hazmat_activations ?? 0}×`} />
+                <Mini label="Data Source" value={isCloud ? <Cloud className="size-4 text-cyan inline" /> : "Local"} />
               </div>
             </div>
           );

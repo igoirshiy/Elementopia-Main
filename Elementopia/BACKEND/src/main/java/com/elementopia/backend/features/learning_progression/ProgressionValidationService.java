@@ -41,4 +41,18 @@ public class ProgressionValidationService {
             return false; // Fail secure: Lock room if database cannot be reached
         }
     }
+
+    public void logRoomCompletion(String nicknameWithTag, int roomId, int correctReactions) {
+        try {
+            RoomCompletionState state = new RoomCompletionState();
+            state.setSessionNickname(nicknameWithTag);
+            state.setRoomId(roomId);
+            state.setCorrectReactionCount(correctReactions);
+            state.setCompleted(correctReactions >= MIN_REACTIONS_REQUIRED);
+            repository.save(state);
+            logger.info("Progression logged for " + nicknameWithTag + " in room " + roomId);
+        } catch (Exception e) {
+            logger.warning("Failed to log room completion: " + e.getMessage());
+        }
+    }
 }
