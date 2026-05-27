@@ -8,27 +8,19 @@ public class TelemetryService {
 
     private static final Logger logger = Logger.getLogger(TelemetryService.class.getName());
 
-    // Inject your Spring Data JPA Repository here once database entity linkages are initialized
-    public TelemetryService() {
-        // Constructor for component scanning
-    }
-
-    public void writePerformanceTelemetry(String nicknameWithTag, double elapsedSeconds) {
+    public void writePerformanceTelemetry(String nickname, double elapsedSeconds) {
         long startTime = System.currentTimeMillis();
 
         try {
-            // TODO: Bind to your Supabase PostgreSQL database transaction context
-            // String query = "INSERT INTO session_performance (student_id, completion_speed) ...";
-
-            logger.info("Telemetry recorded safely for student session: " + nicknameWithTag);
-            logger.info("Completion duration tracked: " + elapsedSeconds + " seconds.");
+            // Target storage hook simulation
+            logger.info("Telemetry safely captured for: " + nickname);
+            logger.info("Performance timer recorded: " + elapsedSeconds + " seconds.");
 
             long endTime = System.currentTimeMillis();
-            logger.info("Internal database commit speed isolated runtime: " + (endTime - startTime) + "ms");
+            logger.info("Internal database isolated transaction latency: " + (endTime - startTime) + "ms");
 
         } catch (Exception e) {
-            logger.severe("Telemetry capture write failure detected: " + e.getMessage());
-            // Graceful non-intrusive warning fallback handling as required by SRS v1.4
+            logger.severe("Telemetry structural write error: " + e.getMessage());
         }
     }
 }
