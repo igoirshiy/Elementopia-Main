@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Modal } from "@mui/material";
+import compoundElements from "@/features/resonance-puzzle/data/compound-elements.json";
 import { getSessionId } from "@/features/auth-user/lib/session";
 import {
   bumpErrors,
@@ -22,6 +24,7 @@ export default function ChallengeMatch() {
   const [room, setRoom] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
 
   // Load + subscribe
   useEffect(() => {
@@ -72,14 +75,14 @@ export default function ChallengeMatch() {
   return (
     <div className="elementopia-scope min-h-screen bg-gradient-hero text-foreground">
       <Toaster theme="dark" position="top-center" />
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <button onClick={() => navigate("/challenge")} className="mb-6 flex items-center gap-2 text-xs text-white/50 hover:text-white transition">
-          <ArrowLeft className="h-3 w-3" /> EXIT
+      <div className="mx-auto max-w-5xl px-6 pt-20 pb-10">
+        <button onClick={() => navigate("/challenge")} className="mb-6 inline-block rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider">
+          Exit
         </button>
 
         {room.status === "lobby" && <Lobby room={room} players={players} me={me} isHost={isHost} />}
-        {(room.status === "countdown" || room.status === "active") && <Match room={room} players={players} me={me} />}
-        {room.status === "finished" && <Result room={room} players={players} me={me} isHost={isHost} />}
+        {(room.status === "countdown" || room.status === "active" || (room.status === "finished" && showDiscoveryModal)) && <Match room={room} players={players} me={me} showDiscoveryModal={showDiscoveryModal} setShowDiscoveryModal={setShowDiscoveryModal} />}
+        {room.status === "finished" && !showDiscoveryModal && <Result room={room} players={players} me={me} isHost={isHost} />}
       </div>
     </div>
   );
@@ -114,16 +117,16 @@ function Lobby({ room, players, me, isHost }) {
   };
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-black/40 p-8 backdrop-blur md:p-12">
+    <section className="rounded-3xl border border-white/10 bg-black/40 p-8 backdrop-blur md:p-12 shadow-[0_0_30px_rgba(236,72,153,0.25)]">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-white/50">Pre-match lobby</p>
-          <h1 className="mt-2 text-3xl font-bold md:text-4xl text-white">{room.team_size}v{room.team_size} duel</h1>
+          <h1 className="mt-2 text-3xl md:text-4xl text-white font-pixel uppercase text-glow-magenta">{room.team_size}v{room.team_size} duel</h1>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3">
           <p className="text-[10px] uppercase tracking-widest text-white/50">Share code</p>
           <div className="mt-1 flex items-center gap-3">
-            <div className="font-mono text-2xl tracking-[0.4em] text-white">{room.code}</div>
+            <div className="font-mono text-2xl font-bold tracking-[0.4em] text-white text-glow-pink">{room.code}</div>
             <Button variant="outline" size="sm" onClick={copy} className="border-white/20 bg-transparent text-white hover:bg-white/10"><Copy className="h-3 w-3" /></Button>
           </div>
         </div>
@@ -135,13 +138,13 @@ function Lobby({ room, players, me, isHost }) {
       </div>
 
       {isHost ? (
-        <Button
+        <button
           onClick={() => startMatch(room.code).catch((e) => toast.error(e.message))}
           disabled={!ready}
-          className="mt-8 h-14 w-full bg-gradient-primary text-white shadow-glow disabled:opacity-50 md:w-auto md:px-12 font-bold"
+          className="mt-8 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-10 py-4 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)] md:w-auto"
         >
           {ready ? "Start Match" : `Waiting (${teamA.length + teamB.length}/${room.team_size * 2})…`}
-        </Button>
+        </button>
       ) : (
         <p className="mt-8 text-sm text-white/50">Waiting for host to start the match…</p>
       )}
@@ -188,7 +191,7 @@ function TeamColumn({ label, team, players, size, me, onSwitch, accent }) {
 }
 
 /* ----------------------- MATCH ----------------------- */
-function Match({ room, players, me }) {
+function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal }) {
   const puzzle = room.puzzle;
   const [countdownLeft, setCountdownLeft] = useState(3);
   const [unlocked, setUnlocked] = useState(false);
@@ -197,6 +200,36 @@ function Match({ room, players, me }) {
   const [solved, setSolved] = useState(false);
   const [flash, setFlash] = useState(null);
   const lastErrSync = useRef(0);
+
+  const discoveredCompoundInfo = useMemo(() => {
+    if (!puzzle) return null;
+    
+    const targetNameMap = {
+      "Salt": "Sodium Chloride"
+    };
+    const lookupName = targetNameMap[puzzle.targetName] || puzzle.targetName;
+    
+    const elementsArray = Array.isArray(compoundElements) ? compoundElements : (compoundElements.default || []);
+    const found = elementsArray.find(c => c.NAME?.toLowerCase() === lookupName.toLowerCase());
+    
+    if (!found) {
+      return {
+        name: puzzle.targetName,
+        symbol: puzzle.target,
+        description: "A specialized molecular compound synthesized in the Elementopia laboratories.",
+        uses: "Various classified applications.",
+        elements: puzzle.sequence?.join(", ") || "Unknown"
+      };
+    }
+
+    return {
+      name: found.NAME,
+      symbol: found.Symbol,
+      description: found.Description,
+      uses: Array.isArray(found.Uses) ? found.Uses.join(", ") : found.Uses,
+      elements: Array.isArray(found.Elements) ? found.Elements.join(", ") : found.Elements
+    };
+  }, [puzzle]);
 
   useEffect(() => {
     if (!room.started_at) return;
@@ -251,6 +284,7 @@ function Match({ room, players, me }) {
       if (np.length === targetSeq.length) {
         setSolved(true);
         setUnlocked(false);
+        setShowDiscoveryModal(true);
         submitSolved(room.id, me.session_id, np.length, errors).catch(console.error);
       }
     } else {
@@ -267,17 +301,17 @@ function Match({ room, players, me }) {
   };
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-3">
       {/* HUD: team rosters */}
       <div className="grid gap-3 md:grid-cols-2">
         <TeamHUD label="Team A" players={teamA} size={room.team_size} mySession={me?.session_id ?? null} accent="primary" />
         <TeamHUD label="Team B" players={teamB} size={room.team_size} mySession={me?.session_id ?? null} accent="defeat" />
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-black/40 p-6 text-center backdrop-blur">
-        <p className="text-xs uppercase tracking-widest text-white/50">Synthesize</p>
-        <h2 className="mt-1 text-4xl font-bold text-white">{puzzle.target}</h2>
-        <p className="text-sm text-white/50">{puzzle.targetName} · {puzzle.optimalSteps} optimal steps · team race</p>
+      <div className="rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur">
+        <p className="text-[10px] uppercase tracking-widest text-white/50">Synthesize</p>
+        <h2 className="text-2xl font-bold text-white">{puzzle.target}</h2>
+        <p className="text-[10px] text-white/50">{puzzle.targetName} · {puzzle.optimalSteps} optimal steps · team race</p>
       </div>
 
       {!unlocked && !solved && !oppAllDone && (
@@ -290,15 +324,15 @@ function Match({ room, players, me }) {
       )}
 
       {(unlocked || solved || oppAllDone) && (
-        <div className={`relative rounded-3xl border bg-black/40 p-6 backdrop-blur transition ${
+        <div className={`relative rounded-3xl border bg-black/40 p-4 backdrop-blur transition ${
           flash === "ok" ? "border-magenta shadow-glow" : flash === "err" ? "border-defeat" : "border-white/10"
         }`}>
-          <div className="mb-6 flex flex-wrap items-center gap-2">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             {targetSeq.map((sym, i) => {
               const filled = i < progress.length;
               const info = elementInfo(sym);
               return (
-                <div key={i} className={`grid h-12 w-12 place-items-center rounded-xl border-2 font-mono font-bold transition ${
+                <div key={i} className={`grid h-10 w-10 place-items-center rounded-xl border-2 font-mono font-bold transition ${
                   filled ? "border-magenta bg-magenta/20 text-white" : "border-dashed border-white/20 text-white/30"
                 }`}>
                   {filled ? info.symbol : "?"}
@@ -320,13 +354,13 @@ function Match({ room, players, me }) {
                   key={i}
                   disabled={disabled}
                   onClick={() => handleTile(sym)}
-                  className="group relative aspect-square rounded-2xl border border-white/10 bg-white/5 p-3 text-left transition hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+                  className="group relative h-[100px] rounded-2xl border border-white/10 bg-white/5 p-2 text-left transition hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
                 >
-                  <span className="block font-mono text-xs text-white/40">#{i + 1}</span>
-                  <span className="absolute inset-0 grid place-items-center font-display text-3xl font-bold" style={{ color: info.color }}>
+                  <span className="block font-mono text-[10px] text-white/40">#{i + 1}</span>
+                  <span className="absolute inset-0 grid place-items-center font-display text-2xl font-bold" style={{ color: info.color }}>
                     {info.symbol}
                   </span>
-                  <span className="absolute bottom-2 right-2 text-[10px] uppercase tracking-wider text-white/40">{info.name}</span>
+                  <span className="absolute bottom-2 right-2 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
                 </button>
               );
             })}
@@ -345,6 +379,63 @@ function Match({ room, players, me }) {
           )}
         </div>
       )}
+
+      <Modal
+          open={showDiscoveryModal}
+          onClose={() => setShowDiscoveryModal(false)}
+      >
+      <div 
+          className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
+          style={{ minHeight: 'auto', background: 'transparent' }}
+      >
+          <div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
+              <div className="flex-1 pr-2 text-left">
+                  <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
+                      Laboratory Record
+                  </div>
+                  <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
+                      {discoveredCompoundInfo?.name}
+                  </h2>
+                  <p className="mt-2 font-mono text-sm text-cyan mb-8">
+                      Formula: {discoveredCompoundInfo?.symbol}
+                  </p>
+                  {discoveredCompoundInfo && (
+                      <div className="space-y-6">
+                          <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
+                              {discoveredCompoundInfo.description}
+                          </div>
+                          <div className="border-t border-border pt-6 text-left">
+                              <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                      <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                          Primary Applications
+                                      </h4>
+                                      <p className="text-sm font-bold text-white/90">
+                                          {discoveredCompoundInfo.uses}
+                                      </p>
+                                  </div>
+                                  <div>
+                                      <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                          Elemental Composition
+                                      </h4>
+                                      <p className="text-sm font-bold text-cyan">
+                                          {discoveredCompoundInfo.elements}
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+              </div>
+              <button 
+                  onClick={() => setShowDiscoveryModal(false)}
+                  className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
+              >
+                  Close Record
+              </button>
+          </div>
+      </div>
+      </Modal>
     </section>
   );
 }
@@ -353,15 +444,15 @@ function TeamHUD({ label, players, size, mySession, accent }) {
   const done = players.filter((p) => p.finished_at).length;
   const dotClass = accent === "primary" ? "bg-magenta" : "bg-defeat";
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur">
+    <div className="rounded-2xl border border-white/10 bg-black/40 p-3 py-2.5 backdrop-blur">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${dotClass}`} />
-          <p className="text-xs uppercase tracking-widest text-white/50">{label}</p>
+          <p className="text-[10px] uppercase tracking-widest text-white/50">{label}</p>
         </div>
-        <span className="font-mono text-xs text-white/80">{done}/{size} solved</span>
+        <span className="font-mono text-[10px] text-white/80">{done}/{size} solved</span>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {players.map((p) => (
           <span
             key={p.id}
@@ -404,7 +495,7 @@ function Result({ room, players, me, isHost }) {
   }, [me, winning, draw, youWon]);
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14">
+    <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)]">
       {draw ? (
         <>
           <Minus className="mx-auto h-12 w-12 text-white/50" />
@@ -414,7 +505,7 @@ function Result({ room, players, me, isHost }) {
       ) : youWon ? (
         <>
           <Trophy className="mx-auto h-12 w-12 text-victory" />
-          <h1 className="mt-4 bg-gradient-primary bg-clip-text text-5xl font-bold text-transparent font-pixel tracking-widest text-glow-pink">VICTORY</h1>
+          <h1 className="mt-4 text-5xl font-bold text-victory font-pixel tracking-widest text-glow-victory">VICTORY</h1>
           <p className="mt-2 text-white/50">Team {winning} stabilized the compound first.</p>
         </>
       ) : winning ? (
@@ -433,9 +524,9 @@ function Result({ room, players, me, isHost }) {
       </div>
 
       {isHost && (
-        <Button onClick={() => returnToLobby(room.code)} className="mt-10 h-12 bg-gradient-primary px-10 text-white shadow-glow font-bold">
+        <button onClick={() => returnToLobby(room.code)} className="mt-10 inline-block rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-10 py-3 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider">
           Back to lobby
-        </Button>
+        </button>
       )}
     </section>
   );

@@ -8,7 +8,7 @@ import {
     CircularProgress,
     Modal,
 } from "@mui/material";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Maximize2, Minimize2, Beaker } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ElementTable from "./ElementTable";
 import compoundElements from "../data/compound-elements.json";
@@ -18,20 +18,42 @@ import periodicTableData from "../data/periodic-table-lookup.json";
 
 const initialAtoms = [];
 
-const getElementColor = (element) => {
-    const colors = {
-        H: "#f44336",
-        O: "#2196f3",
-        C: "#4caf50",
-        N: "#9c27b0",
-        Na: "#ff9800",
-        Cl: "#00bcd4",
-        K: "#e91e63",
-        Ca: "#8bc34a",
-        Mg: "#3f51b5",
-        Fe: "#795548",
+const getElementStyle = (elementSymbol) => {
+    const elementData = findElementData(elementSymbol);
+    const category = elementData ? elementData.category : "";
+
+    let rgb = "255, 255, 255"; 
+    let hex = "#ffffff";
+    let textHex = "#ffffff";
+
+    if (!category) {
+        rgb = "255, 255, 255"; hex = "#ffffff"; textHex = "#ffffff";
+    } else if (category.includes("alkali metal")) {
+        rgb = "244, 63, 94"; hex = "#fb7185"; textHex = "#fda4af"; // rose
+    } else if (category.includes("alkaline earth metal")) {
+        rgb = "249, 115, 22"; hex = "#fb923c"; textHex = "#fdba74"; // orange
+    } else if (category.includes("transition metal")) {
+        rgb = "234, 179, 8"; hex = "#facc15"; textHex = "#fde047"; // yellow
+    } else if (category.includes("post-transition metal")) {
+        rgb = "20, 184, 166"; hex = "#2dd4bf"; textHex = "#5eead4"; // teal
+    } else if (category.includes("metalloid")) {
+        rgb = "34, 197, 94"; hex = "#4ade80"; textHex = "#86efac"; // green
+    } else if (category.includes("nonmetal")) {
+        rgb = "6, 182, 212"; hex = "#22d3ee"; textHex = "#67e8f9"; // cyan
+    } else if (category.includes("noble gas")) {
+        rgb = "99, 102, 241"; hex = "#818cf8"; textHex = "#a5b4fc"; // indigo
+    } else if (category.includes("lanthanide")) {
+        rgb = "14, 165, 233"; hex = "#38bdf8"; textHex = "#7dd3fc"; // sky
+    } else if (category.includes("actinide")) {
+        rgb = "217, 70, 239"; hex = "#e879f9"; textHex = "#f0abfc"; // fuchsia
+    }
+
+    return {
+        fill: `rgba(${rgb}, 0.15)`,
+        stroke: hex,
+        shadowColor: `rgba(${rgb}, 0.8)`,
+        textFill: textHex
     };
-    return colors[element] || "#ccc";
 };
 
 const definitionCache = {};
@@ -74,6 +96,9 @@ const ChemSim = () => {
     const [loadingDefinition, setLoadingDefinition] = useState(false);
     const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
     const [discoveredCompoundInfo, setDiscoveredCompoundInfo] = useState(null);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [stageScale, setStageScale] = useState(1);
+    const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
 
     const navigate = useNavigate();
 
@@ -144,8 +169,10 @@ const ChemSim = () => {
 
             setDiscoveredCompoundInfo({
                 name: foundCompound.NAME,
+                symbol: foundCompound.Symbol,
                 description: description,
                 uses: foundCompound.Uses.join(", "),
+                elements: foundCompound.Elements.join(", ")
             });
             setShowDiscoveryModal(true);
         } else {
@@ -180,11 +207,14 @@ const ChemSim = () => {
     };
 
     const handleStageClick = (e) => {
-        if (!eraseMode) {
+        if (!eraseMode && e.target === e.target.getStage()) {
             const stage = e.target.getStage();
             const pointer = stage.getPointerPosition();
             if (!pointer) return;
-            const { x, y } = pointer;
+            
+            // Map absolute pointer to relative stage coordinates
+            const x = (pointer.x - stage.x()) / stage.scaleX();
+            const y = (pointer.y - stage.y()) / stage.scaleY();
 
             setAtoms((prevAtoms) => [
                 ...prevAtoms,
@@ -195,6 +225,36 @@ const ChemSim = () => {
                     element: selectedElement,
                 },
             ]);
+        }
+    };
+
+    const handleWheel = (e) => {
+        e.evt.preventDefault();
+        const scaleBy = 1.1;
+        const stage = e.target.getStage();
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        const mousePointTo = {
+            x: (pointer.x - stage.x()) / oldScale,
+            y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+        
+        // Limit zoom scale
+        if (newScale < 0.2 || newScale > 5) return;
+
+        setStageScale(newScale);
+        setStagePos({
+            x: pointer.x - mousePointTo.x * newScale,
+            y: pointer.y - mousePointTo.y * newScale,
+        });
+    };
+
+    const handleStageDragEnd = (e) => {
+        if (e.target === e.target.getStage()) {
+            setStagePos({ x: e.target.x(), y: e.target.y() });
         }
     };
 
@@ -216,11 +276,24 @@ const ChemSim = () => {
         let bonds = [];
         for (let i = 0; i < atoms.length; i++) {
             for (let j = i + 1; j < atoms.length; j++) {
-                const dx = atoms[i].x - atoms[j].x;
-                const dy = atoms[i].y - atoms[j].y;
+                const dx = atoms[j].x - atoms[i].x;
+                const dy = atoms[j].y - atoms[i].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 100) {
-                    bonds.push({ start: atoms[i], end: atoms[j] });
+                if (distance > 0 && distance < 100) {
+                    const radius = 24;
+                    const gap = 2; // small gap so the line doesn't overlap the border
+                    const offset = radius + gap;
+                    
+                    if (distance > offset * 2) {
+                        const nx = dx / distance;
+                        const ny = dy / distance;
+                        bonds.push({ 
+                            startX: atoms[i].x + nx * offset, 
+                            startY: atoms[i].y + ny * offset,
+                            endX: atoms[j].x - nx * offset,
+                            endY: atoms[j].y - ny * offset
+                        });
+                    }
                 }
             }
         }
@@ -237,92 +310,130 @@ const ChemSim = () => {
     };
 
     return (
-        <div className="mx-auto max-w-[1600px] w-full mt-4 flex justify-between gap-8 flex-wrap">
-            {/* Left: Simulation */}
-            <div className="flex-1 mr-5">
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-6 text-center" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
+        <div className="w-full">
+            <div className="mb-6 text-left">
+                <div className="mb-1 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">Simulation</div>
+                <h1 className="font-pixel text-xl sm:text-2xl font-bold text-white tracking-wider uppercase text-glow-magenta">
                     Chemistry Sandbox
                 </h1>
+            </div>
+            <div className="w-full flex justify-between gap-8 flex-wrap lg:flex-nowrap">
+                {/* Left: Simulation */}
+                <div className="flex-1 lg:mr-5 flex flex-col">
 
-                <Stage
-                    width={900}
-                    height={300}
-                    onClick={handleStageClick}
-                    style={{ border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", backgroundColor: "rgba(0,0,0,0.4)" }}
-                >
+                <div className="flex justify-center mb-4 relative">
+                    <button 
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="absolute top-3 right-3 z-10 bg-black/60 hover:bg-black/80 border border-white/20 text-white p-2 rounded-lg backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
+                        title={isExpanded ? "Collapse Stage" : "Expand Stage"}
+                    >
+                        {isExpanded ? (
+                            <Minimize2 size={18} className="text-white/80 group-hover:text-white transition-colors" />
+                        ) : (
+                            <Maximize2 size={18} className="text-white/80 group-hover:text-white transition-colors" />
+                        )}
+                    </button>
+                    <Stage
+                        width={900}
+                        height={isExpanded ? 500 : 160}
+                        scaleX={stageScale}
+                        scaleY={stageScale}
+                        x={stagePos.x}
+                        y={stagePos.y}
+                        onClick={handleStageClick}
+                        onWheel={handleWheel}
+                        onDragEnd={handleStageDragEnd}
+                        draggable={!eraseMode}
+                        style={{ 
+                            border: "1px solid rgba(255,255,255,0.1)", 
+                            borderRadius: "16px", 
+                            backgroundColor: "rgba(0,0,0,0.4)", 
+                            cursor: eraseMode ? "crosshair" : "grab",
+                            overflow: "hidden"
+                        }}
+                    >
                     <Layer>
                         {getBonds().map((bond, index) => (
                             <Line
                                 key={index}
-                                points={[bond.start.x, bond.start.y, bond.end.x, bond.end.y]}
-                                stroke="#ffcc00"
-                                strokeWidth={4}
+                                points={[bond.startX, bond.startY, bond.endX, bond.endY]}
+                                stroke="#facc15"
+                                strokeWidth={3}
+                                opacity={0.8}
+                                shadowBlur={8}
+                                shadowColor="#facc15"
                             />
                         ))}
-                        {atoms.map((atom) => (
-                            <React.Fragment key={atom.id}>
-                                <Circle
-                                    id={String(atom.id)}
-                                    x={atom.x}
-                                    y={atom.y}
-                                    radius={24}
-                                    fill={getElementColor(atom.element)}
-                                    draggable
-                                    onDragMove={handleDragMove}
-                                    onClick={() => handleAtomClick(atom.id)}
-                                    stroke="#ffffff"
-                                    strokeWidth={3}
-                                    shadowBlur={10}
-                                    shadowColor="#ffcc00"
-                                />
-                                <Text
-                                    x={atom.x - 6}
-                                    y={atom.y - 6}
-                                    text={atom.element}
-                                    fontSize={18}
-                                    fill="black"
-                                    fontStyle="bold"
-                                />
-                            </React.Fragment>
-                        ))}
+                        {atoms.map((atom) => {
+                            const style = getElementStyle(atom.element);
+                            return (
+                                <React.Fragment key={atom.id}>
+                                    <Circle
+                                        id={String(atom.id)}
+                                        x={atom.x}
+                                        y={atom.y}
+                                        radius={24}
+                                        fill={style.fill}
+                                        draggable
+                                        onDragMove={handleDragMove}
+                                        onClick={() => handleAtomClick(atom.id)}
+                                        stroke={style.stroke}
+                                        strokeWidth={3}
+                                        shadowBlur={15}
+                                        shadowColor={style.shadowColor}
+                                    />
+                                    <Text
+                                        x={atom.x - (atom.element.length > 1 ? 11 : 6)}
+                                        y={atom.y - 7}
+                                        text={atom.element}
+                                        fontSize={16}
+                                        fill={style.textFill}
+                                        fontFamily="monospace"
+                                        fontStyle="bold"
+                                    />
+                                </React.Fragment>
+                            );
+                        })}
                     </Layer>
-                </Stage>
+                    </Stage>
+                </div>
 
                 <ElementTable
                     selectedElement={selectedElement}
                     setSelectedElement={setSelectedElement}
                 />
+            </div>
 
-                <div className="flex gap-4 mt-6">
+            {/* Right Sidebar */}
+            <div className="w-[340px] flex flex-col gap-4">
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-3 pb-2">
                     <button
                         onClick={() => setEraseMode(!eraseMode)}
-                        className={`px-6 py-2 rounded-xl font-bold uppercase tracking-wider text-sm transition ${
+                        className={`rounded-full w-full py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.8rem] uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 ${
                             eraseMode 
-                                ? "bg-destructive text-destructive-foreground shadow-[0_0_15px_rgba(239,68,68,0.4)]" 
-                                : "bg-card border border-border/40 text-muted-foreground hover:bg-white/5"
+                                ? "bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]" 
+                                : "bg-transparent border border-white/20 text-white/50 hover:text-white hover:border-white/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                         }`}
                     >
                         Erase Mode
                     </button>
                     <button
                         onClick={handleClear}
-                        className="px-6 py-2 rounded-xl bg-destructive text-destructive-foreground font-bold uppercase tracking-wider text-sm transition hover:bg-destructive/80"
+                        className="rounded-full w-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.8rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap"
                     >
                         Clear Workbench
                     </button>
                 </div>
-            </div>
 
-            {/* Right Sidebar */}
-            <div className="w-[340px] flex flex-col gap-6 mt-16">
                 {/* Element Info */}
-                <div className="rounded-2xl border border-border/40 bg-card p-6 shadow-[0_0_15px_rgba(34,211,238,0.05)]">
-                    <h2 className="font-mono text-xs mb-4 text-cyan tracking-[0.2em] uppercase">
-                        ⚛️ Element Info
+                <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-[0_0_15px_rgba(34,211,238,0.05)]">
+                    <h2 className="font-mono text-xs mb-3 text-cyan tracking-[0.2em] uppercase">
+                        Element Info
                     </h2>
 
                     {selectedElementInfo ? (
-                        <div className="font-mono text-sm text-muted-foreground space-y-2">
+                        <div className="font-mono text-xs text-muted-foreground space-y-1.5">
                             <p><strong className="text-white">Name:</strong> {selectedElementInfo.name || "N/A"}</p>
                             <p><strong className="text-white">Atomic Mass:</strong> {selectedElementInfo.atomic_mass || "N/A"}</p>
                             <p><strong className="text-white">Atomic Number:</strong> {selectedElementInfo.number || "N/A"}</p>
@@ -338,14 +449,14 @@ const ChemSim = () => {
                             )}
                         </div>
                     ) : (
-                        <p className="font-mono text-sm text-muted-foreground">Select an element to see its properties.</p>
+                        <p className="font-mono text-xs text-muted-foreground">Select an element to see its properties.</p>
                     )}
                 </div>
 
                 {/* Molecule Info */}
-                <div className="rounded-2xl border border-border/40 bg-card p-6 shadow-[0_0_15px_rgba(236,72,153,0.05)] overflow-y-auto max-h-[320px]">
-                    <h2 className="font-mono text-xs mb-4 text-magenta tracking-[0.2em] uppercase">
-                        🧪 Molecule Info
+                <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-[0_0_15px_rgba(236,72,153,0.05)] overflow-y-auto max-h-[280px]">
+                    <h2 className="font-mono text-xs mb-3 text-magenta tracking-[0.2em] uppercase">
+                        Molecule Info
                     </h2>
                     {loadingDefinition ? (
                         <div className="font-mono text-sm text-magenta animate-pulse">Scanning database...</div>
@@ -357,72 +468,72 @@ const ChemSim = () => {
                 </div>
             </div>
 
+            </div>
+
             {/* Premium Discovery Modal */}
             <Modal
                 open={showDiscoveryModal}
                 onClose={() => setShowDiscoveryModal(false)}
             >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[95vw] outline-none">
-                    {/* Glowing Backdrop Element */}
-                    <div className="absolute -inset-4 bg-gradient-to-tr from-magenta/30 to-cyan/30 rounded-[2.5rem] blur-2xl opacity-60 animate-pulse pointer-events-none" />
-                    
-                    {/* Main Glass Card */}
-                    <div className="relative bg-[#0d0f1a]/85 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 sm:p-10 text-center shadow-2xl overflow-hidden">
-                        
-                        {/* Decorative Top Highlight */}
-                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan via-magenta to-cyan opacity-80" />
+            <div 
+                className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
+                style={{ minHeight: 'auto', background: 'transparent' }}
+            >
+                {/* Main Card */}
+                <div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
 
-                        <div className="flex justify-center mb-6">
-                            <div className="p-4 rounded-full bg-magenta/10 border border-magenta/20 shadow-[0_0_30px_rgba(236,72,153,0.4)]">
-                                <Sparkles className="w-10 h-10 text-magenta" strokeWidth={1.5} />
-                            </div>
+                    <div className="flex-1 pr-2 text-left">
+                        <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
+                            Laboratory Record
                         </div>
 
-                        <h2 className="font-display text-4xl font-extrabold text-white mb-2 tracking-tight">
-                            Synthesized!
+                        <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
+                            {discoveredCompoundInfo?.name}
                         </h2>
                         
+                        <p className="mt-2 font-mono text-sm text-cyan mb-8">
+                            Formula: {discoveredCompoundInfo?.symbol}
+                        </p>
+
                         {discoveredCompoundInfo && (
-                            <div className="mt-6 mb-8 space-y-4">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] mb-1 font-mono">
-                                        Compound Verified
-                                    </p>
-                                    <h3 className="text-3xl font-bold bg-gradient-to-r from-magenta to-cyan bg-clip-text text-transparent pb-1">
-                                        {discoveredCompoundInfo.name}
-                                    </h3>
+                            <div className="space-y-6">
+                                <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar">
+                                    {discoveredCompoundInfo.description}
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left backdrop-blur-sm mt-4">
-                                    <p className="text-[14px] text-white/90 leading-relaxed">
-                                        {discoveredCompoundInfo.description}
-                                    </p>
-                                </div>
-
-                                <div className="bg-cyan/5 border border-cyan/20 rounded-2xl p-5 text-left">
-                                    <h4 className="text-[11px] font-mono text-cyan uppercase tracking-widest mb-2 flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse" />
-                                        Primary Applications
-                                    </h4>
-                                    <p className="text-[13px] text-cyan/90 leading-relaxed font-medium">
-                                        {discoveredCompoundInfo.uses}
-                                    </p>
+                                <div className="border-t border-border pt-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                                Primary Applications
+                                            </h4>
+                                            <p className="text-sm font-bold text-white/90">
+                                                {discoveredCompoundInfo.uses}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                                Elemental Composition
+                                            </h4>
+                                            <p className="text-sm font-bold text-cyan">
+                                                {discoveredCompoundInfo.elements}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
+                    </div>
 
-                        <div className="flex gap-4 justify-center mt-2">
+                        <div className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-6 shrink-0">
+                            <div className="font-mono text-xs text-muted-foreground">
+                                Synthesized successfully.
+                            </div>
                             <button
                                 onClick={() => setShowDiscoveryModal(false)}
-                                className="px-6 py-3.5 rounded-xl border border-white/20 bg-white/5 text-white font-bold uppercase tracking-wider text-[11px] transition hover:bg-white/10"
+                                className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap"
                             >
-                                Continue
-                            </button>
-                            <button
-                                onClick={handleGoToDiscovery}
-                                className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-magenta to-violet-600 text-white font-bold uppercase tracking-wider text-[11px] transition hover:scale-105 hover:shadow-[0_0_25px_rgba(236,72,153,0.5)]"
-                            >
-                                Log to Database
+                                Close Record
                             </button>
                         </div>
                     </div>

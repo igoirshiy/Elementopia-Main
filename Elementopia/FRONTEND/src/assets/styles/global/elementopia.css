@@ -132,6 +132,9 @@
   color: #fef08a;
   text-shadow: 0 0 8px #eab308, 0 0 20px #eab308;
 }
+.elementopia-scope .text-glow-victory {
+  text-shadow: 0 0 8px oklch(0.78 0.20 155 / 0.8), 0 0 20px oklch(0.78 0.20 155 / 0.8);
+}
 .elementopia-scope .card-glass {
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);

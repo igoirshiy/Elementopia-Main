@@ -7,36 +7,20 @@ import { NicknameGate } from "@/features/auth-user";
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [showNicknameGate, setShowNicknameGate] = useState(false);
-
   const handleGetStarted = (e) => {
     if (e) e.preventDefault();
-    setShowNicknameGate(true);
-  };
-
-  const handleNicknameSubmit = async (nickname) => {
-    // Save the nickname globally as the user
-    await UserService.loginUser(nickname, "guest");
     navigate("/student-home-page");
   };
 
   return (
     <div className="root">
       <div className="landingpage-container">
-        {/* Custom Navigation Bar matching the Screenshot */}
-        <nav className="custom-navbar">
-          <a className="custom-logo" href="/">
-            ELEMENTOPIA
-          </a>
-          <div className="custom-nav-right">
-            <a href="/student-home-page" className="custom-nav-link">Play</a>
-            <a href="/student-home-page" className="custom-nav-link">Mastery</a>
-            <a href="/student/game1" className="custom-nav-link">Challenge</a>
-            <div className="user-pill" onClick={handleGetStarted}>
-              Siden
-            </div>
-          </div>
-        </nav>
+          {/* Custom Navigation Bar matching the Screenshot */}
+          <nav className="custom-navbar">
+            <a className="custom-logo" href="/">
+              ELEMENTOPIA
+            </a>
+          </nav>
 
         {/* Hero Section Container */}
         <div className="hero-container">
@@ -60,11 +44,11 @@ function LandingPage() {
 
             <div className="hero-buttons">
               <button onClick={handleGetStarted} className="btn-get-started-gradient">
-                Get Started
+                Begin Synthesis
               </button>
-              <a href="/about-us" className="btn-learn-more-outline">
+              {/* <a href="/about-us" className="btn-learn-more-outline">
                 Learn More
-              </a>
+              </a> */}
             </div>
           </div>
 
@@ -74,29 +58,30 @@ function LandingPage() {
               {/* Central Glowing Gradient Nucleus */}
               <div className="atom-nucleus" />
 
-              {/* Circular Orbit Path */}
-              <div className="atom-orbit">
-                {/* 10 Glowing Electron Particles */}
+              {/* 3 Intersecting Circular Orbit Paths */}
+              <div className="atom-orbit orbit-1">
                 <div className="atom-electron e1" />
-                <div className="atom-electron e2" />
-                <div className="atom-electron e3" />
                 <div className="atom-electron e4" />
-                <div className="atom-electron e5" />
-                <div className="atom-electron e6" />
                 <div className="atom-electron e7" />
+              </div>
+              
+              <div className="atom-orbit orbit-2">
+                <div className="atom-electron e2" />
+                <div className="atom-electron e5" />
                 <div className="atom-electron e8" />
-                <div className="atom-electron e9" />
                 <div className="atom-electron e10" />
+              </div>
+              
+              <div className="atom-orbit orbit-3">
+                <div className="atom-electron e3" />
+                <div className="atom-electron e6" />
+                <div className="atom-electron e9" />
               </div>
             </div>
           </div>
         </div>
 
-        {showNicknameGate && (
-          <div className="elementopia-scope">
-            <NicknameGate onSubmit={handleNicknameSubmit} />
-          </div>
-        )}
+
       </div>
     </div>
   );

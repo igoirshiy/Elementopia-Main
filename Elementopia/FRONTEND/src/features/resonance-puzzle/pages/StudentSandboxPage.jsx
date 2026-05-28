@@ -10,10 +10,12 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 const StudentSandboxPage = () => {
   return (
-    <div className="elementopia-scope min-h-screen grid-bg text-foreground flex flex-col">
+    <div className="elementopia-scope h-screen grid-bg text-foreground flex flex-col overflow-hidden">
       <SiteHeader />
-      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4">
-        <ChemSim />
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="mx-auto max-w-[1400px] w-full px-8 md:px-16 lg:px-24 py-12">
+          <ChemSim />
+        </div>
       </main>
     </div>
   );

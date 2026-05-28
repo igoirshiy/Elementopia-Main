@@ -28,19 +28,12 @@ export default function ResonanceSetup() {
   };
 
   return (
-    <div className="elementopia-scope min-h-screen flex flex-col bg-gradient-hero text-foreground">
+    <div className="elementopia-scope h-screen overflow-hidden flex flex-col bg-gradient-hero text-foreground">
       <SiteHeader />
-      <main className="flex-1 w-full">
+      <main className="flex-1 overflow-y-auto w-full">
         <Toaster theme="dark" position="top-center" />
-        <div className="mx-auto max-w-5xl px-6 py-16 lg:py-24">
-          <header className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary shadow-glow">
-              <Atom className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-mono text-sm tracking-widest text-muted-foreground">RESONANCE / MOD-3</span>
-          </header>
-
-          <section className="mt-16 grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div className="mx-auto max-w-5xl px-6 py-8 lg:py-12">
+          <section className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <h1 className="text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl text-white">
                 Race to <span className="text-magenta text-glow-magenta font-pixel text-4xl leading-tight block mt-2">compound</span> first.
@@ -58,12 +51,17 @@ export default function ResonanceSetup() {
             <div className="relative">
               <div className="absolute -inset-4 rounded-3xl bg-gradient-primary opacity-20 blur-2xl" />
               <div className="relative rounded-3xl border border-white/10 bg-black/50 p-8 backdrop-blur">
-
+                <button
+                  onClick={() => navigate("/challenge")}
+                  style={{ width: '26px', height: '26px', minWidth: '26px', minHeight: '26px', padding: 0 }}
+                  className="absolute -top-3 -right-3 flex items-center justify-center rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] text-white shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all hover:scale-110 hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] z-10 font-sans leading-none"
+                >
+                  <span className="text-[16px] font-bold pb-[2px]">&times;</span>
+                </button>
 
                 {mode !== "idle" && (
                   <div className="space-y-4">
-                    <button onClick={() => navigate("/challenge")} className="text-xs text-white/50 hover:text-white transition">← Back to Lobby</button>
-                    <h2 className="text-lg font-semibold text-white">
+                    <h2 className="text-xl font-['Montserrat',sans-serif] font-[800] text-white tracking-wide uppercase">
                       Create a room
                     </h2>
                     <div className="space-y-2">
@@ -91,13 +89,13 @@ export default function ResonanceSetup() {
                         </div>
                       </div>
                     )}
-                    <Button
+                    <button
                       onClick={handleCreate}
                       disabled={loading}
-                      className="mt-2 h-14 w-full bg-gradient-primary text-white shadow-glow hover:opacity-90 font-bold"
+                      className="mt-6 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)]"
                     >
                       {loading ? "Connecting…" : `Generate ${teamSize}v${teamSize} Code`}
-                    </Button>
+                    </button>
                   </div>
                 )}
               </div>

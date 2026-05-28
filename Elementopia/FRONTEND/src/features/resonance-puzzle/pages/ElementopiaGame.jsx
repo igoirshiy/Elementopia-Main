@@ -8,10 +8,13 @@ import { StoryCard } from "@/features/resonance-puzzle/components/StoryCard";
 import { GameBoard } from "../components/GameBoard";
 import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
+import { useLocation } from "react-router-dom";
+
 export default function ElementopiaGame() {
+  const location = useLocation();
   const [rows, setRows] = useState([]);
   const [nickname, setNickname] = useState(null);
-  const [view, setView] = useState("home");
+  const [view, setView] = useState(location.state?.view || "home");
   const [activeDomain, setActiveDomain] = useState(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [completionBanner, setCompletionBanner] = useState(null);
@@ -85,13 +88,14 @@ export default function ElementopiaGame() {
   }
 
   return (
-    <div style={{ display: "flex", width: "100%", minHeight: "100vh", backgroundColor: "#121212" }}>
+    <div className="h-screen overflow-hidden" style={{ display: "flex", width: "100%", backgroundColor: "#121212" }}>
       <div 
-        className="elementopia-scope flex flex-col"
-        style={{ flexGrow: 1, transition: "all 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms", minHeight: "100vh" }}
+        className="elementopia-scope flex flex-col h-full w-full"
+        style={{ flexGrow: 1 }}
       >
         <SiteHeader view={view} setView={setView} />
 
+      <div className="flex-1 overflow-y-auto w-full flex flex-col">
       {error && (
         <div className="mx-auto mt-3 flex max-w-[1600px] w-full items-center justify-between gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-6 py-2 text-sm text-destructive-foreground">
           <span>⚠ {error}</span>
@@ -113,7 +117,7 @@ export default function ElementopiaGame() {
 
       {view === "playing" && activeDomain && (
         <>
-          {storyOpen && <StoryCard domain={activeDomain} onEnter={() => setStoryOpen(false)} />}
+          {storyOpen && <StoryCard domain={activeDomain} onEnter={() => setStoryOpen(false)} onCancel={() => { setView("home"); setActiveDomain(null); setStoryOpen(false); }} />}
           {!storyOpen && (
             <GameBoard
               nickname={nickname}
@@ -128,9 +132,10 @@ export default function ElementopiaGame() {
 
       {view === "dashboard" && <Dashboard nickname={nickname} rows={rows} />}
 
-      <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto">
+      <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">
         Elementopia · prototype · elemental resonance module
       </footer>
+      </div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
-import com.elementopia.backend.features.domain_interaction.FeedbackLibraryService;
+import com.elementopia.backend.features.diagnostic_feedback.FeedbackLibraryService;
 
 @RestController
 @RequestMapping("/api/features/domain-interaction")
