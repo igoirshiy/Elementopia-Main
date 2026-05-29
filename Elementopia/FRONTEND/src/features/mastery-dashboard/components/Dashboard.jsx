@@ -24,10 +24,10 @@ export function Dashboard({ nickname, rows }) {
   const overallAcc = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
 
   return (
-    <div className="mx-auto max-w-[1600px] w-full px-6 py-8">
+    <div className="mx-auto max-w-[1400px] w-full px-8 md:px-16 lg:px-24 py-12">
       <div className="mb-6">
         <div className="mb-1 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">Mastery Dashboard</div>
-        <h2 className="font-display text-3xl font-bold text-glow-magenta">{nickname}</h2>
+        <h2 className="font-pixel text-xl sm:text-2xl font-bold text-glow-magenta">{nickname}</h2>
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
@@ -36,7 +36,7 @@ export function Dashboard({ nickname, rows }) {
         <BigStat icon={<Clock className="size-5" />} label="Total time" value={fmtTime(rows.reduce((a, r) => a + r.time_seconds, 0))} accent="violet" />
       </div>
 
-      <div className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DOMAINS.map(d => {
           const r = byDomain.get(d.id);
           const cloud = cloudMetrics?.get(d.id);
@@ -58,28 +58,30 @@ export function Dashboard({ nickname, rows }) {
           }
           const lowAcc = acc !== null && acc < 60;
           return (
-            <div key={d.id} className="rounded-2xl border border-border bg-card/70 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <div key={d.id} className="flex flex-col rounded-2xl border border-border bg-card/70 p-5 transition-transform hover:-translate-y-1 hover:shadow-xl">
+              <div className="flex items-start justify-between gap-3 mb-6">
                 <div>
-                  <div className="font-display text-lg font-bold">{d.name}</div>
-                  <div className="font-mono text-xs text-muted-foreground">{d.tagline}</div>
+                  <div className="font-pixel text-sm sm:text-base font-bold">{d.name}</div>
+                  <div className="font-mono text-[11px] text-muted-foreground mt-2 line-clamp-2">{d.tagline}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="shrink-0">
                   {r?.completed ? (
-                    <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-success">Cleared</span>
+                    <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-success border border-success/30">Cleared</span>
                   ) : r ? (
-                    <span className="rounded-md bg-violet/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-violet">In progress</span>
+                    <span className="rounded-md bg-violet/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-violet border border-violet/30">In progress</span>
                   ) : (
-                    <span className="rounded-md bg-muted px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Not started</span>
+                    <span className="rounded-md bg-muted px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground border border-border/50">Not started</span>
                   )}
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              <div className="mt-auto grid grid-cols-2 gap-2">
                 <Mini label="Accuracy" value={acc === null ? "—" : `${acc}%`} warn={lowAcc} />
                 <Mini label="Attempts" value={`${attempts}`} />
                 <Mini label="Time" value={time !== null ? fmtTime(time) : "—"} />
                 <Mini label="Hazmat" value={`${r?.hazmat_activations ?? 0}×`} />
-                <Mini label="Data Source" value={isCloud ? <Cloud className="size-4 text-cyan inline" /> : "Local"} />
+                <div className="col-span-2">
+                  <Mini label="Data Source" value={isCloud ? <><Cloud className="size-3 text-cyan inline mr-1" />Cloud</> : "Local"} />
+                </div>
               </div>
             </div>
           );

@@ -37,11 +37,19 @@ export default function ChallengeLobby() {
   }
 
   return (
-    <div className="elementopia-scope min-h-screen bg-[#0f0f15] text-foreground flex flex-col">
+    <div className="elementopia-scope h-screen overflow-hidden bg-[#0f0f15] text-foreground flex flex-col">
       <SiteHeader />
-      <main className="max-w-3xl mx-auto px-6 py-12 w-full">
-        <h1 className="font-pixel text-glow-pink text-2xl uppercase">OPPONENT CHALLENGE</h1>
-        <p className="mt-4 text-white/60 text-sm">Race a peer to synthesize the correct compound first. Speed-to-Compound wins.</p>
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+        <div>
+          <p className="font-mono text-xs text-muted-foreground tracking-[0.3em] uppercase">CHALLENGE</p>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2 text-white" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
+            Opponent Challenge
+          </h1>
+          <p className="text-muted-foreground mt-3 max-w-2xl text-[15px]">
+            Race a peer to synthesize the correct compound first. Speed-to-Compound wins.
+          </p>
+        </div>
 
         <div className="card-glass rounded-xl p-5 mt-8 border border-magenta/20 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
           <label className="text-xs font-mono tracking-widest text-white/50 block mb-2">SESSION NICKNAME</label>
@@ -63,7 +71,7 @@ export default function ChallengeLobby() {
               <div className="font-pixel text-glow-yellow text-sm group-hover:text-yellow-300 transition-colors">CREATE ROOM</div>
               <p className="text-white/60 text-sm mt-4 leading-relaxed">Generate a 5-digit access code and configure your 1v1 up to 5v5 team duel.</p>
             </div>
-            <button onClick={handleCreateRoom} className="btn-gradient mt-8 px-5 py-3.5 rounded-lg w-full font-bold shadow-[0_0_15px_rgba(236,72,153,0.3)]">Configure &amp; share code</button>
+            <button onClick={handleCreateRoom} className="mt-8 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap">Configure &amp; share code</button>
           </div>
 
           <form onSubmit={handleJoinRoom} className="card-glass rounded-2xl p-8 border border-white/10 hover:border-cyan-500/30 transition-colors flex flex-col justify-between group">
@@ -82,11 +90,12 @@ export default function ChallengeLobby() {
             <button
               type="submit"
               disabled={loading || joinCode.length !== 5}
-              className="mt-6 w-full px-5 py-3.5 rounded-lg border border-white/15 hover:bg-white/10 hover:border-cyan-500/50 text-white/90 transition-all font-bold disabled:opacity-50"
+              className="mt-6 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)]"
             >
               {loading ? "Joining..." : "Enter match"}
             </button>
           </form>
+        </div>
         </div>
       </main>
     </div>

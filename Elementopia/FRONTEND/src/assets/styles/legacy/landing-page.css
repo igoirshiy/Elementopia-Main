@@ -11,11 +11,9 @@
 
 body {
   background-color: #07040f;
-  background-image: radial-gradient(
-    circle at 50% 50%,
-    rgba(88, 54, 180, 0.15) 0%,
-    rgba(7, 4, 15, 1) 70%
-  );
+  background-image: radial-gradient(circle at 50% 50%,
+      rgba(88, 54, 180, 0.15) 0%,
+      rgba(7, 4, 15, 1) 70%);
   font-family: "Montserrat", sans-serif;
   overflow-x: hidden;
   color: #ffffff;
@@ -103,7 +101,8 @@ body {
 /* ========== Hero Section ========== */
 .hero-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 30px;
   align-items: center;
   width: 100%;
   margin-top: 60px;
@@ -111,17 +110,19 @@ body {
 }
 
 .hero-left {
-  width: 50%;
+  width: 42%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
+  margin-top: 20px;
 }
 
 /* Hero Typography */
 .hero-title {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
   line-height: 1.25;
   margin-bottom: 28px;
@@ -129,7 +130,7 @@ body {
 
 .title-row-white {
   font-family: "Press Start 2P", cursive;
-  font-size: 2.3rem;
+  font-size: 2.8rem;
   color: #ffffff;
   letter-spacing: 1px;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -137,7 +138,7 @@ body {
 
 .title-row-pink {
   font-family: "Press Start 2P", cursive;
-  font-size: 2.3rem;
+  font-size: 2.8rem;
   color: #ec4899;
   letter-spacing: 1px;
   text-shadow: 0 0 15px rgba(236, 72, 153, 0.8), 0 0 30px rgba(236, 72, 153, 0.3);
@@ -151,7 +152,7 @@ body {
 
 .title-row-yellow {
   font-family: "Press Start 2P", cursive;
-  font-size: 2.3rem;
+  font-size: 2.8rem;
   color: #eab308;
   letter-spacing: 1px;
   text-shadow: 0 0 15px rgba(234, 179, 8, 0.8), 0 0 30px rgba(234, 179, 8, 0.3);
@@ -174,8 +175,8 @@ body {
 
 .btn-get-started-gradient {
   font-family: "Montserrat", sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.05rem;
   color: #ffffff;
   background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
   border: none;
@@ -218,7 +219,7 @@ body {
 
 /* ========== Interactive 2D Atom Rendering ========== */
 .hero-right {
-  width: 45%;
+  width: 42%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -231,6 +232,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 
 /* Central Nucleus with 3D gradient look & backlight */
@@ -240,33 +243,76 @@ body {
   height: 110px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fbbf24 0%, #f59e0b 40%, #4f46e5 100%);
-  box-shadow: 
+  box-shadow:
     0 0 40px rgba(245, 158, 11, 0.7),
     0 0 80px rgba(79, 70, 229, 0.4),
     inset -10px -10px 20px rgba(0, 0, 0, 0.4);
   z-index: 2;
+  animation: spinNucleus 15s linear infinite;
 }
 
-/* Outer circular orbit spinning infinitely */
+@keyframes spinNucleus {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Outer circular orbit spinning in 3D */
 .atom-orbit {
   position: absolute;
   width: 380px;
   height: 380px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border: 5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(236, 72, 153, 0.9);
+  border-right-color: rgba(168, 85, 247, 0.8);
+  border-bottom-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.2), inset 0 0 20px rgba(168, 85, 247, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: rotateOrbit 22s linear infinite;
+  transform-style: preserve-3d;
   z-index: 1;
 }
 
-@keyframes rotateOrbit {
+.orbit-1 {
+  animation: spinOrbit1 12s linear infinite;
+}
+
+.orbit-2 {
+  animation: spinOrbit2 12s linear infinite;
+}
+
+.orbit-3 {
+  animation: spinOrbit3 12s linear infinite;
+}
+
+@keyframes spinOrbit1 {
   0% {
-    transform: rotate(0deg);
+    transform: rotateX(65deg) rotateY(0deg) rotateZ(0deg);
   }
+
   100% {
-    transform: rotate(360deg);
+    transform: rotateX(65deg) rotateY(0deg) rotateZ(360deg);
+  }
+}
+
+@keyframes spinOrbit2 {
+  0% {
+    transform: rotateX(65deg) rotateY(60deg) rotateZ(0deg);
+  }
+
+  100% {
+    transform: rotateX(65deg) rotateY(60deg) rotateZ(360deg);
+  }
+}
+
+@keyframes spinOrbit3 {
+  0% {
+    transform: rotateX(65deg) rotateY(120deg) rotateZ(0deg);
+  }
+
+  100% {
+    transform: rotateX(65deg) rotateY(120deg) rotateZ(360deg);
   }
 }
 
@@ -277,7 +323,7 @@ body {
   height: 10px;
   border-radius: 50%;
   background-color: #ffffff;
-  box-shadow: 
+  box-shadow:
     0 0 10px #ffffff,
     0 0 20px rgba(255, 255, 255, 0.8),
     0 0 35px rgba(255, 255, 255, 0.4);
@@ -290,6 +336,7 @@ body {
     transform: translate(-50%, -50%) scale(0.9);
     opacity: 0.85;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1.15);
     opacity: 1;
@@ -297,16 +344,55 @@ body {
 }
 
 /* 10 Symmetrical Polar Coordinate Positions along the Orbit Ring */
-.atom-electron.e1 { top: 50%; left: 100%; }
-.atom-electron.e2 { top: 79.5%; left: 90.5%; }
-.atom-electron.e3 { top: 97.5%; left: 65.5%; }
-.atom-electron.e4 { top: 97.5%; left: 34.5%; }
-.atom-electron.e5 { top: 79.5%; left: 9.5%; }
-.atom-electron.e6 { top: 50%; left: 0%; }
-.atom-electron.e7 { top: 20.5%; left: 9.5%; }
-.atom-electron.e8 { top: 2.5%; left: 34.5%; }
-.atom-electron.e9 { top: 2.5%; left: 65.5%; }
-.atom-electron.e10 { top: 20.5%; left: 90.5%; }
+.atom-electron.e1 {
+  top: 50%;
+  left: 100%;
+}
+
+.atom-electron.e2 {
+  top: 79.5%;
+  left: 90.5%;
+}
+
+.atom-electron.e3 {
+  top: 97.5%;
+  left: 65.5%;
+}
+
+.atom-electron.e4 {
+  top: 97.5%;
+  left: 34.5%;
+}
+
+.atom-electron.e5 {
+  top: 79.5%;
+  left: 9.5%;
+}
+
+.atom-electron.e6 {
+  top: 50%;
+  left: 0%;
+}
+
+.atom-electron.e7 {
+  top: 20.5%;
+  left: 9.5%;
+}
+
+.atom-electron.e8 {
+  top: 2.5%;
+  left: 34.5%;
+}
+
+.atom-electron.e9 {
+  top: 2.5%;
+  left: 65.5%;
+}
+
+.atom-electron.e10 {
+  top: 20.5%;
+  left: 90.5%;
+}
 
 /* ========== Popup Authentication Modals ========== */
 .modal-overlay {
@@ -334,13 +420,25 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ========== Responsive Design ========== */
@@ -351,13 +449,14 @@ body {
     margin-top: 30px;
     padding-bottom: 40px;
   }
-  
-  .hero-left, .hero-right {
+
+  .hero-left,
+  .hero-right {
     width: 100%;
     align-items: center;
     text-align: center;
   }
-  
+
   .hero-left {
     margin-top: 20px;
   }
@@ -370,12 +469,14 @@ body {
   .hero-title {
     align-items: center;
   }
-  
+
   .title-row-combined {
     justify-content: center;
   }
-  
-  .title-row-white, .title-row-pink, .title-row-yellow {
+
+  .title-row-white,
+  .title-row-pink,
+  .title-row-yellow {
     font-size: 1.8rem;
   }
 }
@@ -393,7 +494,9 @@ body {
     padding: 6px 16px;
   }
 
-  .title-row-white, .title-row-pink, .title-row-yellow {
+  .title-row-white,
+  .title-row-pink,
+  .title-row-yellow {
     font-size: 1.3rem;
   }
 

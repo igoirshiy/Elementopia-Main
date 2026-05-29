@@ -175,14 +175,57 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
   const progressPct = (solved.length / requiredOrder.length) * 100;
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-5">
+    <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[280px_1.6fr_1fr] items-start">
+      {/* Column 1 (Left on desktop, bottom on mobile): Live Telemetry & Synthesized log */}
+      <aside className="space-y-3 lg:sticky lg:top-16 lg:self-start order-3 lg:order-1">
+        <div className="rounded-2xl border border-border bg-card/70 p-3">
+          <div className="mb-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">Live Telemetry</div>
+          <div className="grid grid-cols-3 gap-2">
+            <Stat label="Progress" value={`${solved.length}/${requiredOrder.length}`} accent="magenta" />
+            <Stat label="Misses"   value={`${attempts - correct}`} accent="cyan" />
+            <Stat label="Elapsed"  value={fmtTime(elapsed)} accent="violet" />
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Stat label="Accuracy" value={`${accuracy}%`} accent="cyan" />
+            <Stat label="Hazmat"   value={`${hazmatCount}×`} accent="magenta" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card/70 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="font-mono text-xs uppercase tracking-wider text-muted-foreground">Synthesized</div>
+            <RotateCcw className="size-3 text-muted-foreground" />
+          </div>
+          {synthLog.length === 0 ? (
+            <div className="text-xs italic text-muted-foreground">No reactions yet.</div>
+          ) : (
+            <ul className="space-y-1 font-mono text-xs">
+              {synthLog.map((l, i) => (
+                <li key={i} className="text-success animate-fade-up">{l}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Mission Objective Box */}
+        <div className="rounded-2xl border border-cyan/30 bg-cyan/5 p-3.5 shadow-[0_0_12px_oklch(0.82_0.18_200/0.05)] animate-fade-up">
+          <div className="mb-1.5 flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-cyan/70">
+            <Sparkles className="size-3.5 text-cyan animate-pulse" /> Objective
+          </div>
+          <div className="font-mono text-[11px] leading-relaxed text-foreground/80">
+            Three valid syntheses dissolve the obstacle. Deduce compounds from elements and your story.
+          </div>
+        </div>
+      </aside>
+
+      {/* Column 2 (Center on desktop, top on mobile): Active Domain & Obstacle Grid */}
+      <div className="space-y-3 order-1 lg:order-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className={`mb-1 inline-flex rounded-md ${accentBadge} px-2 py-0.5 text-[10px] font-mono uppercase tracking-[0.25em] text-primary-foreground`}>
               Active Domain
             </div>
-            <h2 className="font-display text-2xl font-bold text-glow-magenta sm:text-3xl">{domain.name}</h2>
+            <h2 className="font-pixel text-xl font-bold text-glow-magenta sm:text-2xl">{domain.name}</h2>
           </div>
           <button onClick={onExit} className="flex items-center gap-1 rounded-lg border border-border bg-card/60 px-3 py-2 text-xs text-muted-foreground transition hover:text-foreground">
             <X className="size-3.5" /> Exit Domain
@@ -195,16 +238,16 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             <span className="text-cyan">{TOTAL_BLOCKS - cleared} / {TOTAL_BLOCKS} blocks</span>
           </div>
           <ObstacleGrid total={TOTAL_BLOCKS} cleared={cleared} shake={shake} glow={glow} justCleared={justCleared} />
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
             <div className="h-full bg-gradient-magenta transition-all duration-700" style={{ width: `${progressPct}%` }} />
           </div>
-          <div className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            Three valid syntheses dissolve the obstacle. The compounds are not listed — deduce them from the elements and your story.
-          </div>
         </div>
+      </div>
 
-        <div className="rounded-2xl border border-border bg-card/70 p-4">
-          <div className="mb-3 flex items-center justify-between">
+      {/* Column 3 (Right on desktop, middle on mobile): Workbench & Element Palette */}
+      <div className="space-y-3 order-2 lg:order-3">
+        <div className="rounded-2xl border border-border bg-card/70 p-3">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
               <FlaskConical className="size-3.5 text-magenta" /> Workbench
             </div>
@@ -234,13 +277,13 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             })}
           </div>
 
-          <div className="mt-3 rounded-lg border border-cyan/30 bg-cyan/5 p-3 font-mono text-xs text-cyan/90 animate-fade-up">
+          <div className="mt-2 rounded-lg border border-cyan/30 bg-cyan/5 p-2 font-mono text-xs text-cyan/90 animate-fade-up">
             <div className="mb-0.5 text-[10px] uppercase tracking-wider text-cyan/70">Bond Analyzer</div>
             <div className="text-foreground/85">{liveCommentary(workbench)}</div>
           </div>
 
           {byproduct && (
-            <div className="mt-3 flex items-start gap-2 rounded-lg border border-magenta/40 bg-magenta/10 p-3 text-sm text-foreground animate-fade-up">
+            <div className="mt-2 flex items-start gap-2 rounded-lg border border-magenta/40 bg-magenta/10 p-2 text-sm text-foreground animate-fade-up">
               <Sparkles className="mt-0.5 size-4 shrink-0 text-magenta" />
               <div>
                 <div className="mb-0.5 font-mono text-[10px] uppercase tracking-wider text-magenta">Meaningful byproduct</div>
@@ -250,7 +293,7 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           )}
 
           {hazmat && (
-            <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-mono text-destructive-foreground">
+            <div className="mt-2 flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-mono text-destructive-foreground">
               <AlertTriangle className="size-4 text-destructive" />
               Hazmat Protocol active — irrelevant elements neutralized. Focus on what's left.
             </div>
@@ -258,17 +301,17 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
 
           <button
             onClick={synthesize}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-magenta py-3 font-display text-base font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98]"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] py-3 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider"
           >
             <Sparkles className="size-4" /> Synthesize
           </button>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card/40 p-4">
-          <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-card/40 p-2 md:p-3">
+          <div className="mb-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
             Element Palette · hover for properties
           </div>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-3">
             {paletteOrder.map(s => (
               <ElementTile
                 key={s}
@@ -280,37 +323,6 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           </div>
         </div>
       </div>
-
-      <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-        <div className="rounded-2xl border border-border bg-card/70 p-4">
-          <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">Live Telemetry</div>
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Progress" value={`${solved.length}/${requiredOrder.length}`} accent="magenta" />
-            <Stat label="Misses"   value={`${attempts - correct}`} accent="cyan" />
-            <Stat label="Elapsed"  value={fmtTime(elapsed)} accent="violet" />
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Stat label="Accuracy" value={`${accuracy}%`} accent="cyan" />
-            <Stat label="Hazmat"   value={`${hazmatCount}×`} accent="magenta" />
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card/70 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="font-mono text-xs uppercase tracking-wider text-muted-foreground">Synthesized</div>
-            <RotateCcw className="size-3 text-muted-foreground" />
-          </div>
-          {synthLog.length === 0 ? (
-            <div className="text-xs italic text-muted-foreground">No reactions yet.</div>
-          ) : (
-            <ul className="space-y-1 font-mono text-xs">
-              {synthLog.map((l, i) => (
-                <li key={i} className="text-success animate-fade-up">{l}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </aside>
     </div>
   );
 }

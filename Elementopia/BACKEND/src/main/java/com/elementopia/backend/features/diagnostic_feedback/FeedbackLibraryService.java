@@ -1,4 +1,4 @@
-package com.elementopia.backend.features.domain_interaction;
+package com.elementopia.backend.features.diagnostic_feedback;
 
 import org.springframework.stereotype.Service;
 import java.util.Collections;

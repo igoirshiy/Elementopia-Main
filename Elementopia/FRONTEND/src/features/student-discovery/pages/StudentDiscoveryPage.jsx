@@ -33,9 +33,9 @@ const StudentDiscoveryPage = () => {
   return (
     <div className="elementopia-scope min-h-screen grid-bg text-foreground flex flex-col">
       <SiteHeader />
-      <main className="mx-auto max-w-[1600px] w-full px-6 py-12">
+      <main className="mx-auto max-w-[1400px] w-full px-8 md:px-16 lg:px-24 py-12">
         <div className="mb-10">
-          <p className="font-mono text-xs text-muted-foreground tracking-[0.2em] uppercase">/ LABORATORY</p>
+          <p className="font-mono text-xs text-muted-foreground tracking-[0.3em] uppercase">LABORATORY</p>
           <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2 text-white flex items-center gap-4" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
             <ScienceIcon fontSize="large" sx={{ color: '#ec4899' }} /> Your Discoveries
           </h1>
@@ -89,82 +89,75 @@ const StudentDiscoveryPage = () => {
             open={!!selectedDiscovery}
             onClose={() => setSelectedDiscovery(null)}
         >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[95vw] outline-none">
-                {/* Glowing Backdrop Element */}
-                <div className="absolute -inset-4 bg-gradient-to-tr from-cyan/30 to-blue-500/30 rounded-[2.5rem] blur-2xl opacity-60 animate-pulse pointer-events-none" />
-                
-                {/* Main Glass Card */}
-                <div className="relative bg-[#0d0f1a]/85 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 sm:p-10 text-center shadow-2xl overflow-hidden">
+            <div 
+                className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
+                style={{ minHeight: 'auto', background: 'transparent' }}
+            >
+                {selectedDiscovery && (() => {
+                    const dictEntry = compoundElements.find(c => c.NAME === selectedDiscovery.name) || {};
+                    const symbol = selectedDiscovery.symbol || dictEntry.Symbol;
+                    const description = selectedDiscovery.description || dictEntry.Description;
+                    const uses = selectedDiscovery.uses || (dictEntry.Uses ? dictEntry.Uses.join(", ") : null);
+                    const elements = selectedDiscovery.elements || (dictEntry.Elements ? dictEntry.Elements.join(", ") : null);
                     
-                    {/* Decorative Top Highlight */}
-                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-magenta via-cyan to-magenta opacity-80" />
+                    return (
+                        <div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
 
-                    <div className="flex justify-center mb-6">
-                        <div className="p-4 rounded-full bg-cyan/10 border border-cyan/20 shadow-[0_0_30px_rgba(34,211,238,0.4)]">
-                            <ScienceIcon sx={{ fontSize: 40, color: '#22d3ee' }} />
-                        </div>
-                    </div>
-                    
-                    {selectedDiscovery && (() => {
-                        const dictEntry = compoundElements.find(c => c.NAME === selectedDiscovery.name) || {};
-                        const symbol = selectedDiscovery.symbol || dictEntry.Symbol;
-                        const description = selectedDiscovery.description || dictEntry.Description;
-                        const uses = selectedDiscovery.uses || (dictEntry.Uses ? dictEntry.Uses.join(", ") : null);
-                        const elements = selectedDiscovery.elements || (dictEntry.Elements ? dictEntry.Elements.join(", ") : null);
-                        
-                        return (
-                            <div className="mt-4 mb-8 space-y-4">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] mb-1 font-mono">
-                                        Laboratory Record
-                                    </p>
-                                    <h3 className="text-3xl font-bold bg-gradient-to-r from-cyan to-blue-400 bg-clip-text text-transparent pb-1">
-                                        {selectedDiscovery.name}
-                                    </h3>
-                                    {symbol && (
-                                        <p className="font-mono text-lg font-bold text-magenta mt-1">{symbol}</p>
-                                    )}
+                            <div className="flex-1 pr-2 text-left">
+                                <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
+                                    Laboratory Record
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left backdrop-blur-sm mt-4">
-                                    <p className="text-[14px] text-white/90 leading-relaxed">
-                                        {description || "No description available in the archives."}
-                                    </p>
-                                </div>
-
-                                <div className="bg-magenta/5 border border-magenta/20 rounded-2xl p-5 text-left">
-                                    <h4 className="text-[11px] font-mono text-magenta uppercase tracking-widest mb-2 flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-magenta animate-pulse" />
-                                        Primary Applications
-                                    </h4>
-                                    <p className="text-[13px] text-magenta/90 leading-relaxed font-medium">
-                                        {uses || "None specified."}
-                                    </p>
-                                </div>
+                                <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
+                                    {selectedDiscovery.name}
+                                </h2>
                                 
-                                {elements && (
-                                    <div className="text-left mt-2">
-                                        <p className="font-mono text-[10px] uppercase text-muted-foreground tracking-widest mb-1">
-                                            Elemental Composition
-                                        </p>
-                                        <p className="text-xs text-white/70 font-mono bg-black/40 rounded-lg p-2 border border-white/10">
-                                            {elements}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })()}
+                                <p className="mt-2 font-mono text-sm text-cyan mb-8">
+                                    Formula: {symbol}
+                                </p>
 
-                    <div className="flex gap-4 justify-center mt-2">
-                        <button
-                            onClick={() => setSelectedDiscovery(null)}
-                            className="w-full px-6 py-3.5 rounded-xl border border-white/20 bg-white/5 text-white font-bold uppercase tracking-wider text-[11px] transition hover:bg-white/10"
-                        >
-                            Close Record
-                        </button>
-                    </div>
-                </div>
+                                <div className="space-y-6">
+                                    <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar">
+                                        {description || "No description available in the archives."}
+                                    </div>
+
+                                    <div className="border-t border-border pt-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                                    Primary Applications
+                                                </h4>
+                                                <p className="text-sm font-bold text-white/90">
+                                                    {uses || "None specified."}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                                                    Elemental Composition
+                                                </h4>
+                                                <p className="text-sm font-bold text-cyan">
+                                                    {elements || "Unknown."}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-6 shrink-0">
+                                <div className="font-mono text-xs text-muted-foreground">
+                                    Synthesized successfully.
+                                </div>
+                                <button
+                                    onClick={() => setSelectedDiscovery(null)}
+                                    className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    Close Record
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
         </Modal>
       </main>
