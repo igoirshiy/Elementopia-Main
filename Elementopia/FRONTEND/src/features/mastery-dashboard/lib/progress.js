@@ -77,6 +77,25 @@ export async function fetchProgress(nickname) {
       if (response.ok) {
         const cloudData = await response.json();
         
+        // Merge sessions properly
+        const mergedSessions = [...(cloudData.sessions || []), ...(p.sessions || [])].reduce((acc, s) => {
+          const ex = acc[s.domainId];
+          if (!ex) {
+            acc[s.domainId] = s;
+          } else {
+            acc[s.domainId] = {
+              ...ex,
+              ...s,
+              cleared: ex.cleared || s.cleared,
+              correct: Math.max(ex.correct || 0, s.correct || 0),
+              incorrect: Math.max(ex.incorrect || 0, s.incorrect || 0),
+              durationMs: Math.max(ex.durationMs || 0, s.durationMs || 0),
+              hazmat: ex.hazmat || s.hazmat,
+            };
+          }
+          return acc;
+        }, {});
+
         // Merge cloud data with default/local structures
         p = {
           ...p,
@@ -84,8 +103,8 @@ export async function fetchProgress(nickname) {
           rating: cloudData.rating !== undefined ? cloudData.rating : p.rating,
           wins: cloudData.wins !== undefined ? cloudData.wins : p.wins,
           losses: cloudData.losses !== undefined ? cloudData.losses : p.losses,
-          clearedDomains: cloudData.clearedDomains || p.clearedDomains || [],
-          sessions: cloudData.sessions || p.sessions || []
+          clearedDomains: Array.from(new Set([...(cloudData.clearedDomains || []), ...(p.clearedDomains || [])])),
+          sessions: Object.values(mergedSessions)
         };
         
         // Commit update locally
