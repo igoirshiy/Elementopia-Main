@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
-import { loadProgress, resetProgress } from "@/features/mastery-dashboard/lib/progress";
+import { loadProgress, resetProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService, { NicknameGate } from "@/features/auth-user";
 
 export function DashboardHub({ onPlayDomain, onOpenMastery }) {
@@ -11,6 +11,21 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   const navigate = useNavigate();
   
   useEffect(() => {
+    const initProgress = async () => {
+      let localUser = null;
+      try {
+        const userStr = localStorage.getItem("elementopia_current_user");
+        if (userStr) localUser = JSON.parse(userStr);
+      } catch(e) {}
+
+      const nick = localUser?.username || progress.nickname;
+      if (nick && nick !== "Guest Alchemist") {
+        const p = await fetchProgress(nick);
+        setProgress(p);
+      }
+    };
+    initProgress();
+
     const h = () => setProgress(loadProgress());
     window.addEventListener("elementopia:progress", h);
     
@@ -19,6 +34,8 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
   const handleNicknameSubmit = async (nickname) => {
     await UserService.loginUser(nickname, "guest");
+    const freshProgress = await fetchProgress(nickname);
+    setProgress(freshProgress);
     setShowNicknameGate(false);
   };
 
@@ -81,14 +98,15 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         </div>
         <div className="flex flex-col items-end gap-5">
           <div className="flex gap-6 text-center">
-            <Stat label="Cleared" value={progress.clearedDomains.length} />
-            <Stat label="Sessions" value={progress.sessions.length} />
-            <Stat label="Wins" value={progress.wins} accent />
+            <Stat label="Cleared" value={progress?.clearedDomains?.length || 0} />
+            <Stat label="Sessions" value={progress?.sessions?.length || 0} />
+            <Stat label="Wins" value={progress?.wins || 0} accent />
           </div>
           <button 
-            onClick={() => {
+            onClick={async () => {
               if (window.confirm("Are you sure you want to reset all your progress?")) {
-                resetProgress(progress.nickname);
+                const fresh = await resetProgress(displayName);
+                setProgress(fresh);
               }
             }} 
             className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-5 py-2 font-['Montserrat',sans-serif] font-[800] text-[0.75rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider"
@@ -124,16 +142,21 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         <h2 className="font-mono text-xs mb-4 text-white tracking-[0.2em]">DOMAINS</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {DOMAINS.map((d, i) => {
-            const cleared = progress.clearedDomains.includes(d.id);
-            // Unlock if it's the first domain, or if the user cleared the PREVIOUS domain
-            const unlocked = i === 0 || progress.clearedDomains.includes(DOMAINS[i - 1].id);
+            const clearedDomains = progress?.clearedDomains || [];
+            const sessions = progress?.sessions || [];
+            const cleared = clearedDomains.includes(d.id);
+            const prevId = DOMAINS[i - 1]?.id;
+            const prevSession = sessions.find(s => s.domainId === prevId);
+            const prevFullyCleared = clearedDomains.includes(prevId) && (prevSession?.stage >= 3 || prevSession?.cleared);
+            const unlocked = i === 0 || prevFullyCleared;
+
             return (
               <button
                 key={d.id}
-                //disabled={!unlocked}
-                onClick={() => onPlayDomain(d)}
+                disabled={!unlocked}
+                onClick={() => unlocked && onPlayDomain(d)}
                 className={`group relative overflow-hidden rounded-[24px] border border-border/40 bg-card p-8 text-left transition
-                  ${unlocked ? "hover:-translate-y-1 hover:border-magenta/40 hover:shadow-2xl" : "opacity-60 cursor-not-allowed"}`}
+                  ${unlocked ? "hover:-translate-y-1 hover:border-magenta/40 hover:shadow-2xl cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
               >
                 <div className={`absolute inset-x-0 top-0 h-[6px] ${
                   d.accent === "cyan"    ? "bg-gradient-cyan" :

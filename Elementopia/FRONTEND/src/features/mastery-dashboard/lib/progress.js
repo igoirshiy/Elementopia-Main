@@ -1,4 +1,3 @@
-// Persistent per-device and cloud-synchronized progression service
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 const KEY = "elementopia.progress.v1";
 const BASE_URL = "http://localhost:8080/api/progress";
@@ -8,24 +7,63 @@ const DEFAULT = {
   matches: [], rating: 1200
 };
 
+let memoryCache = null;
+
 export function loadProgress() {
+  if (memoryCache) return memoryCache;
   if (typeof window === "undefined") return DEFAULT;
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
+    const parsed = raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
+    memoryCache = parsed;
+    return parsed;
   } catch { return DEFAULT; }
 }
 
-export function resetProgress(nickname) {
-  saveProgress({ ...DEFAULT, nickname: nickname || "" });
+export async function resetProgress(nickname) {
+  const fresh = {
+    ...DEFAULT,
+    nickname: nickname || "",
+    sessions: [],
+    clearedDomains: [],
+    wins: 0,
+    losses: 0,
+    rating: 1200
+  };
+
+  memoryCache = fresh;
+  if (typeof window !== "undefined") {
+    localStorage.setItem(KEY, JSON.stringify(fresh));
+    window.dispatchEvent(new Event("elementopia:progress"));
+  }
+
+  if (nickname && nickname !== "Guest Alchemist") {
+    try {
+      await fetch(BASE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fresh)
+      });
+
+      await fetch("http://localhost:8080/api/features/progression/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionNickname: nickname })
+      });
+    } catch (e) {
+      console.warn("Backend reset sync failed:", e.message);
+    }
+  }
+
+  return fresh;
 }
 
+
 export function saveProgress(p) {
+  memoryCache = p;
   if (typeof window === "undefined") return;
   localStorage.setItem(KEY, JSON.stringify(p));
   window.dispatchEvent(new Event("elementopia:progress"));
-  
-  // Asynchronously sync to the cloud database
   syncProgressToCloud(p);
 }
 
@@ -46,7 +84,7 @@ export function recordMatch(opponent, result, ms, fails) {
   const p = loadProgress();
   if (!p.matches) p.matches = [];
   if (!p.rating) p.rating = 1200;
-  
+
   p.matches.unshift({ at: Date.now(), opponent, result, ms, fails });
   p.matches = p.matches.slice(0, 20);
   p.rating += result === "win" ? 25 : result === "loss" ? -15 : 0;
@@ -56,58 +94,37 @@ export function recordMatch(opponent, result, ms, fails) {
 }
 
 export function generateNickname() {
-  const CHEM_ADJ = ["Volatile","Noble","Reactive","Inert","Catalytic","Crystalline","Ionic","Covalent"];
-  const CHEM_NOUN = ["Argon","Helix","Quark","Isotope","Photon","Ester","Anion","Cation"];
-  const a = CHEM_ADJ[Math.floor(Math.random()*CHEM_ADJ.length)];
-  const n = CHEM_NOUN[Math.floor(Math.random()*CHEM_NOUN.length)];
-  return `${a}${n}${Math.floor(Math.random()*90+10)}`;
+  const CHEM_ADJ = ["Volatile", "Noble", "Reactive", "Inert", "Catalytic", "Crystalline", "Ionic", "Covalent"];
+  const CHEM_NOUN = ["Argon", "Helix", "Quark", "Isotope", "Photon", "Ester", "Anion", "Cation"];
+  const a = CHEM_ADJ[Math.floor(Math.random() * CHEM_ADJ.length)];
+  const n = CHEM_NOUN[Math.floor(Math.random() * CHEM_NOUN.length)];
+  return `${a}${n}${Math.floor(Math.random() * 90 + 10)}`;
 }
 
 export function generateAccessCode() {
-  return Math.floor(10000 + Math.random()*90000).toString();
+  return Math.floor(10000 + Math.random() * 90000).toString();
 }
 
-// REST Sync: Retrieve latest state from cloud and merge with local copy
 export async function fetchProgress(nickname) {
   let p = loadProgress();
-  
+
   if (nickname && nickname !== "Guest Alchemist") {
     try {
       const response = await fetch(`${BASE_URL}/${nickname}`);
       if (response.ok) {
         const cloudData = await response.json();
-        
-        // Merge sessions properly
-        const mergedSessions = [...(cloudData.sessions || []), ...(p.sessions || [])].reduce((acc, s) => {
-          const ex = acc[s.domainId];
-          if (!ex) {
-            acc[s.domainId] = s;
-          } else {
-            acc[s.domainId] = {
-              ...ex,
-              ...s,
-              cleared: ex.cleared || s.cleared,
-              correct: Math.max(ex.correct || 0, s.correct || 0),
-              incorrect: Math.max(ex.incorrect || 0, s.incorrect || 0),
-              durationMs: Math.max(ex.durationMs || 0, s.durationMs || 0),
-              hazmat: ex.hazmat || s.hazmat,
-            };
-          }
-          return acc;
-        }, {});
 
-        // Merge cloud data with default/local structures
         p = {
           ...p,
           nickname: cloudData.nickname || nickname,
           rating: cloudData.rating !== undefined ? cloudData.rating : p.rating,
           wins: cloudData.wins !== undefined ? cloudData.wins : p.wins,
           losses: cloudData.losses !== undefined ? cloudData.losses : p.losses,
-          clearedDomains: Array.from(new Set([...(cloudData.clearedDomains || []), ...(p.clearedDomains || [])])),
-          sessions: Object.values(mergedSessions)
+          clearedDomains: cloudData.clearedDomains || [],
+          sessions: cloudData.sessions || []
         };
-        
-        // Commit update locally
+
+        memoryCache = p;
         localStorage.setItem(KEY, JSON.stringify(p));
         window.dispatchEvent(new Event("elementopia:progress"));
       }
@@ -116,7 +133,6 @@ export async function fetchProgress(nickname) {
     }
   }
 
-  // Ensure nickname matches if we fell back
   if (p.nickname !== nickname) {
     p.nickname = nickname;
     saveProgress(p);
@@ -124,6 +140,7 @@ export async function fetchProgress(nickname) {
 
   return p.sessions.map(s => ({
     domain: s.domainId,
+    stage: s.stage || 1,
     attempts: s.incorrect + (s.cleared ? 1 : 0),
     correct: s.correct,
     completed: s.cleared,
@@ -135,17 +152,18 @@ export async function fetchProgress(nickname) {
 export async function upsertProgress(row) {
   const p = loadProgress();
   p.nickname = row.nickname;
-  
+
   if (!p.clearedDomains) p.clearedDomains = [];
   if (!p.sessions) p.sessions = [];
-  
+
   if (row.completed && !p.clearedDomains.includes(row.domain)) {
     p.clearedDomains.push(row.domain);
   }
-  
+
   const lastSessionIdx = p.sessions.findIndex(s => s.domainId === row.domain);
   if (lastSessionIdx >= 0) {
     const s = p.sessions[lastSessionIdx];
+    s.stage = row.stage || s.stage || 1;
     s.cleared = s.cleared || row.completed;
     s.correct = Math.max(s.correct || 0, row.correct || 0);
     s.incorrect = Math.max(s.incorrect || 0, (row.attempts || 0) - (row.completed ? 1 : 0));
@@ -155,6 +173,7 @@ export async function upsertProgress(row) {
     p.sessions.push({
       domainId: row.domain,
       domainName: row.domain,
+      stage: row.stage || 1,
       startedAt: Date.now(),
       durationMs: (row.time_seconds || 0) * 1000,
       correct: row.correct || 0,
@@ -164,7 +183,7 @@ export async function upsertProgress(row) {
       mode: "puzzle",
     });
   }
-  
+
   saveProgress(p);
 
   if (row.completed) {
