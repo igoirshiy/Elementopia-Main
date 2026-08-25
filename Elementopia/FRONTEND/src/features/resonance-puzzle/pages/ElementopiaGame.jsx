@@ -9,6 +9,7 @@ import { GameBoard } from "../components/GameBoard";
 import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { useLocation } from "react-router-dom";
+import { DebriefingModal } from "../components/DebriefingModal";
 
 export default function ElementopiaGame() {
   const location = useLocation();
@@ -19,51 +20,68 @@ export default function ElementopiaGame() {
   const [storyOpen, setStoryOpen] = useState(false);
   const [completionBanner, setCompletionBanner] = useState(null);
   const [error, setError] = useState(null);
-
+  const [debriefOpen, setDebriefOpen] = useState(false);
   const refresh = useCallback(async (nick) => {
     try { setRows(await fetchProgress(nick)); }
     catch (e) { setError(e?.message ?? "Failed to load progress"); }
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => {
     const initNickname = async () => {
       const user = await UserService.getCurrentUser();
       if (user && user.username && user.username !== "Guest") {
         setNickname(user.username);
         void refresh(user.username);
-      } else {
-        // If they somehow got here without a nickname, send them back to land
-        window.location.href = "/";
       }
     };
     initNickname();
+
+    const handleProgressChange = async () => {
+      const user = await UserService.getCurrentUser();
+      if (user && user.username && user.username !== "Guest") {
+        setNickname(user.username);
+        void refresh(user.username);
+      }
+    };
+
+    window.addEventListener("elementopia:progress", handleProgressChange);
+    return () => window.removeEventListener("elementopia:progress", handleProgressChange);
   }, [refresh]);
 
-  // const completedIds = useMemo(() => new Set(rows.filter(r => r.completed).map(r => r.domain)), [rows]);
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (view === "playing" || view === "dashboard") {
+        event.preventDefault();
+        setView("home");
+        setActiveDomain(null);
+        setStoryOpen(false);
+        setDebriefOpen(false);
+      }
+    };
 
-  // const isUnlocked = (idx) => {
-  //   if (idx === 0) return true;
-  //   return completedIds.has(DOMAINS[idx - 1].id);
-  // };
+    if (view === "playing" || view === "dashboard") {
+      window.history.pushState({ view }, "", window.location.href);
+      window.addEventListener("popstate", handlePopState);
+    }
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [view]);
+
 
   const enterDomain = async (d, idx) => {
-    // Rooms are 1-indexed in the backend, but array indices are 0-indexed
     const roomId = idx + 1;
 
     try {
-      // Ask the Spring Boot backend for permission
       const response = await fetch(`http://localhost:8080/api/features/progression/verify-access?nicknameWithTag=${encodeURIComponent(nickname)}&roomId=${roomId}`);
       const data = await response.json();
 
       if (data.action === "LAUNCH_PUZZLE_ARENA") {
-        // Backend granted access
         setActiveDomain(d);
         setStoryOpen(true);
         setView("playing");
-        setError(null); // Clear any old warnings
+        setError(null);
       } else if (data.action === "DISPLAY_LOCKED_WARNING") {
-        // Backend denied access - Display the Spring Boot message!
-        setError(data.message); 
+        setError(data.message);
       }
     } catch (err) {
       setError("Network error: Could not verify domain access with the server.", err);
@@ -74,9 +92,19 @@ export default function ElementopiaGame() {
     if (!activeDomain || !nickname) return;
     setCompletionBanner(`${activeDomain.name} cleared — next domain unlocked.`);
     await refresh(nickname);
+    setDebriefOpen(true);
+    setTimeout(() => setCompletionBanner(null), 5000);
+  };
+
+  const handleDebriefContinue = () => {
+    setDebriefOpen(false);
     setView("home");
     setActiveDomain(null);
-    setTimeout(() => setCompletionBanner(null), 5000);
+  };
+
+  const handleDebriefRetry = () => {
+    setDebriefOpen(false);
+    setStoryOpen(true);
   };
 
   if (!nickname) {
@@ -89,53 +117,70 @@ export default function ElementopiaGame() {
 
   return (
     <div className="h-screen overflow-hidden" style={{ display: "flex", width: "100%", backgroundColor: "#121212" }}>
-      <div 
+      <div
         className="elementopia-scope flex flex-col h-full w-full"
         style={{ flexGrow: 1 }}
       >
         <SiteHeader view={view} setView={setView} />
 
-      <div className="flex-1 overflow-y-auto w-full flex flex-col">
-      {error && (
-        <div className="mx-auto mt-3 flex max-w-[1600px] w-full items-center justify-between gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-6 py-2 text-sm text-destructive-foreground">
-          <span>⚠ {error}</span>
-          <button onClick={() => setError(null)}><X className="size-4" /></button>
-        </div>
-      )}
-      {completionBanner && (
-        <div className="mx-auto mt-3 max-w-[1600px] w-full rounded-lg border border-success/40 bg-success/10 px-6 py-3 text-center font-mono text-sm text-success animate-fade-up">
-          ✓ {completionBanner}
-        </div>
-      )}
+        <div className="flex-1 overflow-y-auto w-full flex flex-col">
+          {error && (
+            <div className="mx-auto mt-3 flex max-w-[1600px] w-full items-center justify-between gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-6 py-2 text-sm text-destructive-foreground">
+              <span>⚠ {error}</span>
+              <button onClick={() => setError(null)}><X className="size-4" /></button>
+            </div>
+          )}
+          {completionBanner && (
+            <div className="mx-auto mt-3 max-w-[1600px] w-full rounded-lg border border-success/40 bg-success/10 px-6 py-3 text-center font-mono text-sm text-success animate-fade-up">
+              ✓ {completionBanner}
+            </div>
+          )}
 
-      {view === "home" && (
-        <DashboardHub 
-          onPlayDomain={(d) => enterDomain(d, DOMAINS.findIndex(x => x.id === d.id))} 
-          onOpenMastery={() => { setView("dashboard"); if (nickname) void refresh(nickname); }} 
-        />
-      )}
-
-      {view === "playing" && activeDomain && (
-        <>
-          {storyOpen && <StoryCard domain={activeDomain} onEnter={() => setStoryOpen(false)} onCancel={() => { setView("home"); setActiveDomain(null); setStoryOpen(false); }} />}
-          {!storyOpen && (
-            <GameBoard
-              nickname={nickname}
-              domain={activeDomain}
-              onCleared={onCleared}
-              onExit={() => { setView("home"); setActiveDomain(null); if (nickname) void refresh(nickname); }}
-              onError={(m) => setError(m)}
+          {view === "home" && (
+            <DashboardHub
+              onPlayDomain={(d) => enterDomain(d, DOMAINS.findIndex(x => x.id === d.id))}
+              onOpenMastery={() => { setView("dashboard"); if (nickname) void refresh(nickname); }}
             />
           )}
-        </>
-      )}
 
-      {view === "dashboard" && <Dashboard nickname={nickname} rows={rows} />}
+          {view === "playing" && activeDomain && (
+            <>
+              {storyOpen && (
+                <StoryCard
+                  domain={activeDomain}
+                  currentStage={rows.find(r => r.domain === activeDomain?.id)?.stage || 1}
+                  onEnter={() => setStoryOpen(false)}
+                  onCancel={() => { setView("home"); setActiveDomain(null); setStoryOpen(false); }}
+                />
+              )}
 
-      <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">
-        Elementopia · prototype · elemental resonance module
-      </footer>
-      </div>
+              {!storyOpen && !debriefOpen && (
+                <GameBoard
+                  nickname={nickname}
+                  domain={activeDomain}
+                  initialStage={rows.find(r => r.domain === activeDomain?.id)?.stage || 1}
+                  onCleared={onCleared}
+                  onExit={() => { setView("home"); setActiveDomain(null); if (nickname) void refresh(nickname); }}
+                  onError={(m) => setError(m)}
+                />
+              )}
+
+              {debriefOpen && (
+                <DebriefingModal
+                  domain={activeDomain}
+                  onContinue={handleDebriefContinue}
+                  onRetry={handleDebriefRetry}
+                />
+              )}
+            </>
+          )}
+
+          {view === "dashboard" && <Dashboard nickname={nickname} rows={rows} />}
+
+          <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">
+            Elementopia · prototype · elemental resonance module
+          </footer>
+        </div>
       </div>
     </div>
   );

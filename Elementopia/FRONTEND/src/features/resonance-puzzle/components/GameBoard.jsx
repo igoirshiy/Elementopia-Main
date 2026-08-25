@@ -6,13 +6,12 @@ import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
 import DiscoveryService from "@/features/student-discovery/services/DiscoveryService";
 import UserService from "@/features/auth-user";
 import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw } from "lucide-react";
+import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
+import { StageTransitionModal } from "./StageTransitionModal";
+import { DoctorAtomTutorialModal } from "./DoctorAtomTutorialModal";
+import { MolecularBondVisualizer } from "./MolecularBondVisualizer";
 
-const BLOCKS_PER_REACTION = 8;
-const TOTAL_BLOCKS = BLOCKS_PER_REACTION * 3;
-
-export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
-  const [paletteOrder] = useState(() => domain.palette);
-  const [requiredOrder] = useState(() => shuffle(domain.required));
+export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExit, onError }) {
   const [workbench, setWorkbench] = useState({});
   const [solved, setSolved] = useState([]);
   const [byproduct, setByproduct] = useState(null);
@@ -24,6 +23,32 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
   const [hazmatCount, setHazmatCount] = useState(0);
   const [synthLog, setSynthLog] = useState([]);
   const [justCleared, setJustCleared] = useState(0);
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const [showFailsafeModal, setShowFailsafeModal] = useState(false);
+  const [currentStage, setCurrentStage] = useState(() => initialStage || 1);
+  const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [showTutorialModal, setShowTutorialModal] = useState(true);
+
+  useEffect(() => {
+    setShowTutorialModal(true);
+  }, [currentStage]);
+  const hasStages = Boolean(domain?.stages);
+  const maxStages = hasStages ? Object.keys(domain.stages).length : 1;
+  const activeStageData = hasStages ? (domain.stages[currentStage] || domain.stages[1]) : domain;
+  const paletteOrder = activeStageData.palette || domain.palette;
+  const requiredOrder = useMemo(() => shuffle(activeStageData.required || domain.required), [activeStageData, domain]);
+  const validInDomain = activeStageData.validInDomain || domain.validInDomain;
+
+  const TOTAL_BLOCKS = useMemo(() => {
+    const reqCount = requiredOrder.length || 3;
+    return reqCount >= 6 ? 36 : reqCount >= 5 ? 30 : 24;
+  }, [requiredOrder]);
+
+  const blocksPerReaction = useMemo(() => {
+    return Math.max(1, Math.ceil(TOTAL_BLOCKS / (requiredOrder.length || 3)));
+  }, [TOTAL_BLOCKS, requiredOrder]);
+
+  const cleared = Math.min(TOTAL_BLOCKS, solved.length * blocksPerReaction);
 
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
@@ -31,13 +56,13 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)), 250);
     return () => clearInterval(t);
   }, []);
-  const cleared = solved.length * BLOCKS_PER_REACTION;
 
   const addElement = (s) => {
-    if (hazmat && !domain.validInDomain.includes(s)) return;
+    if (hazmat && !validInDomain?.includes(s)) return;
     setWorkbench(w => ({ ...w, [s]: (w[s] ?? 0) + 1 }));
     setByproduct(null);
   };
+
   const removeOne = (s) => {
     setWorkbench(w => {
       const next = { ...w };
@@ -46,13 +71,41 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
       return next;
     });
   };
+
   const clearBench = () => setWorkbench({});
+
+  const handleExitGame = async () => {
+    persist({ stage: currentStage });
+    try {
+      await fetch("http://localhost:8080/api/features/domain-interaction/reset-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+    } catch (e) {
+      console.warn("Backend session reset skipped:", e);
+    }
+    onExit();
+  };
+
+  const handleAdvanceStage = () => {
+    setStageModalOpen(false);
+    setSolved([]);
+    setWorkbench({});
+    setJustCleared(0);
+    setSynthLog([]);
+    const nextStage = currentStage + 1;
+    setCurrentStage(nextStage);
+    persist({ stage: nextStage });
+  };
+
 
   const persist = (extra = {}) => {
     const payload = {
       nickname,
       domain: domain.id,
-      completed: extra.completed ?? (solved.length >= requiredOrder.length),
+      stage: extra.stage ?? currentStage,
+      completed: extra.completed ?? (currentStage >= maxStages && solved.length >= requiredOrder.length),
       attempts: extra.attempts ?? attempts,
       correct: extra.correct ?? correct,
       time_seconds: Math.floor((Date.now() - startedAt.current) / 1000),
@@ -93,17 +146,16 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
         case "UNLOCK_PATH": {
           const newSolved = [...solved, elementList.join("-")];
           const newCorrect = correct + 1;
-          
+
           setSolved(newSolved);
           setCorrect(newCorrect);
           setSynthLog(l => [`✓ Resonance Achieved: ${elementList.join(" + ")}`, ...l].slice(0, 12));
 
-          const matchedCompound = matchCompound(workbench, domain);
+          const matchedCompound = matchCompound(workbench, domain, currentStage);
           if (matchedCompound) {
-            // The first compound in the required array is the "primary" goal (e.g., Water for Domain 1).
-            // We only want to save the "secret" alternative compounds as discoveries.
-            const isPrimary = matchedCompound.formula === domain.required[0].formula;
-            
+            const reqList = activeStageData.required || domain.required;
+            const isPrimary = reqList && reqList[0] && matchedCompound.formula === reqList[0].formula;
+
             if (!isPrimary) {
               UserService.getCurrentUser().then(user => {
                 if (user && user.userId) {
@@ -118,34 +170,51 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             }
           }
 
+          setConsecutiveFailures(0);
           setWorkbench({});
           setByproduct(null);
           setGlow(true);
-          setJustCleared(BLOCKS_PER_REACTION);
+          setJustCleared(blocksPerReaction);
           setTimeout(() => setGlow(false), 900);
           setTimeout(() => setJustCleared(0), 1400);
 
           if (hazmat) setHazmat(false);
-          const done = newSolved.length >= requiredOrder.length;
-          persist({ attempts: newAttempts, correct: newCorrect, completed: done });
-          if (done) setTimeout(() => onCleared(), 1500);
+          const doneStage = newSolved.length >= requiredOrder.length;
+          const doneAll = doneStage && (currentStage >= maxStages);
+          persist({ attempts: newAttempts, correct: newCorrect, completed: doneAll });
+
+          if (doneStage) {
+            if (currentStage < maxStages) {
+              setTimeout(() => setStageModalOpen(true), 1200);
+            } else {
+              setTimeout(() => onCleared(), 1500);
+            }
+          }
+
           break;
         }
-        
-        case "TRIGGER_DIAGNOSTIC":
-          // The standard diagnostic (less than 5 failures)
-          setByproduct(data.message); 
+
+        case "TRIGGER_DIAGNOSTIC": {
+          const newFails = consecutiveFailures + 1;
+          setConsecutiveFailures(newFails);
+          if (newFails >= 3) setShowFailsafeModal(true);
+
+          setByproduct(data.message);
           setShake(true);
           setTimeout(() => setShake(false), 500);
-          
+
           persist({ attempts: newAttempts });
           break;
+        }
 
-        case "LOCK_POINTER_INTERACTIONS":
-          setByproduct(data.message); 
+        case "LOCK_POINTER_INTERACTIONS": {
+          const newFails = consecutiveFailures + 1;
+          setConsecutiveFailures(newFails);
+          setShowFailsafeModal(true);
+          setByproduct(data.message);
           setShake(true);
           setTimeout(() => setShake(false), 500);
-          
+
           if (!hazmat) {
             setHazmat(true);
             const newHazmat = hazmatCount + 1;
@@ -155,6 +224,7 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             persist({ attempts: newAttempts });
           }
           break;
+        }
 
         default:
           console.warn("Unknown network routing action:", data.action);
@@ -165,10 +235,10 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
   };
 
   const accentBadge = useMemo(() => ({
-    cyan:    "bg-gradient-cyan",
+    cyan: "bg-gradient-cyan",
     magenta: "bg-gradient-magenta",
-    violet:  "bg-gradient-violet",
-    forge:   "bg-gradient-forge",
+    violet: "bg-gradient-violet",
+    forge: "bg-gradient-forge",
   }[domain.accent]), [domain.accent]);
 
   const accuracy = attempts === 0 ? 0 : Math.round((correct / attempts) * 100);
@@ -176,18 +246,24 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
 
   return (
     <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[280px_1.6fr_1fr] items-start">
-      {/* Column 1 (Left on desktop, bottom on mobile): Live Telemetry & Synthesized log */}
+      {/* Right Column */}
       <aside className="space-y-3 lg:sticky lg:top-16 lg:self-start order-3 lg:order-1">
+        <button
+          onClick={handleExitGame}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-2.5 font-mono text-xs font-bold text-red-400 hover:bg-red-500/20 transition-all shadow-[0_0_10px_rgba(239,68,68,0.15)]"
+        >
+          <X className="size-4" /> EXIT GAME
+        </button>
         <div className="rounded-2xl border border-border bg-card/70 p-3">
           <div className="mb-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">Live Telemetry</div>
           <div className="grid grid-cols-3 gap-2">
             <Stat label="Progress" value={`${solved.length}/${requiredOrder.length}`} accent="magenta" />
-            <Stat label="Misses"   value={`${attempts - correct}`} accent="cyan" />
-            <Stat label="Elapsed"  value={fmtTime(elapsed)} accent="violet" />
+            <Stat label="Misses" value={`${attempts - correct}`} accent="cyan" />
+            <Stat label="Elapsed" value={fmtTime(elapsed)} accent="violet" />
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
             <Stat label="Accuracy" value={`${accuracy}%`} accent="cyan" />
-            <Stat label="Hazmat"   value={`${hazmatCount}×`} accent="magenta" />
+            <Stat label="Hazmat" value={`${hazmatCount}×`} accent="magenta" />
           </div>
         </div>
 
@@ -207,7 +283,6 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           )}
         </div>
 
-        {/* Mission Objective Box */}
         <div className="rounded-2xl border border-cyan/30 bg-cyan/5 p-3.5 shadow-[0_0_12px_oklch(0.82_0.18_200/0.05)] animate-fade-up">
           <div className="mb-1.5 flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-cyan/70">
             <Sparkles className="size-3.5 text-cyan animate-pulse" /> Objective
@@ -216,9 +291,21 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             Three valid syntheses dissolve the obstacle. Deduce compounds from elements and your story.
           </div>
         </div>
+
+        {byproduct && (
+          <div className="rounded-2xl border border-magenta/40 bg-magenta/10 p-3.5 text-sm text-foreground animate-fade-up">
+            <div className="flex items-start gap-2">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-magenta" />
+              <div>
+                <div className="mb-0.5 font-mono text-[10px] uppercase tracking-wider text-magenta font-bold">Meaningful byproduct</div>
+                <div className="text-xs text-slate-300">{byproduct}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
 
-      {/* Column 2 (Center on desktop, top on mobile): Active Domain & Obstacle Grid */}
+      {/* Center */}
       <div className="space-y-3 order-1 lg:order-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -227,24 +314,34 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
             </div>
             <h2 className="font-pixel text-xl font-bold text-glow-magenta sm:text-2xl">{domain.name}</h2>
           </div>
-          <button onClick={onExit} className="flex items-center gap-1 rounded-lg border border-border bg-card/60 px-3 py-2 text-xs text-muted-foreground transition hover:text-foreground">
-            <X className="size-3.5" /> Exit Domain
-          </button>
         </div>
-
         <div>
           <div className="mb-2 flex items-center justify-between text-xs font-mono text-muted-foreground">
             <span>Obstacle integrity</span>
             <span className="text-cyan">{TOTAL_BLOCKS - cleared} / {TOTAL_BLOCKS} blocks</span>
           </div>
-          <ObstacleGrid total={TOTAL_BLOCKS} cleared={cleared} shake={shake} glow={glow} justCleared={justCleared} />
+          <ObstacleGrid
+            total={TOTAL_BLOCKS}
+            cleared={cleared}
+            shake={shake}
+            glow={glow}
+            justCleared={justCleared}
+          />
           <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
             <div className="h-full bg-gradient-magenta transition-all duration-700" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
+        <div className="mt-2.5 rounded-xl border border-cyan/30 bg-cyan/5 p-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+          <div className="mb-1 flex items-center justify-between font-mono text-[10px] font-bold text-cyan uppercase tracking-wider">
+            <span>🧪 Bond Analyzer</span>
+            <span className="text-[9px] text-cyan/70">Realtime Reasoning</span>
+          </div>
+          <div className="font-mono text-xs leading-relaxed text-slate-200">
+            {liveCommentary(workbench)}
+          </div>
+        </div>
       </div>
-
-      {/* Column 3 (Right on desktop, middle on mobile): Workbench & Element Palette */}
+      {/* Left Column */}
       <div className="space-y-3 order-2 lg:order-3">
         <div className="rounded-2xl border border-border bg-card/70 p-3">
           <div className="mb-2 flex items-center justify-between">
@@ -255,42 +352,10 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
               <Trash2 className="size-3" /> Clear
             </button>
           </div>
-          <div className="min-h-[68px] flex flex-wrap items-center gap-2">
-            {Object.entries(workbench).filter(([, n]) => (n ?? 0) > 0).length === 0 && (
-              <div className="text-sm text-muted-foreground italic">Click elements below to add them…</div>
-            )}
-            {Object.entries(workbench).map(([sym, n]) => {
-              if (!n) return null;
-              const e = ELEMENTS[sym];
-              return (
-                <button
-                  key={sym}
-                  onClick={() => removeOne(sym)}
-                  className={`group flex items-center gap-2 rounded-lg bg-gradient-to-br ${e.gradient} px-3 py-2 text-white shadow transition hover:scale-105`}
-                  title="Click to remove one"
-                >
-                  <span className="font-display text-lg font-bold">{e.symbol}</span>
-                  <span className="font-mono text-xs opacity-90">×{n}</span>
-                  <X className="size-3 opacity-0 group-hover:opacity-80" />
-                </button>
-              );
-            })}
-          </div>
 
-          <div className="mt-2 rounded-lg border border-cyan/30 bg-cyan/5 p-2 font-mono text-xs text-cyan/90 animate-fade-up">
-            <div className="mb-0.5 text-[10px] uppercase tracking-wider text-cyan/70">Bond Analyzer</div>
-            <div className="text-foreground/85">{liveCommentary(workbench)}</div>
+          <div className="mb-2">
+            <MolecularBondVisualizer workbench={workbench} onRemove={removeOne} />
           </div>
-
-          {byproduct && (
-            <div className="mt-2 flex items-start gap-2 rounded-lg border border-magenta/40 bg-magenta/10 p-2 text-sm text-foreground animate-fade-up">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-magenta" />
-              <div>
-                <div className="mb-0.5 font-mono text-[10px] uppercase tracking-wider text-magenta">Meaningful byproduct</div>
-                <div className="text-muted-foreground">{byproduct}</div>
-              </div>
-            </div>
-          )}
 
           {hazmat && (
             <div className="mt-2 flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-mono text-destructive-foreground">
@@ -311,18 +376,70 @@ export function GameBoard({ nickname, domain, onCleared, onExit, onError }) {
           <div className="mb-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
             Element Palette · hover for properties
           </div>
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 items-center justify-items-center">
             {paletteOrder.map(s => (
               <ElementTile
                 key={s}
                 symbol={s}
-                disabled={hazmat && !domain.validInDomain.includes(s)}
+                disabled={hazmat && !validInDomain?.includes(s)}
                 onAdd={addElement}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {showTutorialModal && (
+        <DoctorAtomTutorialModal
+          domainId={domain?.id}
+          currentStage={currentStage}
+          onClose={() => setShowTutorialModal(false)}
+        />
+      )}
+
+      {showFailsafeModal && (
+        <div className="fixed top-20 right-6 z-50 w-80 sm:w-96 rounded-2xl border border-cyan/50 bg-slate-950/95 p-4 shadow-[0_0_30px_rgba(6,182,212,0.3)] animate-fade-down backdrop-blur-md">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+            <span className="font-mono text-xs font-bold text-cyan uppercase tracking-wider">
+              Doctor Atom Advice
+            </span>
+            <button
+              onClick={() => setShowFailsafeModal(false)}
+              className="text-slate-400 hover:text-white text-xs font-mono px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          <DoctorAtomAssistant
+            title="Doctor Atom"
+            message={`3 attempts made without a match! Tip for ${domain.name}: Check your valence electrons. Pair elements so offered electrons equal needed electrons!`}
+            isTalking={true}
+          />
+
+          <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800/80">
+            <span className="font-mono text-[10px] text-amber-400">
+              ⚡ Failsafe protocol active: Decoys dimmed
+            </span>
+            <button
+              onClick={() => setShowFailsafeModal(false)}
+              className="rounded-full bg-cyan px-4 py-1 font-mono text-[11px] font-bold text-slate-950 hover:bg-cyan/80 transition"
+            >
+              Got It, Let's Try!
+            </button>
+          </div>
+        </div>
+      )}
+      {stageModalOpen && (
+        <StageTransitionModal
+          currentStage={currentStage}
+          maxStages={maxStages}
+          domain={domain}
+          nextStageData={domain.stages?.[currentStage + 1]}
+          onAdvanceStage={handleAdvanceStage}
+          onReturnHome={onExit}
+        />
+      )}
     </div>
   );
 }

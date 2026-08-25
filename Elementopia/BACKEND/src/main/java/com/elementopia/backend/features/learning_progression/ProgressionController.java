@@ -23,26 +23,21 @@ public class ProgressionController {
         if (nicknameWithTag == null || nicknameWithTag.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of(
                     "accessGranted", false,
-                    "message", "Invalid session identifier."
-            ));
+                    "message", "Invalid session identifier."));
         }
 
-        // Delegate to the service to calculate the access status
         boolean hasAccess = validationService.verifyRoomAccess(nicknameWithTag, roomId);
 
         if (hasAccess) {
             return ResponseEntity.ok(Map.of(
                     "accessGranted", true,
                     "message", "Authorization confirmed. Entering Chamber.",
-                    "action", "LAUNCH_PUZZLE_ARENA"
-            ));
+                    "action", "LAUNCH_PUZZLE_ARENA"));
         } else {
-            // Returns an HTTP 200 (OK) with a failure flag, so the frontend displays the visual warning popup
             return ResponseEntity.ok(Map.of(
                     "accessGranted", false,
                     "message", "Chamber is Sealed. You need to complete at least 3 foundational reactions first.",
-                    "action", "DISPLAY_LOCKED_WARNING"
-            ));
+                    "action", "DISPLAY_LOCKED_WARNING"));
         }
     }
 
@@ -56,4 +51,14 @@ public class ProgressionController {
 
         return ResponseEntity.ok(Map.of("success", true, "message", "Progression logged successfully"));
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetProgression(@RequestBody Map<String, Object> payload) {
+        String nickname = (String) payload.get("sessionNickname");
+        if (nickname != null) {
+            validationService.resetRoomCompletion(nickname);
+        }
+        return ResponseEntity.ok(Map.of("success", true, "message", "Room completion wiped successfully."));
+    }
+
 }
