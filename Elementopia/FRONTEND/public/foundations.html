@@ -137,6 +137,120 @@
         .series-anchor-tile:hover {
             transform: scale(1.1);
         }
+        .anim-glow {
+            animation: glow-pulse 2s infinite;
+            border-radius: 50%;
+            background-color: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.4);
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(34, 211, 238, 0.8); }
+        }
+        @keyframes ring-squeeze {
+            0%, 20% { transform: translate(-50%, -50%) scale(1); border-color: rgba(251, 113, 133, 0.4); }
+            40%, 80% { transform: translate(-50%, -50%) scale(0.6); border-color: rgba(34, 211, 238, 0.4); }
+            100% { transform: translate(-50%, -50%) scale(1); border-color: rgba(251, 113, 133, 0.4); }
+        }
+        @keyframes nucleus-power {
+            0%, 20% { background: linear-gradient(to right, #f43f5e, #f59e0b); }
+            40%, 80% { background: linear-gradient(to right, #10b981, #06b6d4); }
+            100% { background: linear-gradient(to right, #f43f5e, #f59e0b); }
+        }
+        @keyframes text-swap-na {
+            0%, 20% { opacity: 1; }
+            40%, 80% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes text-swap-cl {
+            0%, 20% { opacity: 0; }
+            40%, 80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes tractor-beam-pulse {
+            0%, 20% {
+                width: 60px;
+                height: 2px;
+                background: transparent;
+                border-top: 2px dashed #fb923c;
+                opacity: 0.8;
+                box-shadow: none;
+            }
+            40%, 80% {
+                width: 30px;
+                height: 6px;
+                background: #22d3ee;
+                border-top: none;
+                opacity: 1;
+                box-shadow: 0 0 12px #22d3ee, 0 0 4px #22d3ee;
+                border-radius: 3px;
+            }
+            100% {
+                width: 60px;
+                height: 2px;
+                background: transparent;
+                border-top: 2px dashed #fb923c;
+                opacity: 0.8;
+                box-shadow: none;
+            }
+        }
+        @keyframes electron-wobble {
+            0%, 20% {
+                transform: translate(60px, -50%);
+            }
+            40%, 80% {
+                transform: translate(30px, -50%);
+            }
+            100% {
+                transform: translate(60px, -50%);
+            }
+        }
+        @keyframes nucleus-grip-color {
+            0%, 20% {
+                background: #fb923c;
+                box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+            }
+            40%, 80% {
+                background: #22d3ee;
+                box-shadow: 0 0 20px rgba(34, 211, 238, 0.8);
+            }
+            100% {
+                background: #fb923c;
+                box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+            }
+        }
+        @keyframes mini-bond {
+            0% { left: 6px; }
+            50% { left: 36px; }
+            100% { left: 6px; }
+        }
+        
+        /* Flip Card styles */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-100 flex flex-col justify-between">
@@ -158,7 +272,7 @@
             </div>
 
             <!-- View Switcher Tabs -->
-            <nav class="flex p-1 bg-slate-900/80 rounded-xl border border-slate-800">
+            <nav class="flex p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex-wrap justify-center">
                 <button id="tab-matrix" onclick="switchTab('matrix')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                     <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">Matrix Explorer</span>
                 </button>
@@ -167,6 +281,9 @@
                 </button>
                 <button id="tab-challenge" onclick="switchTab('challenge')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 text-slate-400 hover:text-slate-200">
                     <i class="fa-solid fa-gamepad"></i> <span class="hidden sm:inline">Placement Game</span>
+                </button>
+                <button id="tab-chemistry" onclick="switchTab('chemistry')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-flask"></i> <span class="hidden sm:inline">Compound Gallery</span>
                 </button>
             </nav>
 
@@ -376,6 +493,102 @@
                         👈 <strong>Click any button or item</strong> on the Carbon tile above to learn about it in simple terms!
                     </div>
                 </div>
+
+                <!-- Bonding Theater Template -->
+                <div id="tpl-bonding-theater" class="flex flex-col items-center justify-center gap-4 w-full relative">
+                    <!-- Toggles -->
+                    <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-6 mt-4 relative z-30 pointer-events-auto">
+                        <button onclick="switchBondingScenario('ionic')" id="btn-scen-ionic" class="px-3 py-1 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-bold transition">Na + Cl (Ionic)</button>
+                        <button onclick="switchBondingScenario('neon')" id="btn-scen-neon" class="px-3 py-1 rounded text-gray-400 hover:text-white text-[9px] font-bold transition">Na + Ne (Noble)</button>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full max-w-[280px] relative">
+                        <!-- Sodium (Na) -->
+                        <div class="relative w-24 h-24 flex items-center justify-center rounded-full transition-all duration-500" id="bt-na-atom">
+                            <div id="bt-na-label" class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-32 text-center text-[7px] text-rose-200 bg-rose-900/50 p-1 rounded border border-rose-500/30">Has 1 extra electron.<br>Wants to lose it!</div>
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 flex items-center justify-center text-[8px] font-bold text-black z-10">+11</div>
+                            <div class="absolute w-12 h-12 rounded-full border border-dashed border-rose-500/30" style="animation: spin 10s linear infinite;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"></div>
+                            </div>
+                            <div class="absolute w-18 h-18 rounded-full border border-dashed border-rose-500/30" style="animation: spin 15s linear infinite reverse; width: 72px; height: 72px;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="top: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="top: 50%; left: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="top: 50%; right: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="left: 50%; top: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400" style="left: 50%; bottom: -3px;"></div>
+                            </div>
+                            <div class="absolute w-24 h-24 rounded-full border border-dashed border-rose-500/50" id="bt-na-outer" style="animation: spin 20s linear infinite;">
+                                <div class="absolute w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#fb7185] top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" id="bt-transfer-electron"></div>
+                            </div>
+                            <div class="absolute -bottom-6 text-[10px] font-bold text-gray-400">Na</div>
+                        </div>
+
+                        <!-- Spacer / Transfer Area -->
+                        <div class="w-16 h-px relative flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-right text-gray-600 text-xs absolute" id="bt-arrow" style="opacity: 0;"></i>
+                        </div>
+
+                        <!-- Chlorine (Cl) -->
+                        <div class="relative w-28 h-28 flex items-center justify-center rounded-full transition-all duration-500" id="bt-cl-atom">
+                            <div id="bt-cl-label" class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-32 text-center text-[7px] text-cyan-200 bg-cyan-900/50 p-1 rounded border border-cyan-500/30">Has 7 valence electrons.<br>Needs 1 more to be full!</div>
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center text-[8px] font-bold text-black z-10">+17</div>
+                            <div class="absolute w-12 h-12 rounded-full border border-dashed border-emerald-500/30" style="animation: spin 10s linear infinite;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"></div>
+                            </div>
+                            <div class="absolute w-18 h-18 rounded-full border border-dashed border-emerald-500/30" style="animation: spin 15s linear infinite reverse; width: 72px; height: 72px;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 50%; left: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 50%; right: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="left: 50%; top: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="left: 50%; bottom: -3px;"></div>
+                            </div>
+                            <div class="absolute w-28 h-28 rounded-full border border-dashed border-emerald-500/50" id="bt-cl-outer" style="animation: spin 20s linear infinite;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 50%; left: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="top: 50%; right: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="left: 50%; top: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="left: 50%; bottom: -3px;"></div>
+                                <div class="absolute w-3 h-3 rounded-full border border-emerald-400/50" id="bt-cl-empty" style="top: 10%; left: 10%; transform: translate(-50%, -50%);"></div>
+                            </div>
+                            <div class="absolute -bottom-6 text-[10px] font-bold text-gray-400">Cl</div>
+                        </div>
+
+                        <!-- Neon (Ne) -->
+                        <div class="relative w-24 h-24 hidden items-center justify-center rounded-full transition-all duration-500" id="bt-ne-atom">
+                            <div id="bt-ne-label" class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-32 text-center text-[7px] text-fuchsia-200 bg-fuchsia-900/50 p-1 rounded border border-fuchsia-500/30">Has 8 valence electrons.<br>Already full! Won't bond!</div>
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-500 flex items-center justify-center text-[8px] font-bold text-black z-10">+10</div>
+                            <div class="absolute w-12 h-12 rounded-full border border-dashed border-fuchsia-500/30" style="animation: spin 10s linear infinite;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400 top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400 bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"></div>
+                            </div>
+                            <div class="absolute w-24 h-24 rounded-full border border-dashed border-fuchsia-500/50" id="bt-ne-outer" style="animation: spin 20s linear infinite;">
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="top: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="top: 50%; left: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="top: 50%; right: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="left: 50%; top: -3px;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-fuchsia-400" style="left: 50%; bottom: -3px;"></div>
+                            </div>
+                            <div class="absolute -bottom-6 text-[10px] font-bold text-gray-400">Ne</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="playSynthesisAnimation()" class="mt-8 px-4 py-1.5 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-500 text-black font-semibold text-xs hover:scale-105 transition shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-play mr-1"></i> Play Animation
+                    </button>
+                </div>
             </div>
 
         </section>
@@ -419,6 +632,21 @@
                 <div id="game-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
             </div>
 
+        </section>
+
+        <!-- View 4: Compound Gallery -->
+        <section id="view-chemistry" class="hidden space-y-8 max-w-5xl mx-auto w-full pt-4">
+            <div class="text-center space-y-2 mb-8 relative">
+                <div class="absolute -top-10 left-1/2 -translate-x-1/2 text-[100px] text-cyan-500/5 blur-xl pointer-events-none z-0">
+                    <i class="fa-solid fa-flask"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white tracking-widest uppercase relative z-10 drop-shadow-md">Compound Gallery</h2>
+                <p class="text-sm text-slate-400 relative z-10">Discover how elements mix to create the world around us. Click a card to reveal the fun fact!</p>
+            </div>
+            
+            <div id="chemistry-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 pb-12">
+                <!-- Cards injected via JS -->
+            </div>
         </section>
 
     </main>
@@ -474,6 +702,13 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Glossary Tooltip Container -->
+    <div id="glossary-tooltip" class="fixed z-[100] hidden max-w-xs glass-panel-glow p-3 rounded-xl border border-cyan-500/40 text-xs text-white shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-[120%]">
+        <div id="glossary-title" class="font-bold text-cyan-400 mb-1 border-b border-slate-700 pb-1"></div>
+        <div id="glossary-desc" class="text-gray-300 leading-relaxed"></div>
+        <div class="absolute bottom-[-6px] left-1/2 transform -translate-x-1/2 w-3 h-3 bg-slate-900 border-b border-r border-cyan-500/40 rotate-45"></div>
     </div>
 
     <!-- Footer -->
@@ -643,7 +878,7 @@
 
         // Tab Switching Logic
         function switchTab(tabId) {
-            const tabs = ['matrix', 'learn', 'challenge'];
+            const tabs = ['matrix', 'learn', 'challenge', 'chemistry'];
             tabs.forEach(t => {
                 const btn = document.getElementById('tab-' + t);
                 const section = document.getElementById('view-' + t);
@@ -655,6 +890,89 @@
                     section.classList.add('hidden');
                 }
             });
+        }
+
+        // Compound Gallery Logic
+        const chemistryData = [
+            { name: "Stomach Acid", mix: "H + Cl", desc: "Your stomach produces an acid strong enough to dissolve solid metal! It's made by combining explosive Hydrogen and highly toxic Chlorine gas." },
+            { name: "Laughing Gas", mix: "N + O", desc: "If you combine Nitrogen and Oxygen (the two main gases in the air you breathe) in a specific way, you get a gas that makes you uncontrollably laugh at the dentist!" },
+            { name: "Fool's Gold", mix: "Fe + S", desc: "Iron mixed with yellow, smelly Sulfur creates shiny, metallic crystals that look exactly like gold. It has tricked thousands of miners into thinking they were rich!" },
+            { name: "Gunpowder", mix: "K + N + O", desc: "Mixing Potassium (a metal that catches fire in water) with Nitrogen and Oxygen creates an explosive powder that fueled cannons and fireworks for centuries!" },
+            { name: "Rotten Egg Gas", mix: "H + S", desc: "This combination creates a gas so incredibly stinky that your nose can smell a single drop of it hidden inside an entire Olympic swimming pool!" },
+            { name: "Water", mix: "H + O", desc: "Hydrogen is explosive and Oxygen makes fires burn brighter. But combine them, and you get the exact liquid we use to put out fires!" },
+            { name: "Table Salt", mix: "Na + Cl", desc: "Sodium explodes in water and Chlorine is a toxic gas, but combine them and they make your french fries taste amazing!" },
+            { name: "Glass & Sand", mix: "Si + O", desc: "Silicon and Oxygen make up sand. When you superheat sand, it melts into liquid and cools to form solid Glass!" },
+            { name: "Rust", mix: "Fe + O", desc: "Iron is incredibly strong, but Oxygen loves to bond with it. Over time, Oxygen slowly eats away at the metal, turning it into flaky rust!" },
+            { name: "Diamond & Pencil Lead", mix: "C + C", desc: "If you mix Carbon with... more Carbon, you can get the soft lead in your pencil (Graphite) OR the hardest rock on Earth (Diamond). It just depends on how the atoms are arranged!" },
+            { name: "Baking Soda", mix: "Na + H + C + O", desc: "This powder makes your cakes fluffy, but if you mix it with vinegar, it explodes into a classic science fair volcano!" },
+            { name: "Bleach", mix: "Na + Cl + O", desc: "This aggressive chemical completely destroys the molecules that create colors, turning your clothes stark white and killing any germs!" },
+            { name: "Vinegar", mix: "C + H + O", desc: "A sour acid created when bacteria eat alcohol. It's strong enough to dissolve seashells, but tasty on potato chips!" },
+            { name: "Sugar", mix: "C + H + O", desc: "Plants use the sun's energy to stitch Carbon, Hydrogen, and Oxygen together into pure, sweet energy crystals!" },
+            { name: "Dry Ice", mix: "C + O", desc: "This is frozen Carbon Dioxide. It doesn't melt into a liquid; it turns straight into a spooky, heavy fog!" },
+            { name: "Chalk & Marble", mix: "Ca + C + O", desc: "The exact same chemical that makes up chalk for blackboards also makes up beautiful marble statues and the hard shells of sea snails!" },
+            { name: "Bone & Teeth", mix: "Ca + P + O", desc: "Calcium and Phosphorus combine to create the incredibly hard mineral scaffold that keeps you standing upright!" },
+            { name: "Rubies & Sapphires", mix: "Al + O", desc: "These precious gems are actually just crystallized Aluminum rust! Tiny impurities give them their ruby red or sapphire blue colors." },
+            { name: "Emeralds", mix: "Be + Al + Si + O", desc: "A complex crystal structure where a tiny pinch of Chromium or Vanadium turns the entire rock a brilliant, glowing green." },
+            { name: "Ammonia", mix: "N + H", desc: "A highly pungent gas that smells strongly like cat pee! It is actually used in almost all window cleaning sprays." },
+            { name: "Hydrogen Peroxide", mix: "H + O", desc: "It's just water with one extra Oxygen atom. But that extra atom makes it bubble and foam wildly when you pour it on a cut to kill germs!" },
+            { name: "Battery Acid", mix: "H + S + O", desc: "Also known as Sulfuric Acid. It is corrosive enough to melt human flesh, but it's the exact liquid used to power your car battery!" },
+            { name: "Ozone", mix: "O + O + O", desc: "Three oxygen atoms bonded together. High in the sky, it protects us from the sun's deadly rays. But on the ground, it is toxic to breathe!" },
+            { name: "Carbon Monoxide", mix: "C + O", desc: "A completely invisible, odorless, and highly deadly gas created by car exhausts and fires." },
+            { name: "Methane", mix: "C + H", desc: "The main ingredient in natural gas used to cook your food, and yes, it is also the flammable gas in cow farts!" },
+            { name: "Cyanide", mix: "C + N", desc: "Carbon (the stuff of life) and Nitrogen (the air we breathe) combine to make one of the most famous and deadly poisons in history. It smells like bitter almonds!" },
+            { name: "Aspirin", mix: "C + H + O", desc: "Originally discovered inside the bark of willow trees, this compound is now made in labs to cure your headaches!" },
+            { name: "Vitamin C", mix: "C + H + O", desc: "Found in oranges and lemons! Without this exact combination of atoms, your teeth would fall out from a disease called scurvy." },
+            { name: "Caffeine", mix: "C + H + N + O", desc: "The world's favorite drug! This bitter chemical blocks the sleepy signals in your brain, keeping you awake during math class." },
+            { name: "TNT", mix: "C + H + N + O", desc: "Trinitrotoluene! A yellow solid that packs an incredible amount of explosive energy into its molecular bonds." },
+            { name: "Nitroglycerin", mix: "C + H + N + O", desc: "An oily liquid that is so insanely unstable that just dropping a bottle of it on the floor can blow up an entire room!" },
+            { name: "Soap", mix: "Na + C + H + O", desc: "Created by boiling animal fat or plant oils with harsh lye. It has a magical ability to grab onto both water and greasy dirt!" },
+            { name: "Teflon", mix: "C + F", desc: "Carbon heavily armored by Fluorine atoms creates the slipperiest substance on Earth. It's what keeps your eggs from sticking to the pan!" },
+            { name: "PVC Plastic", mix: "C + H + Cl", desc: "Polyvinyl chloride. By adding Chlorine to a plastic chain, we get the tough, rigid white pipes used for plumbing in your house." },
+            { name: "Kevlar", mix: "C + H + N + O", desc: "A super-plastic whose molecules lock together in incredibly tight, rigid sheets. It is strong enough to stop bullets!" },
+            { name: "Tums (Antacid)", mix: "Ca + C + O", desc: "Basically just flavored chalk! It reacts with the hydrochloric acid in your stomach to neutralize your heartburn." },
+            { name: "Epsom Salt", mix: "Mg + S + O", desc: "A special salt made of Magnesium and Sulfate. Athletes dissolve it in hot baths to soothe their sore muscles!" },
+            { name: "Fluoride", mix: "Na + F", desc: "Added in tiny amounts to your toothpaste and drinking water. It physically bonds with your teeth to make them rock-hard and cavity-resistant!" },
+            { name: "Bronze", mix: "Cu + Sn", desc: "Mixing soft Copper with soft Tin surprisingly creates a metal so tough that it started an entire era of human history: The Bronze Age!" },
+            { name: "Brass", mix: "Cu + Zn", desc: "Copper mixed with Zinc creates a bright, shiny, gold-looking metal. It has great acoustics, making it perfect for trumpets and trombones!" },
+            { name: "Steel", mix: "Fe + C", desc: "Iron by itself bends easily. But if you stuff tiny Carbon atoms into the gaps between the Iron atoms, you get a metal strong enough to build skyscrapers!" },
+            { name: "Magnetite", mix: "Fe + O", desc: "A naturally magnetic iron oxide rock. Ancient sailors used these 'lodestones' to build the very first compasses!" },
+            { name: "Tear Gas", mix: "C + H + Cl + N + O", desc: "A riot-control chemical that aggressively attacks the nerves in your eyes and lungs, forcing you to cry and cough uncontrollably!" },
+            { name: "Putrescine", mix: "C + H + N", desc: "As the name suggests, this is the exact chemical responsible for the horrific smell of rotting meat and dead zombies!" },
+            { name: "Skatole", mix: "C + H + N", desc: "The chemical compound that gives poop its terrible smell! Surprisingly, in extremely tiny doses, it is used in perfumes to smell like flowers!" },
+            { name: "Capsaicin", mix: "C + H + N + O", desc: "The chemical in chili peppers that tricks your tongue's heat receptors into screaming to your brain that your mouth is literally on fire!" },
+            { name: "Menthol", mix: "C + H + O", desc: "The opposite of capsaicin! Found in mint leaves, this chemical tricks your brain into thinking your mouth is freezing cold!" },
+            { name: "Melatonin", mix: "C + H + N + O", desc: "The chemical your brain produces when the sun goes down to tell your body that it is time to feel sleepy and go to bed." },
+            { name: "Adrenaline", mix: "C + H + N + O", desc: "The 'fight or flight' chemical! When you are scared, this floods your body, increasing your heart rate and giving you emergency super-strength!" },
+            { name: "Heme (Blood Red)", mix: "C + H + N + O + Fe", desc: "A single Iron atom trapped inside a massive cage of Carbon and Nitrogen. This complex molecule is what makes your blood bright red!" }
+        ];
+
+        function renderChemistryGallery() {
+            const container = document.getElementById('chemistry-gallery');
+            if (!container) return;
+            
+            container.innerHTML = chemistryData.map(item => `
+                <div class="h-48 w-full group perspective cursor-pointer" onclick="this.querySelector('.flip-card').classList.toggle('flipped')">
+                    <div class="flip-card w-full h-full relative">
+                        <div class="flip-card-inner w-full h-full">
+                            <!-- Front -->
+                            <div class="flip-card-front bg-slate-800/80 border border-slate-700/50 rounded-2xl flex flex-col items-center justify-center p-4 shadow-lg group-hover:border-cyan-500/50 transition">
+                                <h3 class="text-xl font-bold text-cyan-300 mb-4">${item.name}</h3>
+                                <div class="bg-slate-900/80 px-5 py-2 rounded-full border border-slate-700 text-sm font-semibold text-slate-400 shadow-inner flex items-center gap-2">
+                                    <i class="fa-solid fa-flask text-cyan-500/50 text-xs"></i> 
+                                    Recipe: <span class="text-white tracking-widest">${item.mix}</span>
+                                </div>
+                                <div class="absolute bottom-4 text-[10px] text-slate-500 uppercase tracking-widest group-hover:text-cyan-400/70 transition"><i class="fa-solid fa-hand-pointer mr-1"></i> Click for Fact</div>
+                            </div>
+                            <!-- Back -->
+                            <div class="flip-card-back bg-gradient-to-br from-indigo-900/90 to-purple-900/90 border border-indigo-500/50 rounded-2xl flex flex-col items-center justify-center p-6 shadow-xl relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 text-6xl text-white/5 blur-sm rotate-12"><i class="fa-solid fa-atom"></i></div>
+                                <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-3 border-b border-indigo-500/30 pb-1 w-full text-center relative z-10">Fun Fact</h4>
+                                <p class="text-sm text-indigo-50 leading-relaxed font-medium relative z-10">${item.desc}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Filter Logic
@@ -885,7 +1203,9 @@
             if (qType === 0) {
                 text = `Find the element located at <span class="text-cyan-400 font-mono font-semibold">Group ${target.group}</span>, <span class="text-cyan-400 font-mono font-semibold">Period ${target.period}</span>.`;
             } else {
-                text = `Identify the element with <span class="text-rose-400 font-mono font-semibold">${target.valence} valence electron(s)</span> and <span class="text-cyan-400 font-mono font-semibold">${target.shells} active energy shell(s)</span>.`;
+                const vWord = target.valence === 1 ? "electron" : "electrons";
+                const sWord = target.shells === 1 ? "shell" : "shells";
+                text = `Identify the element with <span class="text-rose-400 font-mono font-semibold">${target.valence} valence ${vWord}</span> and <span class="text-cyan-400 font-mono font-semibold">${target.shells} active energy ${sWord}</span>.`;
             }
 
             const options = [target];
@@ -957,13 +1277,13 @@
 
         // Slide-based Interactive Primer & Doctor Atom Guide
         let currentSlide = 0;
-        const totalSlides = 6;
+        const totalSlides = 8;
 
         const slidesData = [
             {
                 title: "1. Boxes & Symbols",
                 description: `
-                    <strong>Dr. Atom:</strong> "Welcome! Each box here is an <strong>element</strong>. Letters like <strong>H</strong> and <strong>He</strong> represent nicknames. Protons in the center tell you the Atomic Number!"
+                    <strong>Dr. Atom:</strong> "Welcome! Each box here is an <strong>element</strong>. Letters like <strong>H</strong> and <strong>He</strong> are their Chemical Symbols (like a nickname). The number of <span onclick="showTooltip('protons', event)" class="text-cyan-400 border-b border-dotted border-cyan-400 cursor-pointer hover:text-cyan-300 pointer-events-auto relative z-20">protons</span> tells you the <span onclick="showTooltip('atomic_number', event)" class="text-cyan-400 border-b border-dotted border-cyan-400 cursor-pointer hover:text-cyan-300 pointer-events-auto relative z-20">Atomic Number</span>!"
                     <div class="flex gap-2 mt-2">
                         <button onclick="updateBohrModel(1)" class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[9px] font-bold hover:bg-cyan-500/30 transition">🔋 Show H (1 Proton)</button>
                         <button onclick="updateBohrModel(2)" class="px-2 py-1 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 text-[9px] font-bold hover:bg-fuchsia-500/30 transition">🔋 Show He (2 Protons)</button>
@@ -1016,7 +1336,7 @@
             {
                 title: "5. Atom Size (Radius)",
                 description: `
-                    <strong>Dr. Atom:</strong> "How big is an atom? Down the rows, they get <strong>bigger</strong> (adding rings). Left-to-right, they get <strong>smaller</strong> (tight proton pull)!"
+                    <strong>Dr. Atom:</strong> "How big is an atom? Down the columns, they get <strong>bigger</strong> (adding rings). But left-to-right, they get <strong>smaller</strong>! Why? Because adding more protons acts like a stronger magnet, pulling the rings inward!"
                 `,
                 visualizerType: "trend-radius",
                 highlight: () => {
@@ -1026,11 +1346,31 @@
             {
                 title: "6. Electron Grip",
                 description: `
-                    <strong>Dr. Atom:</strong> "How hard does an atom grip its outer electrons? Down the rows, grip gets <strong>weaker</strong>. Left-to-right, grip gets <strong>stronger</strong>!"
+                    <strong>Dr. Atom:</strong> "How hard does an atom grip its outer electrons? Left-to-right, the grip gets stronger because the atom's 'tractor beam' (electronegativity) gets more powerful! Down the columns, it gets weaker because the electrons are too far away."
                 `,
                 visualizerType: "trend-ionization",
                 highlight: () => {
                     applyGripVisuals();
+                }
+            },
+            {
+                title: "7. Bonding Theater",
+                description: `
+                    <strong>Dr. Atom:</strong> "Let's see synthesis in action! Click 'Play Animation' below to watch Sodium and Chlorine form an ionic bond!"
+                `,
+                visualizerType: "bonding-theater",
+                highlight: () => {
+                    dimOthers([11, 17]); // Na and Cl
+                }
+            },
+            {
+                title: "8. Summary: The Golden Rule",
+                description: `
+                    <strong>Dr. Atom:</strong> "Let's wrap up! The secret to chemistry is that every atom just wants to be completely stable like a Noble Gas."
+                `,
+                visualizerType: "bonding-rule-summary",
+                highlight: () => {
+                    dimOthers([2, 10, 18, 36, 54, 86, 118]); // Noble Gases
                 }
             }
         ];
@@ -1312,27 +1652,103 @@
                 if (explainer) explainer.id = 'active-anatomy-explainer';
             } else if (type === "trend-radius") {
                 widget.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="text-[11px] font-bold text-white uppercase tracking-wider">Atom Size Guide</div>
-                        <div class="flex items-center justify-around bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                            <div class="text-[9px] text-gray-400">Sodium (Large)</div>
-                            <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-[10px] font-bold text-white">Na</div>
-                            <span class="text-xs text-gray-500">&rarr;</span>
-                            <div class="w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-[8px] font-bold text-white">Cl</div>
-                            <div class="text-[9px] text-gray-400">Chlorine (Small)</div>
+                    <div class="space-y-3 pb-2">
+                        <div class="text-[11px] font-bold text-white uppercase tracking-wider text-center">Magnetic Pull Animation</div>
+                        <div class="relative w-full h-32 mx-auto bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden">
+                            <!-- Ring -->
+                            <div class="absolute top-1/2 left-1/2 w-28 h-28 border border-dashed rounded-full pointer-events-none" style="animation: ring-squeeze 6s infinite ease-in-out;"></div>
+                            
+                            <!-- Nucleus -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg pointer-events-none" style="animation: nucleus-power 6s infinite ease-in-out;">
+                                <span class="absolute" style="animation: text-swap-na 6s infinite;">+11</span>
+                                <span class="absolute" style="animation: text-swap-cl 6s infinite;">+17</span>
+                            </div>
+                            
+                            <!-- Labels -->
+                            <div class="absolute bottom-2 left-0 w-full text-center text-[9px] font-mono font-bold" style="animation: text-swap-na 6s infinite;">
+                                <span class="text-rose-400">Sodium (Weak Pull)</span>
+                            </div>
+                            <div class="absolute bottom-2 left-0 w-full text-center text-[9px] font-mono font-bold" style="animation: text-swap-cl 6s infinite;">
+                                <span class="text-cyan-400">Chlorine (Strong Pull)</span>
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (type === "trend-ionization") {
                 widget.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="text-[11px] font-bold text-white uppercase tracking-wider">Electron Grip Guide</div>
-                        <div class="flex items-center justify-around bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
-                            <div class="text-[9px] text-gray-400">Lithium (Loose)</div>
-                            <div class="px-2 py-0.5 bg-rose-500/10 border border-rose-500/40 rounded text-[9px] text-rose-300 font-bold">Easy</div>
-                            <span class="text-xs text-gray-500">&rarr;</span>
-                            <div class="px-2 py-0.5 bg-purple-500/20 border border-purple-400 rounded text-[9px] text-purple-300 font-bold">Hard</div>
-                            <div class="text-[9px] text-gray-400">Fluorine (Tight)</div>
+                    <div class="space-y-3 pb-2">
+                        <div class="text-[11px] font-bold text-white uppercase tracking-wider text-center">Electron Grip Animation</div>
+                        <div class="relative w-full h-32 mx-auto bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden">
+                            <!-- Line / Beam -->
+                            <div class="absolute top-1/2 pointer-events-none" style="left: calc(50% - 30px); animation: tractor-beam-pulse 6s infinite ease-in-out; transform-origin: left center;"></div>
+                            
+                            <!-- Nucleus -->
+                            <div class="absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg pointer-events-none" style="animation: nucleus-grip-color 6s infinite ease-in-out; left: calc(50% - 30px);">
+                                <span class="absolute" style="animation: text-swap-na 6s infinite;">+11</span>
+                                <span class="absolute" style="animation: text-swap-cl 6s infinite;">+17</span>
+                            </div>
+                            
+                            <!-- Outer Electron -->
+                            <div class="absolute top-1/2 w-3.5 h-3.5 rounded-full bg-yellow-300 shadow-[0_0_8px_#facc15] flex items-center justify-center pointer-events-none" style="animation: electron-wobble 6s infinite ease-in-out; left: calc(50% - 30px); margin-top: -7px; margin-left: -7px;">
+                                <span class="text-[8px] font-bold text-black">-e</span>
+                            </div>
+                            
+                            <!-- Labels -->
+                            <div class="absolute bottom-2 left-0 w-full text-center text-[9px] font-mono font-bold" style="animation: text-swap-na 6s infinite;">
+                                <span class="text-rose-400">Sodium (Weak Grip)</span>
+                            </div>
+                            <div class="absolute bottom-2 left-0 w-full text-center text-[9px] font-mono font-bold" style="animation: text-swap-cl 6s infinite;">
+                                <span class="text-cyan-400">Chlorine (Strong Grip)</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === "bonding-theater") {
+                const tpl = document.getElementById('tpl-bonding-theater').cloneNode(true);
+                tpl.removeAttribute('id');
+                widget.appendChild(tpl);
+            } else if (type === "bonding-rule-summary") {
+                widget.innerHTML = `
+                    <div class="space-y-4 pt-2 w-full max-w-sm mx-auto">
+                        <div class="bg-emerald-900/40 border border-emerald-500/50 p-3 rounded-xl flex items-start gap-3 relative overflow-hidden shadow-lg shadow-emerald-500/10">
+                            <div class="absolute -right-2 -bottom-2 text-emerald-500/10 text-5xl"><i class="fa-solid fa-handshake"></i></div>
+                            <div class="w-10 h-10 rounded-full border border-dashed border-emerald-500/50 flex items-center justify-center shrink-0 mt-0.5 relative" style="animation: spin 10s linear infinite;">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <!-- 7 Electrons -->
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="top: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="top: 50%; left: -3px; transform: translateY(-50%);"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="top: 50%; right: -3px; transform: translateY(-50%);"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" style="left: 50%; bottom: -3px; transform: translateX(-50%);"></div>
+                                <!-- Empty Slot -->
+                                <div class="absolute w-2 h-2 rounded-full border border-dashed border-emerald-300 shadow-[0_0_8px_#34d399_inset]" style="left: 50%; top: -3px; transform: translateX(-50%); animation: pulse 1.5s infinite;"></div>
+                            </div>
+                            <div class="relative z-10">
+                                <h4 class="text-emerald-400 font-bold text-xs mb-1 uppercase tracking-wider">It WILL bond if...</h4>
+                                <p class="text-[10px] text-emerald-50 leading-relaxed">It doesn't have a full outer shell. It will share, steal, or give away electrons to reach the magic number (usually 8)!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-rose-900/40 border border-rose-500/50 p-3 rounded-xl flex items-start gap-3 relative overflow-hidden shadow-lg shadow-rose-500/10">
+                            <div class="absolute -right-2 -bottom-2 text-rose-500/10 text-5xl"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="w-10 h-10 rounded-full border border-dashed border-rose-500/50 flex items-center justify-center shrink-0 mt-0.5 relative" style="animation: spin 10s linear infinite;">
+                                <div class="w-2 h-2 bg-rose-500 rounded-full"></div>
+                                <!-- 8 Electrons -->
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="top: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="top: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="bottom: 10%; left: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="bottom: 10%; right: 10%;"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="top: 50%; left: -3px; transform: translateY(-50%);"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="top: 50%; right: -3px; transform: translateY(-50%);"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="left: 50%; bottom: -3px; transform: translateX(-50%);"></div>
+                                <div class="absolute w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_4px_#fb7185]" style="left: 50%; top: -3px; transform: translateX(-50%);"></div>
+                            </div>
+                            <div class="relative z-10">
+                                <h4 class="text-rose-400 font-bold text-xs mb-1 uppercase tracking-wider">It WILL NOT bond if...</h4>
+                                <p class="text-[10px] text-rose-50 leading-relaxed">It already has a full outer shell (like the Noble Gases). They are perfectly stable and want to be left alone!</p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1354,6 +1770,170 @@
             }
         }
 
+        let currentBondingScenario = 'ionic';
+        
+        function switchBondingScenario(scenario) {
+            currentBondingScenario = scenario;
+            const btnIonic = document.getElementById('btn-scen-ionic');
+            const btnNeon = document.getElementById('btn-scen-neon');
+            const clAtom = document.getElementById('bt-cl-atom');
+            const neAtom = document.getElementById('bt-ne-atom');
+            const arrow = document.getElementById('bt-arrow');
+            
+            // Reset state
+            const naOuter = document.getElementById('bt-na-outer');
+            const electron = document.getElementById('bt-transfer-electron');
+            const naLabel = document.getElementById('bt-na-label');
+            const clLabel = document.getElementById('bt-cl-label');
+            const neLabel = document.getElementById('bt-ne-label');
+            
+            naOuter.style.animationPlayState = 'running';
+            if(clAtom) clAtom.style.animationPlayState = 'running';
+            if(neAtom) neAtom.style.animationPlayState = 'running';
+            
+            electron.style.opacity = '1';
+            if (arrow) arrow.style.opacity = '0';
+            
+            document.getElementById('bt-na-atom').classList.remove('anim-glow');
+            if(clAtom) clAtom.classList.remove('anim-glow');
+            if(neAtom) neAtom.classList.remove('anim-glow');
+            
+            naLabel.innerHTML = "Has 1 extra electron.<br>Wants to lose it!";
+            
+            if (scenario === 'ionic') {
+                btnIonic.classList.add('bg-cyan-500/20', 'text-cyan-300');
+                btnIonic.classList.remove('text-gray-400', 'hover:text-white');
+                btnNeon.classList.remove('bg-cyan-500/20', 'text-cyan-300');
+                btnNeon.classList.add('text-gray-400', 'hover:text-white');
+                
+                clAtom.classList.remove('hidden');
+                clAtom.classList.add('flex');
+                neAtom.classList.remove('flex');
+                neAtom.classList.add('hidden');
+                
+                const clEmpty = document.getElementById('bt-cl-empty');
+                clEmpty.className = "absolute w-3 h-3 rounded-full border border-emerald-400/50";
+                clEmpty.style.transform = "translate(-50%, -50%)";
+                clLabel.innerHTML = "Has 7 valence electrons.<br>Needs 1 more to be full!";
+                
+                document.getElementById('dr-subtitles').innerHTML = `<strong>Dr. Atom:</strong> "Let's see synthesis in action! Click 'Play Animation' below to watch Sodium and Chlorine form an ionic bond!"`;
+                
+            } else {
+                btnNeon.classList.add('bg-cyan-500/20', 'text-cyan-300');
+                btnNeon.classList.remove('text-gray-400', 'hover:text-white');
+                btnIonic.classList.remove('bg-cyan-500/20', 'text-cyan-300');
+                btnIonic.classList.add('text-gray-400', 'hover:text-white');
+                
+                clAtom.classList.add('hidden');
+                clAtom.classList.remove('flex');
+                neAtom.classList.add('flex');
+                neAtom.classList.remove('hidden');
+                
+                neLabel.innerHTML = "Has 8 valence electrons.<br>Already full! Won't bond!";
+                document.getElementById('dr-subtitles').innerHTML = `<strong>Dr. Atom:</strong> "Now let's try bonding Sodium with Neon (a Noble Gas)! Watch what happens when you click 'Play Animation'!"`;
+            }
+            bobDoctorMouth();
+        }
+
+        function playSynthesisAnimation() {
+            const subtitle = document.getElementById('dr-subtitles');
+            const naOuter = document.getElementById('bt-na-outer');
+            const clOuter = document.getElementById('bt-cl-outer');
+            const neOuter = document.getElementById('bt-ne-outer');
+            const electron = document.getElementById('bt-transfer-electron');
+            const targetSlot = document.getElementById('bt-cl-empty');
+            const neAtom = document.getElementById('bt-ne-atom');
+            const arrow = document.getElementById('bt-arrow');
+            
+            const naLabel = document.getElementById('bt-na-label');
+
+            if (!naOuter || !electron) return;
+
+            naOuter.style.animationPlayState = 'paused';
+            if(clOuter) clOuter.style.animationPlayState = 'paused';
+            if(neOuter) neOuter.style.animationPlayState = 'paused';
+            
+            const startRect = electron.getBoundingClientRect();
+            
+            const flying = document.createElement('div');
+            flying.className = "fixed w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#22d3ee] z-50";
+            flying.style.left = startRect.left + 'px';
+            flying.style.top = startRect.top + 'px';
+            flying.style.transition = "all 1.0s cubic-bezier(0.4, 0, 0.2, 1)";
+            document.body.appendChild(flying);
+            
+            electron.style.opacity = '0';
+            if (arrow) {
+                arrow.style.transition = "opacity 0.5s";
+                arrow.style.opacity = '1';
+            }
+            
+            if (currentBondingScenario === 'ionic') {
+                subtitle.innerHTML = `<strong>Dr. Atom:</strong> "Watch closely! Sodium is transferring its 1 outer electron to Chlorine to reach stability!"`;
+                bobDoctorMouth();
+                
+                setTimeout(() => {
+                    const updatedEndRect = targetSlot.getBoundingClientRect();
+                    flying.style.left = (updatedEndRect.left + 2) + 'px';
+                    flying.style.top = (updatedEndRect.top + 2) + 'px';
+                    flying.style.transform = "scale(1.5)";
+                }, 50);
+
+                setTimeout(() => {
+                    flying.remove();
+                    targetSlot.classList.remove('border', 'border-emerald-400/50', 'w-3', 'h-3');
+                    targetSlot.classList.add('bg-cyan-300', 'w-2', 'h-2', 'shadow-[0_0_12px_#22d3ee]');
+                    targetSlot.style.transform = "translate(-50%, -50%) scale(1.2)";
+                    
+                    document.getElementById('bt-na-atom').classList.add('anim-glow');
+                    document.getElementById('bt-cl-atom').classList.add('anim-glow');
+                    
+                    naOuter.style.animationPlayState = 'running';
+                    clOuter.style.animationPlayState = 'running';
+                    
+                    naLabel.innerHTML = "Lost 1 electron.<br>Inner shell full (+1)!";
+                    const clLabel = document.getElementById('bt-cl-label');
+                    clLabel.innerHTML = "Gained 1 electron.<br>Outer shell full (-1)!";
+                    
+                    subtitle.innerHTML = `<strong>Dr. Atom:</strong> "Perfect! They both have full outer shells now! They form an Ionic Bond to create Table Salt (NaCl)."`;
+                    bobDoctorMouth();
+                }, 1100);
+                
+            } else {
+                subtitle.innerHTML = `<strong>Dr. Atom:</strong> "Sodium throws its electron, hoping Neon will catch it..."`;
+                bobDoctorMouth();
+                
+                setTimeout(() => {
+                    const endRect = neAtom.getBoundingClientRect();
+                    flying.style.left = (endRect.left + 20) + 'px'; // Hit left side of Neon
+                    flying.style.top = (endRect.top + (endRect.height/2)) + 'px';
+                    flying.style.transform = "scale(1.5)";
+                }, 50);
+
+                setTimeout(() => {
+                    subtitle.innerHTML = `<strong>Dr. Atom:</strong> "BOING! Neon's outer shell is completely full (8 electrons). It refuses to accept Sodium's electron!"`;
+                    bobDoctorMouth();
+                    
+                    // Bounce back!
+                    flying.style.left = startRect.left + 'px';
+                    flying.style.top = startRect.top + 'px';
+                    flying.style.transform = "scale(1)";
+                }, 1050);
+                
+                setTimeout(() => {
+                    flying.remove();
+                    electron.style.opacity = '1';
+                    if (arrow) arrow.style.opacity = '0';
+                    
+                    naOuter.style.animationPlayState = 'running';
+                    neOuter.style.animationPlayState = 'running';
+                    
+                    const neLabel = document.getElementById('bt-ne-label');
+                    neLabel.innerHTML = "Told you! I'm full.<br>No room for that!";
+                }, 2050);
+            }
+        }
+
         function updateBohrModelInTpl(num, scopeElement) {
             const el = elementsData.find(e => e.num === num);
             if (!el) return;
@@ -1362,7 +1942,10 @@
             const descEl = scopeElement.querySelector('#bohr-tpl-desc');
             if (nameEl) nameEl.innerText = `${el.name} (${el.symbol})`;
             if (descEl) {
-                descEl.innerHTML = `${el.name} has **${el.num} protons** in the center nucleus, and **${el.shells} rings** holding **${el.num} electrons**.`;
+                const pWord = el.num === 1 ? "proton" : "protons";
+                const rWord = el.shells === 1 ? "ring" : "rings";
+                const eWord = el.num === 1 ? "electron" : "electrons";
+                descEl.innerHTML = `${el.name} has <strong>${el.num} ${pWord}</strong> in the center nucleus, and <strong>${el.shells} ${rWord}</strong> holding <strong>${el.num} ${eWord}</strong>.`;
             }
 
             const visualizer = scopeElement.querySelector('.relative');
@@ -1434,6 +2017,32 @@
         style.innerHTML = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
         document.getElementsByTagName('head')[0].appendChild(style);
 
+        function showTooltip(term, event) {
+            event.stopPropagation();
+            const tooltip = document.getElementById('glossary-tooltip');
+            const titleEl = document.getElementById('glossary-title');
+            const descEl = document.getElementById('glossary-desc');
+
+            if (term === 'protons') {
+                titleEl.innerText = "Protons";
+                descEl.innerHTML = "Tiny, heavy particles with a positive charge that live right in the center (nucleus) of the atom.";
+            } else if (term === 'atomic_number') {
+                titleEl.innerText = "Atomic Number";
+                descEl.innerHTML = "The element's permanent ID. If you change the number of protons, it becomes a completely different element!";
+            }
+
+            tooltip.style.left = event.pageX + 'px';
+            tooltip.style.top = event.pageY + 'px';
+            tooltip.classList.remove('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            const tooltip = document.getElementById('glossary-tooltip');
+            if (tooltip && !tooltip.classList.contains('hidden')) {
+                tooltip.classList.add('hidden');
+            }
+        });
+
         // Keyboard navigation
         window.addEventListener('keydown', (e) => {
             const learnSection = document.getElementById('view-learn');
@@ -1451,6 +2060,7 @@
             renderPeriodicTable();
             renderRareEarths();
             generateQuestion();
+            renderChemistryGallery();
             
             // Initialize slide deck
             initSlides();
