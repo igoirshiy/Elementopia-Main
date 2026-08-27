@@ -9,7 +9,7 @@ function genCode(len = 5) {
   return out;
 }
 
-export async function createRoom(nickname, teamSize) {
+export async function createRoom(nickname, teamSize, difficulty = "medium", maxQuestions = 3) {
   const sessionId = getSessionId();
   const host = (nickname.trim() || autoNickname()).slice(0, 20);
   const size = Math.min(5, Math.max(1, Math.floor(teamSize)));
@@ -24,6 +24,13 @@ export async function createRoom(nickname, teamSize) {
         host_nickname: host,
         status: "lobby",
         team_size: size,
+        puzzle: {
+          difficulty,
+          maxQuestions,
+          currentQuestionIndex: 0,
+          questions: [],
+          scores: { A: 0, B: 0 }
+        }
       })
       .select()
       .single();
@@ -43,6 +50,25 @@ export async function createRoom(nickname, teamSize) {
     return room;
   }
   throw new Error("Could not generate a unique room code");
+}
+
+export async function updateRoomSettings(roomId, difficulty, maxQuestions) {
+  const { data: room } = await supabase
+    .from("rooms")
+    .select("puzzle")
+    .eq("id", roomId)
+    .maybeSingle();
+
+  const nextPuzzle = {
+    ...(room?.puzzle || {}),
+    difficulty,
+    maxQuestions
+  };
+
+  await supabase
+    .from("rooms")
+    .update({ puzzle: nextPuzzle })
+    .eq("id", roomId);
 }
 
 export async function joinRoom(code, nickname) {
@@ -101,17 +127,35 @@ export async function switchTeam(roomId, sessionId, team) {
 }
 
 export async function startMatch(code) {
-  const puzzle = generatePuzzle();
-  const startAt = new Date(Date.now() + 3500).toISOString();
-
-  // Reset player progress
+  // Fetch current room to read difficulty and max questions
   const { data: room } = await supabase
     .from("rooms")
-    .select("id")
+    .select("*")
     .eq("code", code)
     .maybeSingle();
   if (!room) throw new Error("Room not found");
 
+  const meta = room.puzzle || {};
+  const difficulty = meta.difficulty || "medium";
+  const maxQuestions = meta.maxQuestions || 3;
+
+  // Generate distinct questions
+  const questions = [];
+  const seenIds = new Set();
+  for (let i = 0; i < maxQuestions; i++) {
+    let puzzle = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const qSeed = Math.floor(Math.random() * 1_000_000);
+      puzzle = generatePuzzle(qSeed, difficulty);
+      if (!seenIds.has(puzzle.id)) break;
+    }
+    seenIds.add(puzzle.id);
+    questions.push(puzzle);
+  }
+
+  const startAt = new Date(Date.now() + 3500).toISOString();
+
+  // Reset player progress
   await supabase
     .from("room_players")
     .update({ finished_at: null, steps: null, errors: 0 })
@@ -119,7 +163,13 @@ export async function startMatch(code) {
 
   const patch = {
     status: "countdown",
-    puzzle: puzzle,
+    puzzle: {
+      difficulty,
+      maxQuestions,
+      currentQuestionIndex: 0,
+      questions,
+      scores: { A: 0, B: 0 }
+    },
     started_at: startAt,
     winning_team: null,
     winner: null,
@@ -138,7 +188,7 @@ export async function submitSolved(roomId, sessionId, steps, errors) {
 
   // Check if a team has completed.
   const { data: room } = await supabase.from("rooms").select("*").eq("id", roomId).maybeSingle();
-  if (!room || room.winning_team) return;
+  if (!room || !room.puzzle) return;
 
   const { data: players } = await supabase
     .from("room_players")
@@ -160,10 +210,48 @@ export async function submitSolved(roomId, sessionId, steps, errors) {
   else if (bDone) winning = "B";
 
   if (winning) {
-    await supabase
-      .from("rooms")
-      .update({ winning_team: winning, status: "finished" })
-      .eq("id", roomId);
+    const puzzleMeta = { ...room.puzzle };
+    if (!puzzleMeta.scores) puzzleMeta.scores = { A: 0, B: 0 };
+
+    if (winning === "A") puzzleMeta.scores.A += 1;
+    else if (winning === "B") puzzleMeta.scores.B += 1;
+    else {
+      puzzleMeta.scores.A += 1;
+      puzzleMeta.scores.B += 1;
+    }
+
+    const nextIndex = puzzleMeta.currentQuestionIndex + 1;
+    if (nextIndex < puzzleMeta.maxQuestions) {
+      puzzleMeta.currentQuestionIndex = nextIndex;
+      const startAt = new Date(Date.now() + 5000).toISOString();
+
+      await supabase
+        .from("room_players")
+        .update({ finished_at: null, steps: null, errors: 0 })
+        .eq("room_id", roomId);
+
+      await supabase
+        .from("rooms")
+        .update({
+          status: "countdown",
+          puzzle: puzzleMeta,
+          started_at: startAt
+        })
+        .eq("id", roomId);
+    } else {
+      let overallWinner = "draw";
+      if (puzzleMeta.scores.A > puzzleMeta.scores.B) overallWinner = "A";
+      else if (puzzleMeta.scores.B > puzzleMeta.scores.A) overallWinner = "B";
+
+      await supabase
+        .from("rooms")
+        .update({
+          winning_team: overallWinner,
+          status: "finished",
+          puzzle: puzzleMeta
+        })
+        .eq("id", roomId);
+    }
   }
 }
 
@@ -176,17 +264,28 @@ export async function bumpErrors(roomId, sessionId, current) {
 }
 
 export async function returnToLobby(code) {
-  const { data: room } = await supabase.from("rooms").select("id").eq("code", code).maybeSingle();
+  const { data: room } = await supabase.from("rooms").select("*").eq("code", code).maybeSingle();
   if (!room) return;
+
+  const currentDifficulty = room.puzzle?.difficulty || "medium";
+  const currentMaxQuestions = room.puzzle?.maxQuestions || 3;
+
   await supabase
     .from("room_players")
     .update({ finished_at: null, steps: null, errors: 0 })
     .eq("room_id", room.id);
+
   await supabase
     .from("rooms")
     .update({
       status: "lobby",
-      puzzle: null,
+      puzzle: {
+        difficulty: currentDifficulty,
+        maxQuestions: currentMaxQuestions,
+        currentQuestionIndex: 0,
+        questions: [],
+        scores: { A: 0, B: 0 }
+      },
       started_at: null,
       winning_team: null,
       winner: null,
