@@ -10,12 +10,14 @@ import {
   startMatch,
   submitSolved,
   switchTeam,
+  updateRoomSettings,
 } from "@/features/multiplayer-challenge/lib/room";
 import { elementInfo } from "@/features/resonance-puzzle/lib/puzzles";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } from "lucide-react";
+import Confetti from "react-confetti";
 
 export default function ChallengeMatch() {
   const { code } = useParams();
@@ -132,6 +134,92 @@ function Lobby({ room, players, me, isHost }) {
         </div>
       </div>
 
+      {/* Lobby Settings configuration panel */}
+      <div className="mt-6 grid md:grid-cols-2 gap-6 border-t border-b border-white/10 py-6">
+        <div>
+          <label className="text-xs uppercase tracking-wider text-white/50 block mb-2 font-mono">Difficulty</label>
+          {isHost ? (
+            <div className="flex gap-2">
+              {[
+                { key: "easy", label: "Easy", activeColor: "border-emerald-500 bg-emerald-500/20 text-emerald-400" },
+                { key: "medium", label: "Medium", activeColor: "border-amber-500 bg-amber-500/20 text-amber-400" },
+                { key: "hard", label: "Hard", activeColor: "border-rose-500 bg-rose-500/20 text-rose-400" }
+              ].map((d) => (
+                <button
+                  key={d.key}
+                  onClick={() => updateRoomSettings(room.id, d.key, room.puzzle?.maxQuestions || 3)}
+                  className={`flex-1 rounded-xl border py-2 text-xs font-mono font-bold transition duration-300 ${
+                    (room.puzzle?.difficulty || "medium") === d.key
+                      ? d.activeColor
+                      : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="capitalize font-mono font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl inline-block">
+              {room.puzzle?.difficulty || "medium"}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="text-xs uppercase tracking-wider text-white/50 block mb-2 font-mono">Match Length (Questions)</label>
+          {isHost ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const currentQ = room.puzzle?.maxQuestions || 3;
+                  updateRoomSettings(room.id, room.puzzle?.difficulty || "medium", Math.max(1, currentQ - 1));
+                }}
+                className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 font-mono text-base font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
+              >
+                -
+              </button>
+              <input
+                type="text"
+                value={room.puzzle?.maxQuestions ?? ""}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value.replace(/[^0-9]/g, ""), 10);
+                  const difficulty = room.puzzle?.difficulty || "medium";
+                  if (!isNaN(val)) {
+                    updateRoomSettings(room.id, difficulty, Math.min(30, Math.max(1, val)));
+                  } else {
+                    updateRoomSettings(room.id, difficulty, ""); // Allow empty string momentarily during typing
+                  }
+                }}
+                onBlur={() => {
+                  const currentQ = room.puzzle?.maxQuestions;
+                  const difficulty = room.puzzle?.difficulty || "medium";
+                  if (currentQ === "" || isNaN(currentQ) || currentQ === null || currentQ === undefined) {
+                    updateRoomSettings(room.id, difficulty, 3);
+                  }
+                }}
+                className="h-10 w-20 text-center rounded-xl border border-white/20 bg-black/40 text-white font-mono text-sm outline-none focus:border-magenta"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const currentQ = room.puzzle?.maxQuestions || 3;
+                  updateRoomSettings(room.id, room.puzzle?.difficulty || "medium", Math.min(30, currentQ + 1));
+                }}
+                className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 font-mono text-base font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
+              >
+                +
+              </button>
+              <span className="text-[10px] text-white/40 font-mono ml-1">Limit: 1 - 30</span>
+            </div>
+          ) : (
+            <div className="font-mono font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl inline-block">
+              {room.puzzle?.maxQuestions || 3} Questions
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         <TeamColumn label="Team A" team="A" players={teamA} size={room.team_size} me={me} onSwitch={() => swap("A")} accent="primary" />
         <TeamColumn label="Team B" team="B" players={teamB} size={room.team_size} me={me} onSwitch={() => swap("B")} accent="defeat" />
@@ -192,33 +280,35 @@ function TeamColumn({ label, team, players, size, me, onSwitch, accent }) {
 
 /* ----------------------- MATCH ----------------------- */
 function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal }) {
-  const puzzle = room.puzzle;
+  const puzzle = room.puzzle?.questions ? room.puzzle.questions[room.puzzle.currentQuestionIndex] : room.puzzle;
   const [countdownLeft, setCountdownLeft] = useState(3);
   const [unlocked, setUnlocked] = useState(false);
   const [progress, setProgress] = useState([]);
   const [errors, setErrors] = useState(0);
   const [solved, setSolved] = useState(false);
   const [flash, setFlash] = useState(null);
+  const [solvedPuzzle, setSolvedPuzzle] = useState(null);
   const lastErrSync = useRef(0);
 
   const discoveredCompoundInfo = useMemo(() => {
-    if (!puzzle) return null;
+    const targetPuzzle = solvedPuzzle || puzzle;
+    if (!targetPuzzle) return null;
     
     const targetNameMap = {
       "Salt": "Sodium Chloride"
     };
-    const lookupName = targetNameMap[puzzle.targetName] || puzzle.targetName;
+    const lookupName = targetNameMap[targetPuzzle.targetName] || targetPuzzle.targetName;
     
     const elementsArray = Array.isArray(compoundElements) ? compoundElements : (compoundElements.default || []);
     const found = elementsArray.find(c => c.NAME?.toLowerCase() === lookupName.toLowerCase());
     
     if (!found) {
       return {
-        name: puzzle.targetName,
-        symbol: puzzle.target,
+        name: targetPuzzle.targetName,
+        symbol: targetPuzzle.target,
         description: "A specialized molecular compound synthesized in the Elementopia laboratories.",
         uses: "Various classified applications.",
-        elements: puzzle.sequence?.join(", ") || "Unknown"
+        elements: targetPuzzle.sequence?.join(", ") || "Unknown"
       };
     }
 
@@ -229,7 +319,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       uses: Array.isArray(found.Uses) ? found.Uses.join(", ") : found.Uses,
       elements: Array.isArray(found.Elements) ? found.Elements.join(", ") : found.Elements
     };
-  }, [puzzle]);
+  }, [solvedPuzzle, puzzle]);
 
   useEffect(() => {
     if (!room.started_at) return;
@@ -284,6 +374,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       if (np.length === targetSeq.length) {
         setSolved(true);
         setUnlocked(false);
+        setSolvedPuzzle(puzzle);
         setShowDiscoveryModal(true);
         submitSolved(room.id, me.session_id, np.length, errors).catch(console.error);
       }
@@ -307,19 +398,47 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
         <TeamHUD label="Team A" players={teamA} size={room.team_size} mySession={me?.session_id ?? null} accent="primary" />
         <TeamHUD label="Team B" players={teamB} size={room.team_size} mySession={me?.session_id ?? null} accent="defeat" />
       </div>
-
-      <div className="rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur">
-        <p className="text-[10px] uppercase tracking-widest text-white/50">Synthesize</p>
-        <h2 className="text-2xl font-bold text-white">{puzzle.target}</h2>
-        <p className="text-[10px] text-white/50">{puzzle.targetName} · {puzzle.optimalSteps} optimal steps · team race</p>
+      
+      {/* Match HUD Scoreboard Header */}
+      <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur">
+        <div className="text-left">
+          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">ROUND</p>
+          <h3 className="text-lg font-bold text-white font-mono">
+            {room.puzzle?.questions ? `${room.puzzle.currentQuestionIndex + 1} of ${room.puzzle.maxQuestions}` : "1 of 1"}
+          </h3>
+          <p className="text-[9px] text-white/40 font-mono capitalize">Difficulty: {room.puzzle?.difficulty || "medium"}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">TARGET COMPOUND</p>
+          <h2 className="text-2xl font-bold text-white text-glow-magenta">{puzzle.target}</h2>
+          <p className="text-[9px] text-white/40 font-mono">{puzzle.targetName} · {puzzle.optimalSteps} steps</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">SCOREBOARD</p>
+          <div className="flex justify-end items-center gap-2 mt-1">
+            <span className="h-2 w-2 rounded-full bg-[#a855f7] glow-[#a855f7]" />
+            <span className="text-base font-bold text-white font-mono">
+              {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}
+            </span>
+            <span className="h-2 w-2 rounded-full bg-[#ec4899] glow-[#ec4899]" />
+          </div>
+          <p className="text-[9px] text-white/40 font-mono">Team A vs Team B</p>
+        </div>
       </div>
 
       {!unlocked && !solved && !oppAllDone && (
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur">
-          <p className="text-xs uppercase tracking-widest text-white/50">Synchronizing…</p>
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur flex flex-col justify-center items-center">
+          <p className="text-xs uppercase tracking-widest text-white/50 font-mono tracking-[0.2em]">
+            {room.puzzle?.questions ? `PREPARING ROUND ${room.puzzle.currentQuestionIndex + 1}...` : "SYNCHRONIZING..."}
+          </p>
           <div key={countdownLeft} className="mt-4 animate-countdown bg-gradient-primary bg-clip-text text-8xl font-bold text-transparent font-pixel">
             {countdownLeft > 0 ? countdownLeft : "GO!"}
           </div>
+          {room.puzzle?.currentQuestionIndex > 0 && (
+            <p className="text-sm text-victory font-mono mt-4 animate-pulse">
+              Current Standings: Team A ({room.puzzle.scores?.A}) - Team B ({room.puzzle.scores?.B})
+            </p>
+          )}
         </div>
       )}
 
@@ -382,7 +501,10 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
 
       <Modal
           open={showDiscoveryModal}
-          onClose={() => setShowDiscoveryModal(false)}
+          onClose={() => {
+            setShowDiscoveryModal(false);
+            setSolvedPuzzle(null);
+          }}
       >
       <div 
           className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
@@ -401,7 +523,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
                   </p>
                   {discoveredCompoundInfo && (
                       <div className="space-y-6">
-                          <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
+                           <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
                               {discoveredCompoundInfo.description}
                           </div>
                           <div className="border-t border-border pt-6 text-left">
@@ -428,7 +550,10 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
                   )}
               </div>
               <button 
-                  onClick={() => setShowDiscoveryModal(false)}
+                  onClick={() => {
+                    setShowDiscoveryModal(false);
+                    setSolvedPuzzle(null);
+                  }}
                   className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
               >
                   Close Record
@@ -478,6 +603,19 @@ function Result({ room, players, me, isHost }) {
   const teamA = players.filter((p) => p.team === "A");
   const teamB = players.filter((p) => p.team === "B");
 
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 800,
+    height: typeof window !== 'undefined' ? window.innerHeight : 600,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     if (!me || !winning) return;
     const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
@@ -495,24 +633,25 @@ function Result({ room, players, me, isHost }) {
   }, [me, winning, draw, youWon]);
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)]">
+    <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)] flex flex-col justify-center relative overflow-hidden">
       {draw ? (
         <>
           <Minus className="mx-auto h-12 w-12 text-white/50" />
-          <h1 className="mt-4 text-4xl font-bold text-white">Draw</h1>
-          <p className="mt-2 text-white/50">Both teams finished. Equal total errors.</p>
+          <h1 className="mt-4 text-4xl font-bold text-white font-pixel">Draw</h1>
+          <p className="mt-2 text-white/50">Equal points: {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}</p>
         </>
       ) : youWon ? (
         <>
+          {youWon && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={300} />}
           <Trophy className="mx-auto h-12 w-12 text-victory" />
           <h1 className="mt-4 text-5xl font-bold text-victory font-pixel tracking-widest text-glow-victory">VICTORY</h1>
-          <p className="mt-2 text-white/50">Team {winning} stabilized the compound first.</p>
+          <p className="mt-2 text-white/50">Your team won the match {room.puzzle?.scores ? `(${room.puzzle.scores[me.team]} to ${room.puzzle.scores[me.team === "A" ? "B" : "A"]})` : ""}!</p>
         </>
       ) : winning ? (
         <>
           <Frown className="mx-auto h-12 w-12 text-defeat" />
           <h1 className="mt-4 text-5xl font-bold text-defeat font-pixel tracking-widest text-glow-yellow">DEFEAT</h1>
-          <p className="mt-2 text-white/50">Team {winning} reached resonance faster.</p>
+          <p className="mt-2 text-white/50">Team {winning} won the match {room.puzzle?.scores ? `(${room.puzzle.scores[winning]} to ${room.puzzle.scores[winning === "A" ? "B" : "A"]})` : ""}!</p>
         </>
       ) : (
         <h1 className="text-2xl text-white">Match ended.</h1>
