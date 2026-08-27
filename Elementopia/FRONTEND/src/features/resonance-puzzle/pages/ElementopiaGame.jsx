@@ -15,7 +15,18 @@ export default function ElementopiaGame() {
   const location = useLocation();
   const [rows, setRows] = useState([]);
   const [nickname, setNickname] = useState(null);
-  const [view, setView] = useState(location.state?.view || "home");
+  const queryParams = new URLSearchParams(location.search);
+  const initialView = queryParams.get("view") || location.state?.view || "home";
+  const [view, setView] = useState(initialView);
+
+  useEffect(() => {
+    const qView = new URLSearchParams(location.search).get("view");
+    if (qView) {
+      setView(qView);
+    } else if (location.state?.view) {
+      setView(location.state.view);
+    }
+  }, [location.search, location.state]);
   const [activeDomain, setActiveDomain] = useState(null);
   const [storyOpen, setStoryOpen] = useState(false);
   const [completionBanner, setCompletionBanner] = useState(null);
