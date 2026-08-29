@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ELEMENTS, shuffle, liveCommentary, matchCompound } from "@/features/resonance-puzzle/lib/game-data";
+import { ELEMENTS, shuffle, liveCommentary, matchCompound, isCompoundInDomain } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -28,6 +28,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [currentStage, setCurrentStage] = useState(() => initialStage || 1);
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [showTutorialModal, setShowTutorialModal] = useState(true);
+  const [discoveryVideo, setDiscoveryVideo] = useState(null);
 
   useEffect(() => {
     setShowTutorialModal(true);
@@ -41,7 +42,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const TOTAL_BLOCKS = useMemo(() => {
     const reqCount = requiredOrder.length || 3;
-    return reqCount >= 6 ? 36 : reqCount >= 5 ? 30 : 24;
+    return reqCount * 6; // Each reaction clears exactly 6 blocks
   }, [requiredOrder]);
 
   const blocksPerReaction = useMemo(() => {
@@ -126,6 +127,12 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
       for (let i = 0; i < qty; i++) elementList.push(symbol);
     });
 
+    const sortedElementsStr = [...elementList].sort().join("-");
+    if (solved.includes(sortedElementsStr)) {
+      setByproduct("Compound already synthesized in this stage. Try a different combination!");
+      return;
+    }
+
     const newAttempts = attempts + 1;
     setAttempts(newAttempts);
 
@@ -144,7 +151,15 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
       switch (data.action) {
         case "UNLOCK_PATH": {
-          const newSolved = [...solved, elementList.join("-")];
+          if (!isCompoundInDomain(workbench, domain)) {
+            const matchedAnywhere = matchCompound(workbench, domain, currentStage);
+            const name = matchedAnywhere ? matchedAnywhere.name : elementList.join("");
+            
+            setByproduct(`Dr. Atoms: ${name} is a valid compound, but it uses different bonding rules! We are currently studying ${domain.name}.`);
+            break;
+          }
+
+          const newSolved = [...solved, sortedElementsStr];
           const newCorrect = correct + 1;
 
           setSolved(newSolved);
@@ -167,6 +182,10 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                   DiscoveryService.createDiscovery(user.userId, discoveryData).catch(e => console.warn("Discovery save failed:", e));
                 }
               }).catch(e => console.warn("Failed to get user:", e));
+            }
+            
+            if (matchedCompound.localVideo) {
+              setDiscoveryVideo(matchedCompound);
             }
           }
 
@@ -327,17 +346,18 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             glow={glow}
             justCleared={justCleared}
           />
-          <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-gradient-magenta transition-all duration-700" style={{ width: `${progressPct}%` }} />
-          </div>
-        </div>
-        <div className="mt-2.5 rounded-xl border border-cyan/30 bg-cyan/5 p-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-          <div className="mb-1 flex items-center justify-between font-mono text-[10px] font-bold text-cyan uppercase tracking-wider">
-            <span>🧪 Bond Analyzer</span>
-            <span className="text-[9px] text-cyan/70">Realtime Reasoning</span>
-          </div>
-          <div className="font-mono text-xs leading-relaxed text-slate-200">
-            {liveCommentary(workbench)}
+          <div className="mt-3 relative h-5 w-full overflow-hidden rounded-full bg-slate-950 border border-magenta/30 shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)]">
+            <div 
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-magenta transition-all duration-1000 ease-out" 
+              style={{ width: `${progressPct}%` }} 
+            >
+              <div className="absolute inset-0 bg-white/10 animate-pulse" />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-mono text-[11px] font-bold tracking-widest text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">
+                {Math.round(progressPct)}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -387,6 +407,16 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             ))}
           </div>
         </div>
+
+        <div className="rounded-xl border border-cyan/30 bg-cyan/5 p-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+          <div className="mb-1 flex items-center justify-between font-mono text-[10px] font-bold text-cyan uppercase tracking-wider">
+            <span>🧪 Bond Analyzer</span>
+            <span className="text-[9px] text-cyan/70">Realtime Reasoning</span>
+          </div>
+          <div className="font-mono text-xs leading-relaxed text-slate-200">
+            {liveCommentary(workbench)}
+          </div>
+        </div>
       </div>
 
       {showTutorialModal && (
@@ -413,7 +443,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
           <DoctorAtomAssistant
             title="Doctor Atom"
-            message={`3 attempts made without a match! Tip for ${domain.name}: Check your valence electrons. Pair elements so offered electrons equal needed electrons!`}
+            message={`${consecutiveFailures} attempts made without a match! Tip for ${domain.name}: Check your valence electrons. Pair elements so offered electrons equal needed electrons!`}
             isTalking={true}
           />
 
@@ -439,6 +469,42 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           onAdvanceStage={handleAdvanceStage}
           onReturnHome={onExit}
         />
+      )}
+
+      {discoveryVideo && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-up">
+          <div className="relative w-full max-w-4xl bg-slate-950 border border-cyan/50 rounded-3xl shadow-[0_0_60px_rgba(6,182,212,0.4)] overflow-hidden">
+            <div className="p-5 border-b border-slate-800/80 flex justify-between items-center bg-slate-900/40">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-cyan animate-pulse" />
+                <h3 className="font-pixel text-2xl text-white tracking-wider">{discoveryVideo.name} Synthesized!</h3>
+              </div>
+              <button onClick={() => setDiscoveryVideo(null)} className="text-slate-400 hover:text-white transition bg-slate-800/50 hover:bg-slate-700 p-2 rounded-xl">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="relative aspect-video bg-black flex items-center justify-center">
+              <video 
+                key={discoveryVideo.localVideo}
+                src={discoveryVideo.localVideo} 
+                controls 
+                autoPlay 
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
+            <div className="p-5 bg-slate-900/60 flex justify-between items-center border-t border-slate-800/80">
+              <div className="text-sm font-mono text-cyan/70">
+                Educational Broadcast • {discoveryVideo.formula}
+              </div>
+              <button 
+                onClick={() => setDiscoveryVideo(null)} 
+                className="px-8 py-3 bg-gradient-to-r from-cyan to-blue-500 text-white font-bold font-mono text-sm rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(6,182,212,0.5)] uppercase tracking-wider"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
