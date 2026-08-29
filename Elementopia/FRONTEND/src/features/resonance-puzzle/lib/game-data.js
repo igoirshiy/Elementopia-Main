@@ -83,21 +83,22 @@ export const DOMAINS = [
         story: "In this surface layer, nonmetals with 1 to 3 missing valence electrons seek partners. Experiment with electron-sharing pairs between 2 elements to reach octet stability. Deduce the ratios based on each atom's valence needs!",
         palette: ["H", "O", "Cl", "N", "He", "Ne"],
         required: [
-          { formula: "H₂O", name: "Water", recipe: { H: 2, O: 1 } },
+          { formula: "H₂O", name: "Water", recipe: { H: 2, O: 1 }, localVideo: "/videos/water.mp4" },
           { formula: "H₂O₂", name: "Hydrogen Peroxide", recipe: { H: 2, O: 2 } },
-          { formula: "NH₃", name: "Ammonia", recipe: { H: 3, N: 1 } },
+          { formula: "NH₃", name: "Ammonia", recipe: { H: 3, N: 1 }, localVideo: "/videos/ammonia.mp4" },
+          { formula: "HCl", name: "Hydrogen Chloride", recipe: { H: 1, Cl: 1 }, localVideo: "/videos/hydrogen_chloride.mp4" },
         ],
-        validInDomain: ["H", "O", "N"],
+        validInDomain: ["H", "O", "N", "Cl"],
       },
       2: {
         title: "Stage 2: Ternary Multiple Bonding & Carbon Sharing",
         story: "As you descend deeper, explore 3-element compounds! Carbon has 4 open valence slots while Oxygen seeks 2 electrons. Nonmetals can share multiple electron pairs simultaneously. Deduce how to balance 3 elements at once!",
         palette: ["H", "O", "N", "C", "Cl", "He"],
         required: [
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 } },
-          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 } },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, localVideo: "/videos/carbon_dioxide.mp4" },
+          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, localVideo: "/videos/methane.mp4" },
           { formula: "CH₂O₂", name: "Formic Acid", recipe: { C: 1, H: 2, O: 2 } },
-          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 } },
+          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, localVideo: "/videos/hydrogen%20cyanide.mp4" },
           { formula: "N₂O", name: "Nitrous Oxide", recipe: { N: 2, O: 1 } },
         ],
         validInDomain: ["C", "O", "N", "H"],
@@ -108,11 +109,11 @@ export const DOMAINS = [
         palette: ["C", "H", "O", "N", "Cl", "He"],
         required: [
           { formula: "C₆H₁₂O₆", name: "Glucose", recipe: { C: 6, H: 12, O: 6 } },
-          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 } },
+          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, localVideo: "/videos/urea.mp4" },
           { formula: "C₂H₅NO₂", name: "Glycine Amino Acid", recipe: { C: 2, H: 5, N: 1, O: 2 } },
           { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 } },
           { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 } },
-          { formula: "HNO₃", name: "Nitric Acid", recipe: { H: 1, N: 1, O: 3 } },
+          { formula: "HNO₃", name: "Nitric Acid", recipe: { H: 1, N: 1, O: 3 }, localVideo: "/videos/nitric%20acid.mp4" },
         ],
         validInDomain: ["C", "H", "O", "N"],
       }
@@ -133,22 +134,20 @@ export const DOMAINS = [
         story: "In the surface salt flats, electropositive metals surrender outer valence electrons to nonmetal acceptors. Deduce how 2 elements balance electrons to form neutral binary ionic compounds!",
         palette: ["Na", "Cl", "O", "H", "Mg", "Ne"],
         required: [
-          { formula: "NaCl", name: "Table Salt", recipe: { Na: 1, Cl: 1 } },
-          { formula: "HCl", name: "Hydrochloric Acid", recipe: { H: 1, Cl: 1 } },
-          { formula: "Na₂O", name: "Sodium Oxide", recipe: { Na: 2, O: 1 } },
+          { formula: "NaCl", name: "Table Salt", recipe: { Na: 1, Cl: 1 }, localVideo: "/videos/sodium%20chloride.mp4" },
+          { formula: "Na₂O", name: "Sodium Oxide", recipe: { Na: 2, O: 1 }, localVideo: "/videos/sodium%20oxide.mp4" },
         ],
-        validInDomain: ["Na", "Cl", "O", "H"],
+        validInDomain: ["Na", "Cl", "O"],
       },
       2: {
         title: "Stage 2: Ternary Metal & Polyatomic Ions",
         story: "Deeper in the flats, explore 3-element ionic salts! Divalent metals like Magnesium (Mg, 2 valence e⁻) surrender electrons across polyatomic groups. Determine the correct ratio for 3 elements!",
         palette: ["Mg", "Cl", "O", "Na", "H", "Ne"],
         required: [
-          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 } },
-          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 } },
-          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 } },
-          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 } },
-          { formula: "HCl", name: "Hydrochloric Acid", recipe: { H: 1, Cl: 1 } },
+          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 }, localVideo: "/videos/magnesium%20chloride.mp4" },
+          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 }, localVideo: "/videos/magnesium%20oxide.mp4" },
+          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, localVideo: "/videos/sodium_hydroxide.mp4" },
+          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, localVideo: "/videos/magnesium_hydroxide.mp4" },
         ],
         validInDomain: ["Mg", "Cl", "O", "Na", "H"],
       },
@@ -160,9 +159,10 @@ export const DOMAINS = [
           { formula: "NaHCO₃", name: "Baking Soda", recipe: { Na: 1, H: 1, C: 1, O: 3 } },
           { formula: "NH₄Cl", name: "Ammonium Chloride", recipe: { N: 1, H: 4, Cl: 1 } },
           { formula: "NaNO₃", name: "Sodium Nitrate", recipe: { Na: 1, N: 1, O: 3 } },
-          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 } },
-          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 } },
-          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 } },
+          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, localVideo: "/videos/magnesium_carbonate.mp4" },
+          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, localVideo: "/videos/magnesium_hydroxide.mp4" },
+          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, localVideo: "/videos/sodium_carbonate.mp4" },
+          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, localVideo: "/videos/sodium_hydroxide.mp4" },
         ],
         validInDomain: ["Na", "H", "C", "O", "Mg", "N", "Cl"],
       }
@@ -183,9 +183,9 @@ export const DOMAINS = [
         story: "Carbon possesses 4 open valence slots and requires 4 shared electrons to complete its octet. Combine Carbon with 1 other element while avoiding inert Noble Gas distractors (He, Ne)!",
         palette: ["C", "H", "O", "He", "Ne", "Cl"],
         required: [
-          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 } },
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 } },
-          { formula: "C₂H₂", name: "Acetylene", recipe: { C: 2, H: 2 } },
+          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, localVideo: "/videos/methane.mp4" },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, localVideo: "/videos/carbon_dioxide.mp4" },
+          { formula: "C₂H₂", name: "Acetylene", recipe: { C: 2, H: 2 }, localVideo: "/videos/ethyne.mp4" },
         ],
         validInDomain: ["C", "H", "O"],
       },
@@ -194,11 +194,11 @@ export const DOMAINS = [
         story: "As you descend deeper, Carbon forms dual double bonds with Oxygen and Hydrogen simultaneously across 3 elements. Figure out the ratio between Carbon, Hydrogen, and Oxygen!",
         palette: ["C", "O", "H", "N", "He", "Ne"],
         required: [
-          { formula: "CH₂O", name: "Formaldehyde", recipe: { C: 1, H: 2, O: 1 } },
-          { formula: "CH₄O", name: "Methanol", recipe: { C: 1, H: 4, O: 1 } },
+          { formula: "CH₂O", name: "Formaldehyde", recipe: { C: 1, H: 2, O: 1 }, localVideo: "/videos/formaldehye.mp4" },
+          { formula: "CH₄O", name: "Methanol", recipe: { C: 1, H: 4, O: 1 }, localVideo: "/videos/methanol.mp4" },
           { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 } },
-          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 } },
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 } },
+          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, localVideo: "/videos/hydrogen%20cyanide.mp4" },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, localVideo: "/videos/carbon_dioxide.mp4" },
         ],
         validInDomain: ["C", "O", "H", "N"],
       },
@@ -209,7 +209,7 @@ export const DOMAINS = [
         required: [
           { formula: "C₆H₁₂O₆", name: "Glucose", recipe: { C: 6, H: 12, O: 6 } },
           { formula: "C₂H₅NO₂", name: "Glycine Amino Acid", recipe: { C: 2, H: 5, N: 1, O: 2 } },
-          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 } },
+          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, localVideo: "/videos/urea.mp4" },
           { formula: "C₃H₈O₃", name: "Glycerol", recipe: { C: 3, H: 8, O: 3 } },
           { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 } },
           { formula: "C₂H₄O₂", name: "Vinegar", recipe: { C: 2, H: 4, O: 2 } },
@@ -226,19 +226,90 @@ export function getDomain(id) {
 }
 
 export function matchCompound(workbench, domain, currentStage = 1) {
-  const requiredList = domain?.stages ? (domain.stages[currentStage]?.required || domain.stages[1]?.required) : domain?.required;
-  if (!requiredList) return null;
   const keys = Object.keys(workbench).filter(k => (workbench[k] ?? 0) > 0);
-  for (const c of requiredList) {
+
+  const isMatch = (c) => {
     const ckeys = Object.keys(c.recipe);
-    if (ckeys.length !== keys.length) continue;
-    let ok = true;
+    if (ckeys.length !== keys.length) return false;
     for (const k of ckeys) {
-      if ((workbench[k] ?? 0) !== (c.recipe[k] ?? 0)) { ok = false; break; }
+      if ((workbench[k] ?? 0) !== (c.recipe[k] ?? 0)) return false;
     }
-    if (ok) return c;
+    return true;
+  };
+
+  // 1. Check current stage first
+  const requiredList = domain?.stages ? (domain.stages[currentStage]?.required || domain.stages[1]?.required) : domain?.required;
+  if (requiredList) {
+    for (const c of requiredList) {
+      if (isMatch(c)) return c;
+    }
   }
+
+  // 2. Global fallback: search all domains and stages
+  for (const d of DOMAINS) {
+    if (d.stages) {
+      for (const stageKey in d.stages) {
+        if (!d.stages[stageKey].required) continue;
+        for (const c of d.stages[stageKey].required) {
+          if (isMatch(c)) return c;
+        }
+      }
+    } else if (d.required) {
+      for (const c of d.required) {
+        if (isMatch(c)) return c;
+      }
+    }
+  }
+
   return null;
+}
+
+export function isCompoundInCurrentStage(workbench, domain, currentStage = 1) {
+  const keys = Object.keys(workbench).filter(k => (workbench[k] ?? 0) > 0);
+
+  const isMatch = (c) => {
+    const ckeys = Object.keys(c.recipe);
+    if (ckeys.length !== keys.length) return false;
+    for (const k of ckeys) {
+      if ((workbench[k] ?? 0) !== (c.recipe[k] ?? 0)) return false;
+    }
+    return true;
+  };
+
+  const requiredList = domain?.stages ? (domain.stages[currentStage]?.required || domain.stages[1]?.required) : domain?.required;
+  if (requiredList) {
+    for (const c of requiredList) {
+      if (isMatch(c)) return true;
+    }
+  }
+  return false;
+}
+
+export function isCompoundInDomain(workbench, domain) {
+  const keys = Object.keys(workbench).filter(k => (workbench[k] ?? 0) > 0);
+
+  const isMatch = (c) => {
+    const ckeys = Object.keys(c.recipe);
+    if (ckeys.length !== keys.length) return false;
+    for (const k of ckeys) {
+      if ((workbench[k] ?? 0) !== (c.recipe[k] ?? 0)) return false;
+    }
+    return true;
+  };
+
+  if (domain.stages) {
+    for (const stageKey in domain.stages) {
+      if (!domain.stages[stageKey].required) continue;
+      for (const c of domain.stages[stageKey].required) {
+        if (isMatch(c)) return true;
+      }
+    }
+  } else if (domain.required) {
+    for (const c of domain.required) {
+      if (isMatch(c)) return true;
+    }
+  }
+  return false;
 }
 
 export function liveCommentary(workbench) {

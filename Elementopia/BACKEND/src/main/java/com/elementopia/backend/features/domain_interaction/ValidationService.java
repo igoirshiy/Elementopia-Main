@@ -65,6 +65,7 @@ public class ValidationService {
         if (total == 6 && naCount == 1 && hCount == 1 && cCount == 1 && oCount == 3) return true; // NaHCO3 Baking Soda
         if (total == 5 && naCount == 1 && nCount == 1 && oCount == 3) return true; // NaNO3
         if (total == 5 && mgCount == 1 && cCount == 1 && oCount == 3) return true; // MgCO3
+        if (total == 6 && naCount == 2 && cCount == 1 && oCount == 3) return true; // Na2CO3 Sodium Carbonate
 
         return false;
     }
