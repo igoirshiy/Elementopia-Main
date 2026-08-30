@@ -58,12 +58,12 @@ export function SiteHeader({ view, setView }) {
           >
             Dashboard
           </button>
-          <Link 
-            to="/student/discovery" 
+          <button 
+            onClick={() => { window.location.href = "/student/discovery"; }} 
             className={`transition-colors cursor-pointer ${isDiscoveryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Discoveries
-          </Link>
+          </button>
           <button 
             onClick={handleMasteryClick} 
             className={`transition-colors cursor-pointer ${isMasteryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}

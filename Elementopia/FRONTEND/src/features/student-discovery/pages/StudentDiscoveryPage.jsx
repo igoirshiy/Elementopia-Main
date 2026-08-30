@@ -253,6 +253,27 @@ export function StudentDiscoveryPage() {
                   <MolecularBallAndStickVisualizer symbol={selectedDiscovery.symbol} />
                 </div>
 
+                {/* Real-World Specimen Photo */}
+                {selectedDiscovery.image && (
+                  <div className="my-4 rounded-2xl border border-cyan/30 bg-slate-900/80 p-4 shadow-lg">
+                    <div className="font-mono text-[10px] text-cyan uppercase tracking-wider mb-3 font-bold flex items-center gap-1.5">
+                      <span>📸</span> Real-World Specimen Photo
+                    </div>
+                    <div style={{ minHeight: '280px', height: '280px' }} className="w-full rounded-xl border border-slate-800 bg-slate-950">
+                      <img
+                        src={selectedDiscovery.image}
+                        alt={`${selectedDiscovery.name} real world photo`}
+                        onError={(e) => {
+                          if (e.currentTarget.src.endsWith('.jpg')) {
+                            e.currentTarget.src = e.currentTarget.src.replace('.jpg', '.jfif');
+                          }
+                        }}
+                        style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '0.75rem', display: 'block' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Compound Metadata Grid */}
                 <div className="grid grid-cols-2 gap-3 my-4">
                   <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
