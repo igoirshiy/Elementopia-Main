@@ -14,13 +14,15 @@ export default function ResonanceSetup() {
   const [mode] = useState("create");
   const [nickname, setNickname] = useState(getStoredNickname());
   const [teamSize, setTeamSize] = useState(1);
+  const [difficulty, setDifficulty] = useState("medium");
+  const [maxQuestions, setMaxQuestions] = useState(3);
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
     setLoading(true);
     try {
       setStoredNickname(nickname);
-      const room = await createRoom(nickname, teamSize);
+      const room = await createRoom(nickname, teamSize, difficulty, maxQuestions);
       navigate(`/challenge/${room.code}`);
     } catch (e) {
       toast.error(e.message);
@@ -69,25 +71,90 @@ export default function ResonanceSetup() {
                       <Input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. Neon_88" maxLength={20} className="h-12 text-white border-white/20 focus:border-magenta" />
                     </div>
                     {mode === "create" && (
-                      <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-wider text-white/50">Format</label>
-                        <div className="grid grid-cols-5 gap-2">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button
-                              key={n}
-                              type="button"
-                              onClick={() => setTeamSize(n)}
-                              className={`rounded-xl border py-3 font-mono text-sm transition ${
-                                teamSize === n
-                                  ? "border-magenta bg-magenta/20 text-white shadow-glow"
-                                  : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
-                              }`}
-                            >
-                              {n}v{n}
-                            </button>
-                          ))}
+                      <>
+                        <div className="space-y-2">
+                          <label className="text-xs uppercase tracking-wider text-white/50">Format</label>
+                          <div className="grid grid-cols-5 gap-2">
+                            {[1, 2, 3, 4, 5].map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() => setTeamSize(n)}
+                                className={`rounded-xl border py-3 font-mono text-sm transition ${
+                                  teamSize === n
+                                    ? "border-magenta bg-magenta/20 text-white shadow-glow"
+                                    : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
+                                }`}
+                              >
+                                {n}v{n}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+
+                        {/* Difficulty Selection */}
+                        <div className="space-y-2">
+                          <label className="text-xs uppercase tracking-wider text-white/50">Difficulty</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { key: "easy", label: "Easy", color: "border-emerald-500/30 hover:border-emerald-500/60", activeColor: "border-emerald-500 bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" },
+                              { key: "medium", label: "Medium", color: "border-amber-500/30 hover:border-amber-500/60", activeColor: "border-amber-500 bg-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
+                              { key: "hard", label: "Hard", color: "border-rose-500/30 hover:border-rose-500/60", activeColor: "border-rose-500 bg-rose-500/20 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]" }
+                            ].map((d) => (
+                              <button
+                                key={d.key}
+                                type="button"
+                                onClick={() => setDifficulty(d.key)}
+                                className={`rounded-xl border py-2.5 font-mono text-sm font-bold transition duration-300 ${
+                                  difficulty === d.key ? d.activeColor : `border-white/10 bg-white/5 text-white/50 ${d.color}`
+                                }`}
+                              >
+                                {d.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Match Length Input Selection */}
+                        <div className="space-y-2">
+                          <label className="text-xs uppercase tracking-wider text-white/50 font-mono">Match Length (Questions)</label>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setMaxQuestions(prev => Math.max(1, prev - 1))}
+                              className="h-12 w-12 rounded-xl border border-white/10 bg-white/5 font-mono text-lg font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="text"
+                              value={maxQuestions}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value.replace(/[^0-9]/g, ""), 10);
+                                if (!isNaN(val)) {
+                                  setMaxQuestions(Math.min(30, Math.max(1, val)));
+                                } else {
+                                  setMaxQuestions(""); // Allow empty string momentarily during typing
+                                }
+                              }}
+                              onBlur={() => {
+                                if (maxQuestions === "" || isNaN(maxQuestions)) {
+                                  setMaxQuestions(3);
+                                }
+                              }}
+                              className="h-12 w-24 text-center rounded-xl border border-white/20 bg-black/40 text-white font-mono text-base outline-none focus:border-magenta"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setMaxQuestions(prev => Math.min(30, prev + 1))}
+                              className="h-12 w-12 rounded-xl border border-white/10 bg-white/5 font-mono text-lg font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
+                            >
+                              +
+                            </button>
+                            <span className="text-xs text-white/40 font-mono ml-1">Limit: 1 - 30 questions</span>
+                          </div>
+                        </div>
+                      </>
                     )}
                     <button
                       onClick={handleCreate}

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { ELEMENTS } from "@/features/resonance-puzzle/lib/game-data";
+import { BohrAtomVisualizer } from "./BohrAtomVisualizer";
 
 export function ElementTile({ symbol, disabled, onAdd }) {
   const [hover, setHover] = useState(false);
   const e = ELEMENTS[symbol];
   return (
     <div
-      className="relative"
+      className="relative w-full aspect-square"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -29,15 +30,19 @@ export function ElementTile({ symbol, disabled, onAdd }) {
         </div>
       </button>
       {hover && !disabled && (
-        <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 rounded-lg border border-border bg-popover/95 p-3 text-xs shadow-2xl backdrop-blur animate-fade-up">
-          <div className="mb-1 flex items-baseline justify-between">
-            <span className="font-display text-base font-bold text-foreground">{e.name}</span>
-            <span className="font-mono text-magenta">{e.symbol}</span>
+        <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-72 -translate-x-1/2 rounded-xl border border-cyan/50 bg-slate-950/95 p-3.5 text-xs shadow-[0_0_25px_rgba(6,182,212,0.3)] backdrop-blur animate-fade-up">
+          <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800">
+            <div>
+              <div className="font-display text-base font-bold text-white">{e.name}</div>
+              <div className={`font-mono text-[10px] ${e.noble ? "text-yellow-300" : "text-cyan"}`}>
+                {e.noble ? `⚠ NOBLE GAS · inert octet` : `${e.valence} valence e⁻ · partners: ${e.partners}`}
+              </div>
+            </div>
+            <div className="shrink-0">
+              <BohrAtomVisualizer symbol={symbol} size="sm" />
+            </div>
           </div>
-          <div className={`mb-1 font-mono text-[10px] ${e.noble ? "text-yellow-300" : "text-cyan"}`}>
-            {e.noble ? `⚠ NOBLE GAS · full shell · bonds with nothing` : `${e.valence} valence e⁻ · bonds with ${e.partners}`}
-          </div>
-          <div className="text-muted-foreground">{e.fact}</div>
+          <div className="text-slate-300 text-[11px] leading-relaxed">{e.fact}</div>
         </div>
       )}
     </div>
