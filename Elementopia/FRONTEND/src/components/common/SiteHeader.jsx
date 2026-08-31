@@ -11,6 +11,9 @@ export function SiteHeader({ view, setView }) {
   const isDashboardActive = isMainPage && (view === "home" || !view);
   const isMasteryActive = isMainPage && view === "dashboard";
   const isDiscoveryActive = pathname === "/student/discovery";
+  const isGalleryActive = pathname === "/student/gallery" || pathname === "/gallery" || pathname === "/student/compound-gallery";
+  const isWorkshopActive = pathname === "/student/workshop" || pathname === "/workshop" || pathname === "/student/dr-atom-workshop";
+  const isMatrixActive = pathname === "/student/matrix" || pathname === "/matrix" || pathname === "/student/periodic-matrix" || pathname === "/periodic-matrix";
   const isChallengeActive = pathname.startsWith("/challenge");
 
   const handleDashboardClick = () => {
@@ -59,6 +62,24 @@ export function SiteHeader({ view, setView }) {
             Dashboard
           </button>
           <button 
+            onClick={() => { window.location.href = "/student/matrix"; }} 
+            className={`transition-colors cursor-pointer ${isMatrixActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+          >
+            Periodic Matrix
+          </button>
+          <button 
+            onClick={() => { window.location.href = "/student/workshop"; }} 
+            className={`transition-colors cursor-pointer ${isWorkshopActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+          >
+            Workshop
+          </button>
+          <button 
+            onClick={() => { window.location.href = "/student/gallery"; }} 
+            className={`transition-colors cursor-pointer ${isGalleryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+          >
+            Gallery
+          </button>
+          <button 
             onClick={() => { window.location.href = "/student/discovery"; }} 
             className={`transition-colors cursor-pointer ${isDiscoveryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
@@ -98,6 +119,15 @@ export function SiteHeader({ view, setView }) {
           <button onClick={handleDashboardClick} className="block w-full text-left font-mono text-sm py-2 px-3 rounded-lg hover:bg-slate-900 text-white cursor-pointer">
             Dashboard
           </button>
+          <Link to="/student/matrix" onClick={() => setMobileMenuOpen(false)} className="block w-full font-mono text-sm py-2 px-3 rounded-lg hover:bg-slate-900 text-white cursor-pointer">
+            Periodic Matrix
+          </Link>
+          <Link to="/student/workshop" onClick={() => setMobileMenuOpen(false)} className="block w-full font-mono text-sm py-2 px-3 rounded-lg hover:bg-slate-900 text-white cursor-pointer">
+            Dr. Atom's Workshop
+          </Link>
+          <Link to="/student/gallery" onClick={() => setMobileMenuOpen(false)} className="block w-full font-mono text-sm py-2 px-3 rounded-lg hover:bg-slate-900 text-white cursor-pointer">
+            Compound Gallery
+          </Link>
           <Link to="/student/discovery" onClick={() => setMobileMenuOpen(false)} className="block w-full font-mono text-sm py-2 px-3 rounded-lg hover:bg-slate-900 text-white cursor-pointer">
             Discoveries Catalog
           </Link>

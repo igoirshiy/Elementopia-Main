@@ -41,6 +41,30 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
   const modules = [
     {
+      title: "Periodic Matrix",
+      tag: "Interactive Table",
+      desc: "Explore all 118 authentic elements with family filters, atomic coordinates, and deep structure analysis.",
+      onClick: () => navigate("/student/matrix"),
+      hue: "from-[oklch(0.78_0.16_200)] to-[oklch(0.65_0.28_260)]",
+      glow: "shadow-[0_0_32px_oklch(0.78_0.16_200/0.4)]",
+    },
+    {
+      title: "Dr. Atom's Workshop",
+      tag: "Interactive Academy",
+      desc: "Learn atomic anatomy, Bohr models, periodic trends, and chemical bonding with Dr. Atom.",
+      onClick: () => navigate("/student/workshop"),
+      hue: "from-[oklch(0.85_0.22_150)] to-[oklch(0.78_0.16_200)]",
+      glow: "shadow-[0_0_32px_oklch(0.85_0.22_150/0.4)]",
+    },
+    {
+      title: "Compound Gallery",
+      tag: "Encyclopedia",
+      desc: "Browse 50 real-world compounds, reveal molecular synthesis recipes, and learn scientific fun facts.",
+      onClick: () => navigate("/student/gallery"),
+      hue: "from-[oklch(0.78_0.16_200)] to-[oklch(0.65_0.28_300)]",
+      glow: "shadow-[0_0_32px_oklch(0.78_0.16_200/0.4)]",
+    },
+    {
       title: "Chemistry Sandbox",
       tag: "Simulation",
       desc: "Freely mix elements on the workbench to discover and catalog unique molecular compounds.",
@@ -116,7 +140,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         </div>
       </div>
 
-      <section className="grid md:grid-cols-3 gap-6 mb-12">
+      <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {modules.map((m) => (
           <button
             key={m.title}

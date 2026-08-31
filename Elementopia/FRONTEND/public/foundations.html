@@ -274,10 +274,10 @@
             <!-- View Switcher Tabs -->
             <nav class="flex p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex-wrap justify-center">
                 <button id="tab-matrix" onclick="switchTab('matrix')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">Matrix Explorer</span>
+                    <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">Periodic Matrix</span>
                 </button>
                 <button id="tab-learn" onclick="switchTab('learn')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 text-slate-400 hover:text-slate-200">
-                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">Groups &amp; Trends</span>
+                    <i class="fa-solid fa-atom"></i> <span class="hidden sm:inline">Dr. Atom's Workshop</span>
                 </button>
                 <button id="tab-challenge" onclick="switchTab('challenge')" class="px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition flex items-center gap-2 text-slate-400 hover:text-slate-200">
                     <i class="fa-solid fa-gamepad"></i> <span class="hidden sm:inline">Placement Game</span>
@@ -293,7 +293,7 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
-        <!-- ================= TAB 1: MATRIX EXPLORER (PERIODIC TABLE) ================= -->
+        <!-- ================= TAB 1: PERIODIC MATRIX (PERIODIC TABLE) ================= -->
         <section id="view-matrix" class="space-y-6">
             
             <!-- Controls Bar: Filter & Search -->
@@ -717,146 +717,146 @@
     </footer>
 
     <script>
-        // Authentic 118 Elements Comprehensive Dataset
+        // Authentic 118 Elements Comprehensive Dataset (Student-Friendly & Easy English)
         const elementsData = [
             // Period 1
-            { num: 1, symbol: 'H', name: 'Hydrogen', mass: '1.008', group: 1, period: 1, family: 'nonmetal', valence: 1, shells: 1, en: '2.20', desc: 'Lightest chemical element. Colorless, odorless, gas that fuels stars.' },
-            { num: 2, symbol: 'He', name: 'Helium', mass: '4.0026', group: 18, period: 1, family: 'noble', valence: 2, shells: 1, en: '-', desc: 'Inert noble gas with a completely filled 1st shell.' },
+            { num: 1, symbol: 'H', name: 'Hydrogen', mass: '1.008', group: 1, period: 1, family: 'nonmetal', valence: 1, shells: 1, en: '2.20', desc: 'The lightest gas in the universe! It fuels the Sun and giant stars, and combines with Oxygen to make the water (H₂O) we drink every day.' },
+            { num: 2, symbol: 'He', name: 'Helium', mass: '4.0026', group: 18, period: 1, family: 'noble', valence: 2, shells: 1, en: '-', desc: 'A super-light gas that makes party balloons float high in the sky and makes your voice sound funny and high-pitched when breathed in.' },
             
             // Period 2
-            { num: 3, symbol: 'Li', name: 'Lithium', mass: '6.94', group: 1, period: 2, family: 'alkali', valence: 1, shells: 2, en: '0.98', desc: 'Lightest alkali metal; highly reactive with 1 valence electron.' },
-            { num: 4, symbol: 'Be', name: 'Beryllium', mass: '9.0122', group: 2, period: 2, family: 'alkaline', valence: 2, shells: 2, en: '1.57', desc: 'Strong, lightweight alkaline earth metal used in aerospace.' },
-            { num: 5, symbol: 'B', name: 'Boron', mass: '10.81', group: 13, period: 2, family: 'metalloid', valence: 3, shells: 2, en: '2.04', desc: 'Metalloid with semiconductor properties, vital in fiberglass.' },
-            { num: 6, symbol: 'C', name: 'Carbon', mass: '12.011', group: 14, period: 2, family: 'nonmetal', valence: 4, shells: 2, en: '2.55', desc: 'Chemical foundation for all organic life on Earth.' },
-            { num: 7, symbol: 'N', name: 'Nitrogen', mass: '14.007', group: 15, period: 2, family: 'nonmetal', valence: 5, shells: 2, en: '3.04', desc: 'Abundant gas making up 78% of Earth’s atmosphere.' },
-            { num: 8, symbol: 'O', name: 'Oxygen', mass: '15.999', group: 16, period: 2, family: 'nonmetal', valence: 6, shells: 2, en: '3.44', desc: 'Highly reactive nonmetal essential for respiration and water.' },
-            { num: 9, symbol: 'F', name: 'Fluorine', mass: '18.998', group: 17, period: 2, family: 'halogen', valence: 7, shells: 2, en: '3.98', desc: 'Most electronegative element on the periodic table.' },
-            { num: 10, symbol: 'Ne', name: 'Neon', mass: '20.180', group: 18, period: 2, family: 'noble', valence: 8, shells: 2, en: '-', desc: 'Stable noble gas famous for glowing reddish-orange in high voltage.' },
+            { num: 3, symbol: 'Li', name: 'Lithium', mass: '6.94', group: 1, period: 2, family: 'alkali', valence: 1, shells: 2, en: '0.98', desc: 'A lightweight metal used to build the rechargeable batteries that power your smartphone, laptop, tablet, and electric cars.' },
+            { num: 4, symbol: 'Be', name: 'Beryllium', mass: '9.0122', group: 2, period: 2, family: 'alkaline', valence: 2, shells: 2, en: '1.57', desc: 'An ultra-strong, feather-light metal used to build giant space telescopes (like NASA’s James Webb Telescope) and rocket parts.' },
+            { num: 5, symbol: 'B', name: 'Boron', mass: '10.81', group: 13, period: 2, family: 'metalloid', valence: 3, shells: 2, en: '2.04', desc: 'A heat-resistant element used to make tough kitchen glassware (Pyrex), bouncy silly putty, and fiberglass for skateboards.' },
+            { num: 6, symbol: 'C', name: 'Carbon', mass: '12.011', group: 14, period: 2, family: 'nonmetal', valence: 4, shells: 2, en: '2.55', desc: 'The ultimate building block for all life on Earth! It is inside every human, animal, and plant, as well as pencil lead and sparkling diamonds.' },
+            { num: 7, symbol: 'N', name: 'Nitrogen', mass: '14.007', group: 15, period: 2, family: 'nonmetal', valence: 5, shells: 2, en: '3.04', desc: 'An invisible gas that makes up nearly 80% of the air we breathe. It is also pumped into chip bags to keep your snacks fresh and crispy!' },
+            { num: 8, symbol: 'O', name: 'Oxygen', mass: '15.999', group: 16, period: 2, family: 'nonmetal', valence: 6, shells: 2, en: '3.44', desc: 'The life-giving gas our lungs breathe in to stay alive. It helps campfires burn and joins with Hydrogen to create water.' },
+            { num: 9, symbol: 'F', name: 'Fluorine', mass: '18.998', group: 17, period: 2, family: 'halogen', valence: 7, shells: 2, en: '3.98', desc: 'A super-tough germ fighter! A tiny pinch is added to toothpaste and tap water to protect your teeth against cavities.' },
+            { num: 10, symbol: 'Ne', name: 'Neon', mass: '20.180', group: 18, period: 2, family: 'noble', valence: 8, shells: 2, en: '-', desc: 'A glowing gas famous for lighting up bright reddish-orange signs outside arcades, diners, and city shop windows at night.' },
 
             // Period 3
-            { num: 11, symbol: 'Na', name: 'Sodium', mass: '22.990', group: 1, period: 3, family: 'alkali', valence: 1, shells: 3, en: '0.93', desc: 'Soft alkali metal; forms salt (NaCl) with chlorine.' },
-            { num: 12, symbol: 'Mg', name: 'Magnesium', mass: '24.305', group: 2, period: 3, family: 'alkaline', valence: 2, shells: 3, en: '1.31', desc: 'Essential mineral for chlorophyll in plants and cellular power.' },
-            { num: 13, symbol: 'Al', name: 'Aluminium', mass: '26.982', group: 13, period: 3, family: 'post', valence: 3, shells: 3, en: '1.61', desc: 'Lightweight, strong, non-corrosive post-transition metal.' },
-            { num: 14, symbol: 'Si', name: 'Silicon', mass: '28.085', group: 14, period: 3, family: 'metalloid', valence: 4, shells: 3, en: '1.90', desc: 'Semiconductor material at the heart of computer microchips.' },
-            { num: 15, symbol: 'P', name: 'Phosphorus', mass: '30.974', group: 15, period: 3, family: 'nonmetal', valence: 5, shells: 3, en: '2.19', desc: 'Key element in DNA structure, ATP energy, and fertilizers.' },
-            { num: 16, symbol: 'S', name: 'Sulfur', mass: '32.06', group: 16, period: 3, family: 'nonmetal', valence: 6, shells: 3, en: '2.58', desc: 'Bright yellow crystalline solid used in vulcanizing rubber.' },
-            { num: 17, symbol: 'Cl', name: 'Chlorine', mass: '35.45', group: 17, period: 3, family: 'halogen', valence: 7, shells: 3, en: '3.16', desc: 'Reactive halogen used in water purification and disinfectants.' },
-            { num: 18, symbol: 'Ar', name: 'Argon', mass: '39.948', group: 18, period: 3, family: 'noble', valence: 8, shells: 3, en: '-', desc: 'Inert gas widely used in welding shields and incandescent bulbs.' },
+            { num: 11, symbol: 'Na', name: 'Sodium', mass: '22.990', group: 1, period: 3, family: 'alkali', valence: 1, shells: 3, en: '0.93', desc: 'A soft metal that catches fire in water, but when combined with toxic Chlorine gas, it turns into yummy table salt for french fries!' },
+            { num: 12, symbol: 'Mg', name: 'Magnesium', mass: '24.305', group: 2, period: 3, family: 'alkaline', valence: 2, shells: 3, en: '1.31', desc: 'A sparkly metal that burns with a brilliant white flash in sparklers and fireworks, and helps green plants soak up sunlight for food.' },
+            { num: 13, symbol: 'Al', name: 'Aluminium', mass: '26.982', group: 13, period: 3, family: 'post', valence: 3, shells: 3, en: '1.61', desc: 'A lightweight, rust-proof metal used to wrap your sandwiches (foil), make soda cans, and build airplane wings.' },
+            { num: 14, symbol: 'Si', name: 'Silicon', mass: '28.085', group: 14, period: 3, family: 'metalloid', valence: 4, shells: 3, en: '1.90', desc: 'Found everywhere in beach sand! When purified, it is used to make the tiny computer microchips that power phones and video game consoles.' },
+            { num: 15, symbol: 'P', name: 'Phosphorus', mass: '30.974', group: 15, period: 3, family: 'nonmetal', valence: 5, shells: 3, en: '2.19', desc: 'A glowing element found in the red tips of matchsticks that spark into flame, and inside your body to build strong bones and DNA.' },
+            { num: 16, symbol: 'S', name: 'Sulfur', mass: '32.06', group: 16, period: 3, family: 'nonmetal', valence: 6, shells: 3, en: '2.58', desc: 'A bright yellow rock found near volcanoes. It gives off that classic "stinky rotten egg" smell and is used to make rubber car tires and fireworks.' },
+            { num: 17, symbol: 'Cl', name: 'Chlorine', mass: '35.45', group: 17, period: 3, family: 'halogen', valence: 7, shells: 3, en: '3.16', desc: 'A powerful germ-fighting element added to swimming pools to kill bacteria and keep the water sparkling clean and safe.' },
+            { num: 18, symbol: 'Ar', name: 'Argon', mass: '39.948', group: 18, period: 3, family: 'noble', valence: 8, shells: 3, en: '-', desc: 'A calm, lazy gas pumped inside light bulbs so the hot glowing wire inside doesn’t burn out or catch fire.' },
 
             // Period 4
-            { num: 19, symbol: 'K', name: 'Potassium', mass: '39.098', group: 1, period: 4, family: 'alkali', valence: 1, shells: 4, en: '0.82', desc: 'Essential alkali metal for nerve impulses and plant growth.' },
-            { num: 20, symbol: 'Ca', name: 'Calcium', mass: '40.078', group: 2, period: 4, family: 'alkaline', valence: 2, shells: 4, en: '1.00', desc: 'Structural metal vital for bones, teeth, and building lime.' },
-            { num: 21, symbol: 'Sc', name: 'Scandium', mass: '44.956', group: 3, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.36', desc: 'Rare transition metal alloyed for sports gear and aircraft.' },
-            { num: 22, symbol: 'Ti', name: 'Titanium', mass: '47.867', group: 4, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.54', desc: 'Ultra-strong, low-density metal resistant to seawater corrosion.' },
-            { num: 23, symbol: 'V', name: 'Vanadium', mass: '50.942', group: 5, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.63', desc: 'Transition metal added to steel to make axles and tools.' },
-            { num: 24, symbol: 'Cr', name: 'Chromium', mass: '51.996', group: 6, period: 4, family: 'transition', valence: 1, shells: 4, en: '1.66', desc: 'Shiny transition metal giving stainless steel its luster.' },
-            { num: 25, symbol: 'Mn', name: 'Manganese', mass: '54.938', group: 7, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.55', desc: 'Crucial industrial metal for high-durability steel alloys.' },
-            { num: 26, symbol: 'Fe', name: 'Iron', mass: '55.845', group: 8, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.83', desc: 'Most common element on Earth by mass; forms blood hemoglobin.' },
-            { num: 27, symbol: 'Co', name: 'Cobalt', mass: '58.933', group: 9, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.88', desc: 'Magnetic metal essential for modern Lithium-ion batteries.' },
-            { num: 28, symbol: 'Ni', name: 'Nickel', mass: '58.693', group: 10, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.91', desc: 'Corrosion-resistant metal used in coinage and stainless steel.' },
-            { num: 29, symbol: 'Cu', name: 'Copper', mass: '63.546', group: 11, period: 4, family: 'transition', valence: 1, shells: 4, en: '1.90', desc: 'High electrical conductivity metal used for wiring and plumbing.' },
-            { num: 30, symbol: 'Zn', name: 'Zinc', mass: '65.38', group: 12, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.65', desc: 'Protective galvanizing metal preventing steel rust.' },
-            { num: 31, symbol: 'Ga', name: 'Gallium', mass: '69.723', group: 13, period: 4, family: 'post', valence: 3, shells: 4, en: '1.81', desc: 'Post-transition metal that melts in human hand (29.76 °C).' },
-            { num: 32, symbol: 'Ge', name: 'Germanium', mass: '72.630', group: 14, period: 4, family: 'metalloid', valence: 4, shells: 4, en: '2.01', desc: 'Metalloid key in early transistors and infrared optics.' },
-            { num: 33, symbol: 'As', name: 'Arsenic', mass: '74.922', group: 15, period: 4, family: 'metalloid', valence: 5, shells: 4, en: '2.18', desc: 'Toxic metalloid used in semiconductor dopants and alloys.' },
-            { num: 34, symbol: 'Se', name: 'Selenium', mass: '78.971', group: 16, period: 4, family: 'nonmetal', valence: 6, shells: 4, en: '2.55', desc: 'Photovoltaic nonmetal used in solar cells and photocopies.' },
-            { num: 35, symbol: 'Br', name: 'Bromine', mass: '79.904', group: 17, period: 4, family: 'halogen', valence: 7, shells: 4, en: '2.96', desc: 'Dark reddish liquid halogen at room temperature.' },
-            { num: 36, symbol: 'Kr', name: 'Krypton', mass: '83.798', group: 18, period: 4, family: 'noble', valence: 8, shells: 4, en: '3.00', desc: 'Noble gas used in high-speed flash photography and lasers.' },
+            { num: 19, symbol: 'K', name: 'Potassium', mass: '39.098', group: 1, period: 4, family: 'alkali', valence: 1, shells: 4, en: '0.82', desc: 'An essential nutrient packed inside bananas and potatoes that keeps your heart beating steadily and prevents leg muscle cramps.' },
+            { num: 20, symbol: 'Ca', name: 'Calcium', mass: '40.078', group: 2, period: 4, family: 'alkaline', valence: 2, shells: 4, en: '1.00', desc: 'The mineral found in milk, cheese, and yogurt that builds super strong bones, healthy white teeth, and hard seashells.' },
+            { num: 21, symbol: 'Sc', name: 'Scandium', mass: '44.956', group: 3, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.36', desc: 'A rare, feather-light metal alloyed with aluminum to build high-performance bicycle frames and baseball bats.' },
+            { num: 22, symbol: 'Ti', name: 'Titanium', mass: '47.867', group: 4, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.54', desc: 'An ultra-strong, rust-proof metal that doesn’t harm human flesh. It is used to build jet engines, spacecraft, and medical bone implants.' },
+            { num: 23, symbol: 'V', name: 'Vanadium', mass: '50.942', group: 5, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.63', desc: 'A tough metal mixed into steel to make unbreakable wrench tools, car axles, and heavy-duty construction cranes.' },
+            { num: 24, symbol: 'Cr', name: 'Chromium', mass: '51.996', group: 6, period: 4, family: 'transition', valence: 1, shells: 4, en: '1.66', desc: 'A shiny, mirror-like metal coated onto cars and motorcycle exhausts that prevents rust and gives stainless steel its shine.' },
+            { num: 25, symbol: 'Mn', name: 'Manganese', mass: '54.938', group: 7, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.55', desc: 'A rugged metal mixed into steel to make heavy-duty railroad tracks, bulldozer blades, and underground bank vaults.' },
+            { num: 26, symbol: 'Fe', name: 'Iron', mass: '55.845', group: 8, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.83', desc: 'The heavy metal that builds bridges, cars, and skyscrapers. It is also inside your blood, giving red blood cells the ability to carry oxygen!' },
+            { num: 27, symbol: 'Co', name: 'Cobalt', mass: '58.933', group: 9, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.88', desc: 'A magnetic metal that creates a gorgeous deep blue paint color and is an essential ingredient in modern electric car batteries.' },
+            { num: 28, symbol: 'Ni', name: 'Nickel', mass: '58.693', group: 10, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.91', desc: 'A shiny, corrosion-proof metal used to make five-cent coins, guitar strings, and stainless steel cookware.' },
+            { num: 29, symbol: 'Cu', name: 'Copper', mass: '63.546', group: 11, period: 4, family: 'transition', valence: 1, shells: 4, en: '1.90', desc: 'A reddish metal that conducts electricity easily. It is used in all household electrical wiring, pipes, and the Statue of Liberty!' },
+            { num: 30, symbol: 'Zn', name: 'Zinc', mass: '65.38', group: 12, period: 4, family: 'transition', valence: 2, shells: 4, en: '1.65', desc: 'A protective metal coated onto steel nails and roofs to stop rust, and found in sunscreen lotions to protect your skin from sunburns.' },
+            { num: 31, symbol: 'Ga', name: 'Gallium', mass: '69.723', group: 13, period: 4, family: 'post', valence: 3, shells: 4, en: '1.81', desc: 'A magical metal that is solid at room temperature but melts into a shiny liquid right in the palm of your warm hand!' },
+            { num: 32, symbol: 'Ge', name: 'Germanium', mass: '72.630', group: 14, period: 4, family: 'metalloid', valence: 4, shells: 4, en: '2.01', desc: 'A shiny semiconductor element used in infrared night-vision goggles and high-speed fiber-optic internet cables.' },
+            { num: 33, symbol: 'As', name: 'Arsenic', mass: '74.922', group: 15, period: 4, family: 'metalloid', valence: 5, shells: 4, en: '2.18', desc: 'A famous historical poison that in tiny, controlled amounts is used in computer chips and laser diodes.' },
+            { num: 34, symbol: 'Se', name: 'Selenium', mass: '78.971', group: 16, period: 4, family: 'nonmetal', valence: 6, shells: 4, en: '2.55', desc: 'A light-sensitive element used in solar panels, photocopiers, and anti-dandruff shampoos.' },
+            { num: 35, symbol: 'Br', name: 'Bromine', mass: '79.904', group: 17, period: 4, family: 'halogen', valence: 7, shells: 4, en: '2.96', desc: 'One of only two elements that is a liquid at room temperature! It has a deep reddish-brown color and is used in flame-retardant clothing.' },
+            { num: 36, symbol: 'Kr', name: 'Krypton', mass: '83.798', group: 18, period: 4, family: 'noble', valence: 8, shells: 4, en: '3.00', desc: 'A noble gas used in high-speed flash photography cameras and bright green airport runway approach lights.' },
 
             // Period 5
-            { num: 37, symbol: 'Rb', name: 'Rubidium', mass: '85.468', group: 1, period: 5, family: 'alkali', valence: 1, shells: 5, en: '0.82', desc: 'Highly soft, reactive alkali metal used in laser cooling.' },
-            { num: 38, symbol: 'Sr', name: 'Strontium', mass: '87.62', group: 2, period: 5, family: 'alkaline', valence: 2, shells: 5, en: '0.95', desc: 'Alkaline earth metal that gives fireworks deep red flame.' },
-            { num: 39, symbol: 'Y', name: 'Yttrium', mass: '88.906', group: 3, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.22', desc: 'Transition metal used in superconductors and LEDs.' },
-            { num: 40, symbol: 'Zr', name: 'Zirconium', mass: '91.224', group: 4, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.33', desc: 'Heat-resistant metal for nuclear reactor cladding.' },
-            { num: 41, symbol: 'Nb', name: 'Niobium', mass: '92.906', group: 5, period: 5, family: 'transition', valence: 1, shells: 5, en: '1.60', desc: 'Ductile metal used in superconducting magnets.' },
-            { num: 42, symbol: 'Mo', name: 'Molybdenum', mass: '95.95', group: 6, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.16', desc: 'High-melting metal strengthening industrial steel.' },
-            { num: 43, symbol: 'Tc', name: 'Technetium', mass: '98', group: 7, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.90', desc: 'Lightest purely radioactive element; used in medical imaging.' },
-            { num: 44, symbol: 'Ru', name: 'Ruthenium', mass: '101.07', group: 8, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.20', desc: 'Rare platinum-group metal for wear-resistant contacts.' },
-            { num: 45, symbol: 'Rh', name: 'Rhodium', mass: '102.91', group: 9, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.28', desc: 'Precious metal with exceptional reflective and catalytic power.' },
-            { num: 46, symbol: 'Pd', name: 'Palladium', mass: '106.42', group: 10, period: 5, family: 'transition', valence: 0, shells: 5, en: '2.20', desc: 'Precious catalyst absorbing up to 900 times its volume in Hydrogen.' },
-            { num: 47, symbol: 'Ag', name: 'Silver', mass: '107.87', group: 11, period: 5, family: 'transition', valence: 1, shells: 5, en: '1.93', desc: 'Metal with highest electrical & thermal conductivity.' },
-            { num: 48, symbol: 'Cd', name: 'Cadmium', mass: '112.41', group: 12, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.69', desc: 'Soft metal used in NiCd rechargeable batteries.' },
-            { num: 49, symbol: 'In', name: 'Indium', mass: '114.82', group: 13, period: 5, family: 'post', valence: 3, shells: 5, en: '1.78', desc: 'Soft metal forming ITO transparent touchscreens.' },
-            { num: 50, symbol: 'Sn', name: 'Tin', mass: '118.71', group: 14, period: 5, family: 'post', valence: 4, shells: 5, en: '1.96', desc: 'Malleable post-transition metal used in solder and bronze.' },
-            { num: 51, symbol: 'Sb', name: 'Antimony', mass: '121.76', group: 15, period: 5, family: 'metalloid', valence: 5, shells: 5, en: '2.05', desc: 'Lustrous metalloid used in flame retardants and batteries.' },
-            { num: 52, symbol: 'Te', name: 'Tellurium', mass: '127.60', group: 16, period: 5, family: 'metalloid', valence: 6, shells: 5, en: '2.10', desc: 'Brittle metalloid alloyed to improve machining workability.' },
-            { num: 53, symbol: 'I', name: 'Iodine', mass: '126.90', group: 17, period: 5, family: 'halogen', valence: 7, shells: 5, en: '2.66', desc: 'Purple-black halogen solid essential for thyroid hormone function.' },
-            { num: 54, symbol: 'Xe', name: 'Xenon', mass: '131.29', group: 18, period: 5, family: 'noble', valence: 8, shells: 5, en: '2.60', desc: 'Heavy noble gas used in ion propulsion engines for spacecraft.' },
+            { num: 37, symbol: 'Rb', name: 'Rubidium', mass: '85.468', group: 1, period: 5, family: 'alkali', valence: 1, shells: 5, en: '0.82', desc: 'A super-soft metal that catches fire instantly in air; used in ultra-precise purple atomic clocks and GPS satellites.' },
+            { num: 38, symbol: 'Sr', name: 'Strontium', mass: '87.62', group: 2, period: 5, family: 'alkaline', valence: 2, shells: 5, en: '0.95', desc: 'An element that burns with a rich, brilliant red flame, making it the secret ingredient for red fireworks and emergency road flares.' },
+            { num: 39, symbol: 'Y', name: 'Yttrium', mass: '88.906', group: 3, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.22', desc: 'A metal used to create bright red phosphors in TV screens, camera lenses, and powerful medical dental lasers.' },
+            { num: 40, symbol: 'Zr', name: 'Zirconium', mass: '91.224', group: 4, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.33', desc: 'A heat-resistant metal used to line nuclear reactor cores and make sparkling fake diamonds (Cubic Zirconia) for jewelry.' },
+            { num: 41, symbol: 'Nb', name: 'Niobium', mass: '92.906', group: 5, period: 5, family: 'transition', valence: 1, shells: 5, en: '1.60', desc: 'A rainbow-colored metal used in super-powerful magnets inside hospital MRI scanners and jet engines.' },
+            { num: 42, symbol: 'Mo', name: 'Molybdenum', mass: '95.95', group: 6, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.16', desc: 'A high-melting-point metal added to steel to make armor plating for military tanks and high-speed drill bits.' },
+            { num: 43, symbol: 'Tc', name: 'Technetium', mass: '98', group: 7, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.90', desc: 'The lightest radioactive element on Earth! Doctors use it in hospitals as a safe radioactive glow tracer to scan human organs.' },
+            { num: 44, symbol: 'Ru', name: 'Ruthenium', mass: '101.07', group: 8, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.20', desc: 'A rare, hard metal from the platinum family used to coat electrical contacts in light switches so they never wear out.' },
+            { num: 45, symbol: 'Rh', name: 'Rhodium', mass: '102.91', group: 9, period: 5, family: 'transition', valence: 1, shells: 5, en: '2.28', desc: 'One of the rarest and most expensive precious metals in the world; used in car exhaust converters to clean toxic pollution.' },
+            { num: 46, symbol: 'Pd', name: 'Palladium', mass: '106.42', group: 10, period: 5, family: 'transition', valence: 0, shells: 5, en: '2.20', desc: 'A precious shiny metal that can absorb up to 900 times its own volume in Hydrogen gas like a sponge! Used in dental fillings and clean energy.' },
+            { num: 47, symbol: 'Ag', name: 'Silver', mass: '107.87', group: 11, period: 5, family: 'transition', valence: 1, shells: 5, en: '1.93', desc: 'The best electrical and heat conductor of all pure metals! Prized for fine jewelry, mirrors, silver medals, and solar panels.' },
+            { num: 48, symbol: 'Cd', name: 'Cadmium', mass: '112.41', group: 12, period: 5, family: 'transition', valence: 2, shells: 5, en: '1.69', desc: 'A heavy metal that creates bright yellow and orange oil paints, historically used in rechargeable NiCd batteries.' },
+            { num: 49, symbol: 'In', name: 'Indium', mass: '114.82', group: 13, period: 5, family: 'post', valence: 3, shells: 5, en: '1.78', desc: 'A soft metal so malleable you can chew it like gum! It forms the transparent conductive layer on smartphone touchscreens.' },
+            { num: 50, symbol: 'Sn', name: 'Tin', mass: '118.71', group: 14, period: 5, family: 'post', valence: 4, shells: 5, en: '1.96', desc: 'A bendy, rust-free metal mixed with Copper to make Bronze, and used to coat the inside of canned soup and food cans.' },
+            { num: 51, symbol: 'Sb', name: 'Antimony', mass: '121.76', group: 15, period: 5, family: 'metalloid', valence: 5, shells: 5, en: '2.05', desc: 'A brittle metalloid added to plastics, children’s sleepwear, and car seat fabrics to make them flame-resistant.' },
+            { num: 52, symbol: 'Te', name: 'Tellurium', mass: '127.60', group: 16, period: 5, family: 'metalloid', valence: 6, shells: 5, en: '2.10', desc: 'A brittle element with a faint garlic odor, used in solar panels and rewritable DVD/Blu-ray discs.' },
+            { num: 53, symbol: 'I', name: 'Iodine', mass: '126.90', group: 17, period: 5, family: 'halogen', valence: 7, shells: 5, en: '2.66', desc: 'A purple-black crystal essential for thyroid health, and the brown liquid antiseptic dabbed onto cuts and scrapes to kill germs.' },
+            { num: 54, symbol: 'Xe', name: 'Xenon', mass: '131.29', group: 18, period: 5, family: 'noble', valence: 8, shells: 5, en: '2.60', desc: 'A heavy noble gas that produces a brilliant blue-white light in luxury car headlights and powers ion thruster engines on NASA deep space probes.' },
 
             // Period 6
-            { num: 55, symbol: 'Cs', name: 'Caesium', mass: '132.91', group: 1, period: 6, family: 'alkali', valence: 1, shells: 6, en: '0.79', desc: 'Ultra-reactive alkali metal used to define the atomic second.' },
-            { num: 56, symbol: 'Ba', name: 'Barium', mass: '137.33', group: 2, period: 6, family: 'alkaline', valence: 2, shells: 6, en: '0.89', desc: 'Heavy alkaline earth metal used in medical gastrointestinal X-rays.' },
+            { num: 55, symbol: 'Cs', name: 'Caesium', mass: '132.91', group: 1, period: 6, family: 'alkali', valence: 1, shells: 6, en: '0.79', desc: 'A golden alkali metal so accurate at ticking that it is used to define the exact scientific length of a single second in atomic clocks!' },
+            { num: 56, symbol: 'Ba', name: 'Barium', mass: '137.33', group: 2, period: 6, family: 'alkaline', valence: 2, shells: 6, en: '0.89', desc: 'An element that creates bright apple-green fireworks, and the chalky milkshake doctors give patients to drink before taking stomach X-rays.' },
             
             // Lanthanides (#57 - #71)
-            { num: 57, symbol: 'La', name: 'Lanthanum', mass: '138.91', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.10', desc: 'First of the lanthanide series; used in hybrid car batteries.' },
-            { num: 58, symbol: 'Ce', name: 'Cerium', mass: '140.12', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.12', desc: 'Most abundant rare-earth metal; gives sparks in lighter flints.' },
-            { num: 59, symbol: 'Pr', name: 'Praseodymium', mass: '140.91', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.13', desc: 'Soft rare-earth metal creating vibrant yellow-green glass.' },
-            { num: 60, symbol: 'Nd', name: 'Neodymium', mass: '144.24', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.14', desc: 'Forms the strongest known permanent magnets (NdFeB).' },
-            { num: 61, symbol: 'Pm', name: 'Promethium', mass: '145', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.13', desc: 'Radioactive lanthanide used in nuclear batteries.' },
-            { num: 62, symbol: 'Sm', name: 'Samarium', mass: '150.36', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.17', desc: 'Rare earth metal used in high-temp magnets and cancer treatment.' },
-            { num: 63, symbol: 'Eu', name: 'Europium', mass: '151.96', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'Phosphorescent element giving bright red color in anti-counterfeit bills.' },
-            { num: 64, symbol: 'Gd', name: 'Gadolinium', mass: '157.25', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'Paramagnetic contrast agent used in MRI medical scans.' },
-            { num: 65, symbol: 'Tb', name: 'Terbium', mass: '158.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'Rare earth element used in green phosphors and sonar sensors.' },
-            { num: 66, symbol: 'Dy', name: 'Dysprosium', mass: '162.50', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.22', desc: 'High magnetic susceptibility element used in control rods.' },
-            { num: 67, symbol: 'Ho', name: 'Holmium', mass: '164.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.23', desc: 'Possesses highest magnetic strength of any element.' },
-            { num: 68, symbol: 'Er', name: 'Erbium', mass: '167.26', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.24', desc: 'Pink-tinted element used as signal amplifiers in fiber-optic cables.' },
-            { num: 69, symbol: 'Tm', name: 'Thulium', mass: '168.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.25', desc: 'Second rarest lanthanide; used in portable X-ray devices.' },
-            { num: 70, symbol: 'Yb', name: 'Ytterbium', mass: '173.05', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.10', desc: 'Lanthanide metal used in ultra-precise atomic clocks.' },
-            { num: 71, symbol: 'Lu', name: 'Lutetium', mass: '174.97', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.27', desc: 'Dense lanthanide metal used in PET scan detectors.' },
+            { num: 57, symbol: 'La', name: 'Lanthanum', mass: '138.91', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.10', desc: 'The first rare-earth metal! Used in carbon-arc studio lights for movie sets and hybrid car battery electrodes.' },
+            { num: 58, symbol: 'Ce', name: 'Cerium', mass: '140.12', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.12', desc: 'The most abundant rare earth metal; it gives off bright hot sparks when scratched, making it the flint inside pocket lighters.' },
+            { num: 59, symbol: 'Pr', name: 'Praseodymium', mass: '140.91', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.13', desc: 'A soft metal that gives yellow-green color to glassware and goggles worn by glassblowers to protect their eyes from bright light.' },
+            { num: 60, symbol: 'Nd', name: 'Neodymium', mass: '144.24', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.14', desc: 'Forms the world’s strongest known permanent magnets (NdFeB)! Found in headphones, computer hard drives, and wind turbines.' },
+            { num: 61, symbol: 'Pm', name: 'Promethium', mass: '145', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.13', desc: 'A glowing radioactive element that powers nuclear batteries in guided missiles and deep-sea exploration equipment.' },
+            { num: 62, symbol: 'Sm', name: 'Samarium', mass: '150.36', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.17', desc: 'Used in high-temperature magnets inside electric guitars and jet aircraft, and in targeted cancer radiation therapies.' },
+            { num: 63, symbol: 'Eu', name: 'Europium', mass: '151.96', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'A glowing phosphorescent element embedded inside Euro paper banknotes so cashiers can verify real money under UV blacklight!' },
+            { num: 64, symbol: 'Gd', name: 'Gadolinium', mass: '157.25', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'A magnetic element injected into patients before an MRI scan to make brain and body tumors glow clearly on the doctor’s screen.' },
+            { num: 65, symbol: 'Tb', name: 'Terbium', mass: '158.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.20', desc: 'A rare metal that creates vibrant green phosphors in flat-screen TVs and sound-detecting sonar sensors on submarines.' },
+            { num: 66, symbol: 'Dy', name: 'Dysprosium', mass: '162.50', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.22', desc: 'A heat-resistant magnetic metal added to electric car motors to prevent them from losing magnetic strength when running hot.' },
+            { num: 67, symbol: 'Ho', name: 'Holmium', mass: '164.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.23', desc: 'Possesses the strongest magnetic strength of any element; used in specialized surgical lasers that remove kidney stones.' },
+            { num: 68, symbol: 'Er', name: 'Erbium', mass: '167.26', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.24', desc: 'A pretty pink-tinted metal added to fiber-optic internet cables across oceans to boost laser signals so websites load instantly.' },
+            { num: 69, symbol: 'Tm', name: 'Thulium', mass: '168.93', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.25', desc: 'One of the rarest metals on Earth; used in small portable X-ray machines that don’t need electricity.' },
+            { num: 70, symbol: 'Yb', name: 'Ytterbium', mass: '173.05', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.10', desc: 'A rare earth metal used in ultra-precise atomic laser clocks that only lose one second every 100 million years!' },
+            { num: 71, symbol: 'Lu', name: 'Lutetium', mass: '174.97', group: 3, period: 6, family: 'lanthanide', valence: 3, shells: 6, en: '1.27', desc: 'A heavy, dense rare earth metal used in hospital PET scan detectors to locate cancer cells early.' },
 
-            { num: 72, symbol: 'Hf', name: 'Hafnium', mass: '178.49', group: 4, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.30', desc: 'Corrosion-resistant metal used in microprocessors and control rods.' },
-            { num: 73, symbol: 'Ta', name: 'Tantalum', mass: '180.95', group: 5, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.50', desc: 'Extremely acid-resistant metal used in smartphone capacitors.' },
-            { num: 74, symbol: 'W', name: 'Tungsten', mass: '183.84', group: 6, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.36', desc: 'Highest melting point of all pure metals (3,422 °C).' },
-            { num: 75, symbol: 'Re', name: 'Rhenium', mass: '186.21', group: 7, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.90', desc: 'Dense transition metal used in jet engine superalloys.' },
-            { num: 76, symbol: 'Os', name: 'Osmium', mass: '190.23', group: 8, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.20', desc: 'Densest naturally occurring chemical element.' },
-            { num: 77, symbol: 'Ir', name: 'Iridium', mass: '192.22', group: 9, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.20', desc: 'Most corrosion-resistant metal; rare in Earth crust, abundant in asteroids.' },
-            { num: 78, symbol: 'Pt', name: 'Platinum', mass: '195.08', group: 10, period: 6, family: 'transition', valence: 1, shells: 6, en: '2.28', desc: 'Unreactive noble metal prized for fine jewelry and catalysts.' },
-            { num: 79, symbol: 'Au', name: 'Gold', mass: '196.97', group: 11, period: 6, family: 'transition', valence: 1, shells: 6, en: '2.54', desc: 'Highly prized malleable precious metal that does not tarnish.' },
-            { num: 80, symbol: 'Hg', name: 'Mercury', mass: '200.59', group: 12, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.00', desc: 'Only pure metallic element liquid at standard room temp.' },
-            { num: 81, symbol: 'Tl', name: 'Thallium', mass: '204.38', group: 13, period: 6, family: 'post', valence: 3, shells: 6, en: '1.62', desc: 'Heavy post-transition metal historically used in electronics.' },
-            { num: 82, symbol: 'Pb', name: 'Lead', mass: '207.2', group: 14, period: 6, family: 'post', valence: 4, shells: 6, en: '2.33', desc: 'Dense, soft metal providing radiation shielding in X-rays.' },
-            { num: 83, symbol: 'Bi', name: 'Bismuth', mass: '208.98', group: 15, period: 6, family: 'post', valence: 5, shells: 6, en: '2.02', desc: 'Post-transition metal forming colorful iridescent oxide crystals.' },
-            { num: 84, symbol: 'Po', name: 'Polonium', mass: '209', group: 16, period: 6, family: 'post', valence: 6, shells: 6, en: '2.00', desc: 'Rare radioactive element discovered by Marie Curie.' },
-            { num: 85, symbol: 'At', name: 'Astatine', mass: '210', group: 17, period: 6, family: 'halogen', valence: 7, shells: 6, en: '2.20', desc: 'Rarest naturally occurring halogen element in Earth crust.' },
-            { num: 86, symbol: 'Rn', name: 'Radon', mass: '222', group: 18, period: 6, family: 'noble', valence: 8, shells: 6, en: '-', desc: 'Radioactive noble gas accumulating in underground rocks.' },
+            { num: 72, symbol: 'Hf', name: 'Hafnium', mass: '178.49', group: 4, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.30', desc: 'An acid-proof metal used in control rods inside nuclear submarines and as insulating layers inside high-speed computer CPUs.' },
+            { num: 73, symbol: 'Ta', name: 'Tantalum', mass: '180.95', group: 5, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.50', desc: 'An extremely acid-resistant metal used to make microscopic capacitors inside every modern smartphone and tablet.' },
+            { num: 74, symbol: 'W', name: 'Tungsten', mass: '183.84', group: 6, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.36', desc: 'Has the highest melting point of all pure metals (3,422 °C)! Used in traditional incandescent light bulb filaments and rocket nozzles.' },
+            { num: 75, symbol: 'Re', name: 'Rhenium', mass: '186.21', group: 7, period: 6, family: 'transition', valence: 2, shells: 6, en: '1.90', desc: 'A super-dense metal that withstands intense heat, used in the hottest combustion chambers of commercial jet airplane engines.' },
+            { num: 76, symbol: 'Os', name: 'Osmium', mass: '190.23', group: 8, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.20', desc: 'The heaviest and densest naturally occurring element on Earth! A small brick of it weighs as much as a bowling ball.' },
+            { num: 77, symbol: 'Ir', name: 'Iridium', mass: '192.22', group: 9, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.20', desc: 'The most corrosion-resistant metal known. Rare on Earth but common in meteorites; famously marked the asteroid impact that wiped out the dinosaurs.' },
+            { num: 78, symbol: 'Pt', name: 'Platinum', mass: '195.08', group: 10, period: 6, family: 'transition', valence: 1, shells: 6, en: '2.28', desc: 'An extremely precious, silvery-white metal prized for luxury jewelry and catalytic converters that clean car exhaust smoke.' },
+            { num: 79, symbol: 'Au', name: 'Gold', mass: '196.97', group: 11, period: 6, family: 'transition', valence: 1, shells: 6, en: '2.54', desc: 'The most famous precious metal in history! It never rusts or tarnishes, is easy to shape into jewelry, and is used in astronauts’ gold helmet visors.' },
+            { num: 80, symbol: 'Hg', name: 'Mercury', mass: '200.59', group: 12, period: 6, family: 'transition', valence: 2, shells: 6, en: '2.00', desc: 'The only pure metallic element that is liquid at room temperature! Nicknamed "Quicksilver", historically used in fever thermometers.' },
+            { num: 81, symbol: 'Tl', name: 'Thallium', mass: '204.38', group: 13, period: 6, family: 'post', valence: 3, shells: 6, en: '1.62', desc: 'A soft, heavy metal used in low-melting glass, photocells, and medical cardiac stress test imaging.' },
+            { num: 82, symbol: 'Pb', name: 'Lead', mass: '207.2', group: 14, period: 6, family: 'post', valence: 4, shells: 6, en: '2.33', desc: 'A very dense, soft gray metal used for radiation aprons at the dentist to block X-rays from passing through your body.' },
+            { num: 83, symbol: 'Bi', name: 'Bismuth', mass: '208.98', group: 15, period: 6, family: 'post', valence: 5, shells: 6, en: '2.02', desc: 'A safe, non-toxic heavy metal that forms rainbow-colored geometric crystals, and the active ingredient in Pepto-Bismol for stomach aches!' },
+            { num: 84, symbol: 'Po', name: 'Polonium', mass: '209', group: 16, period: 6, family: 'post', valence: 6, shells: 6, en: '2.00', desc: 'A fiercely radioactive element discovered by Marie Curie (named after her homeland Poland) used as a heat source in space satellites.' },
+            { num: 85, symbol: 'At', name: 'Astatine', mass: '210', group: 17, period: 6, family: 'halogen', valence: 7, shells: 6, en: '2.20', desc: 'The rarest naturally occurring element on Earth (less than 1 gram exists in Earth’s entire crust at any time); investigated for fighting cancer.' },
+            { num: 86, symbol: 'Rn', name: 'Radon', mass: '222', group: 18, period: 6, family: 'noble', valence: 8, shells: 6, en: '-', desc: 'A heavy radioactive noble gas that seeps out of granite rocks and soil into underground basements.' },
 
             // Period 7
-            { num: 87, symbol: 'Fr', name: 'Francium', mass: '223', group: 1, period: 7, family: 'alkali', valence: 1, shells: 7, en: '0.70', desc: 'Extremely rare and unstable radioactive alkali metal.' },
-            { num: 88, symbol: 'Ra', name: 'Radium', mass: '226', group: 2, period: 7, family: 'alkaline', valence: 2, shells: 7, en: '0.90', desc: 'Intensely radioactive metal historically used in luminescent dials.' },
+            { num: 87, symbol: 'Fr', name: 'Francium', mass: '223', group: 1, period: 7, family: 'alkali', valence: 1, shells: 7, en: '0.70', desc: 'An extremely unstable radioactive metal so reactive that it disintegrates in seconds before you can even collect a visible drop!' },
+            { num: 88, symbol: 'Ra', name: 'Radium', mass: '226', group: 2, period: 7, family: 'alkaline', valence: 2, shells: 7, en: '0.90', desc: 'An intensely radioactive element discovered by Marie Curie that glows in the dark, historically painted onto watch hands and dials.' },
 
             // Actinides (#89 - #103)
-            { num: 89, symbol: 'Ac', name: 'Actinium', mass: '227', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.10', desc: 'Glows with eerie blue light due to intense radioactivity.' },
-            { num: 90, symbol: 'Th', name: 'Thorium', mass: '232.04', group: 3, period: 7, family: 'actinide', valence: 4, shells: 7, en: '1.30', desc: 'Abundant radioactive actinide investigated for clean nuclear power.' },
-            { num: 91, symbol: 'Pa', name: 'Protactinium', mass: '231.04', group: 3, period: 7, family: 'actinide', valence: 5, shells: 7, en: '1.50', desc: 'Dense radioactive actinide element.' },
-            { num: 92, symbol: 'U', name: 'Uranium', mass: '238.03', group: 3, period: 7, family: 'actinide', valence: 6, shells: 7, en: '1.38', desc: 'Heavy actinide used as fuel in commercial nuclear reactors.' },
-            { num: 93, symbol: 'Np', name: 'Neptunium', mass: '237', group: 3, period: 7, family: 'actinide', valence: 5, shells: 7, en: '1.36', desc: 'First transuranic actinide synthesized in lab.' },
-            { num: 94, symbol: 'Pu', name: 'Plutonium', mass: '244', group: 3, period: 7, family: 'actinide', valence: 6, shells: 7, en: '1.28', desc: 'Fissile element powering deep-space NASA probes (RTGs).' },
-            { num: 95, symbol: 'Am', name: 'Americium', mass: '243', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Synthetic element used inside household smoke detectors.' },
-            { num: 96, symbol: 'Cm', name: 'Curium', mass: '247', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Marie and Pierre Curie; strong alpha emitter.' },
-            { num: 97, symbol: 'Bk', name: 'Berkelium', mass: '247', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Synthetic element discovered in Berkeley, California.' },
-            { num: 98, symbol: 'Cf', name: 'Californium', mass: '251', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Strong neutron emitter used to start nuclear reactors.' },
-            { num: 99, symbol: 'Es', name: 'Einsteinium', mass: '252', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Albert Einstein; highly radioactive.' },
-            { num: 100, symbol: 'Fm', name: 'Fermium', mass: '257', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Synthetic element named after nuclear physicist Enrico Fermi.' },
-            { num: 101, symbol: 'Md', name: 'Mendelevium', mass: '258', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Dmitri Mendeleev, creator of the periodic table.' },
-            { num: 102, symbol: 'No', name: 'Nobelium', mass: '259', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Synthetic radioactive element named after Alfred Nobel.' },
-            { num: 103, symbol: 'Lr', name: 'Lawrencium', mass: '266', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Ernest Lawrence, inventor of the cyclotron.' },
+            { num: 89, symbol: 'Ac', name: 'Actinium', mass: '227', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.10', desc: 'A radioactive element that glows with an eerie pale-blue light in the dark; used in targeted cancer radiation therapy.' },
+            { num: 90, symbol: 'Th', name: 'Thorium', mass: '232.04', group: 3, period: 7, family: 'actinide', valence: 4, shells: 7, en: '1.30', desc: 'An abundant radioactive element being researched as a safer, cleaner alternative fuel for future nuclear power plants.' },
+            { num: 91, symbol: 'Pa', name: 'Protactinium', mass: '231.04', group: 3, period: 7, family: 'actinide', valence: 5, shells: 7, en: '1.50', desc: 'A dense, radioactive actinide metal formed naturally during the radioactive decay of Uranium.' },
+            { num: 92, symbol: 'U', name: 'Uranium', mass: '238.03', group: 3, period: 7, family: 'actinide', valence: 6, shells: 7, en: '1.38', desc: 'A heavy, radioactive element that releases immense amounts of clean heat energy when split inside nuclear power plants.' },
+            { num: 93, symbol: 'Np', name: 'Neptunium', mass: '237', group: 3, period: 7, family: 'actinide', valence: 5, shells: 7, en: '1.36', desc: 'The first synthetic element heavier than Uranium made in a particle lab, named after the planet Neptune.' },
+            { num: 94, symbol: 'Pu', name: 'Plutonium', mass: '244', group: 3, period: 7, family: 'actinide', valence: 6, shells: 7, en: '1.28', desc: 'A radioactive metal that generates heat for decades; used to power deep-space NASA probes like Voyager and the Curiosity Mars Rover.' },
+            { num: 95, symbol: 'Am', name: 'Americium', mass: '243', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'A synthetic radioactive element used inside everyday household smoke alarms to keep families safe from fires.' },
+            { num: 96, symbol: 'Cm', name: 'Curium', mass: '247', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named in honor of Marie and Pierre Curie; an intense heat and alpha particle source used in alpha spectrometers on Mars rovers.' },
+            { num: 97, symbol: 'Bk', name: 'Berkelium', mass: '247', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'A synthetic element created in Berkeley, California, used by scientists to discover even heavier superheavy elements.' },
+            { num: 98, symbol: 'Cf', name: 'Californium', mass: '251', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'A strong neutron emitter used to start up nuclear reactors, detect gold and silver ores in underground mines, and inspect airplanes for metal cracks.' },
+            { num: 99, symbol: 'Es', name: 'Einsteinium', mass: '252', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Discovered in the radioactive debris of the first hydrogen bomb explosion and named after the genius Albert Einstein.' },
+            { num: 100, symbol: 'Fm', name: 'Fermium', mass: '257', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'The heaviest element that can be made by neutron bombardment, named after nuclear pioneer Enrico Fermi.' },
+            { num: 101, symbol: 'Md', name: 'Mendelevium', mass: '258', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Dmitri Mendeleev, the legendary chemist who invented the original Periodic Table!' },
+            { num: 102, symbol: 'No', name: 'Nobelium', mass: '259', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'A synthetic radioactive element named after Alfred Nobel, the inventor of dynamite and creator of the Nobel Prize.' },
+            { num: 103, symbol: 'Lr', name: 'Lawrencium', mass: '266', group: 3, period: 7, family: 'actinide', valence: 3, shells: 7, en: '1.30', desc: 'Named after Ernest Lawrence, the inventor of the cyclotron particle accelerator machine used to discover new elements.' },
 
             // Period 7 Transactinides
-            { num: 104, symbol: 'Rf', name: 'Rutherfordium', mass: '267', group: 4, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Highly radioactive synthetic element named after Ernest Rutherford.' },
-            { num: 105, symbol: 'Db', name: 'Dubnium', mass: '268', group: 5, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Synthetic element named after Dubna, Russia.' },
-            { num: 106, symbol: 'Sg', name: 'Seaborgium', mass: '269', group: 6, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Synthetic element named after Glenn Seaborg.' },
-            { num: 107, symbol: 'Bh', name: 'Bohrium', mass: '270', group: 7, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Synthetic element named after Danish physicist Niels Bohr.' },
-            { num: 108, symbol: 'Hs', name: 'Hassium', mass: '271', group: 8, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Synthetic element named after Hesse, Germany.' },
-            { num: 109, symbol: 'Mt', name: 'Meitnerium', mass: '278', group: 9, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Synthetic element named after physicist Lise Meitner.' },
-            { num: 110, symbol: 'Ds', name: 'Darmstadtium', mass: '281', group: 10, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named after Darmstadt, Germany where it was discovered.' },
-            { num: 111, symbol: 'Rg', name: 'Roentgenium', mass: '282', group: 11, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named after Wilhelm Röntgen, discoverer of X-rays.' },
-            { num: 112, symbol: 'Cn', name: 'Copernicium', mass: '285', group: 12, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named after astronomer Nicolaus Copernicus.' },
-            { num: 113, symbol: 'Nh', name: 'Nihonium', mass: '286', group: 13, period: 7, family: 'post', valence: 3, shells: 7, en: '-', desc: 'First synthetic element discovered in Japan (Nihon).' },
-            { num: 114, symbol: 'Fl', name: 'Flerovium', mass: '289', group: 14, period: 7, family: 'post', valence: 4, shells: 7, en: '-', desc: 'Superheavy synthetic element named after Flerov Laboratory.' },
-            { num: 115, symbol: 'Mc', name: 'Moscovium', mass: '290', group: 15, period: 7, family: 'post', valence: 5, shells: 7, en: '-', desc: 'Superheavy synthetic element named after Moscow region.' },
-            { num: 116, symbol: 'Lv', name: 'Livermorium', mass: '293', group: 16, period: 7, family: 'post', valence: 6, shells: 7, en: '-', desc: 'Superheavy synthetic element named after Lawrence Livermore Lab.' },
-            { num: 117, symbol: 'Ts', name: 'Tennessine', mass: '294', group: 17, period: 7, family: 'halogen', valence: 7, shells: 7, en: '-', desc: 'Superheavy halogen element named after Tennessee state.' },
-            { num: 118, symbol: 'Og', name: 'Oganesson', mass: '294', group: 18, period: 7, family: 'noble', valence: 8, shells: 7, en: '-', desc: 'Heaviest synthetic element; named after Yuri Oganessian.' }
+            { num: 104, symbol: 'Rf', name: 'Rutherfordium', mass: '267', group: 4, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A superheavy synthetic element named after Ernest Rutherford, the father of nuclear physics who discovered the atomic nucleus.' },
+            { num: 105, symbol: 'Db', name: 'Dubnium', mass: '268', group: 5, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A superheavy laboratory element created in particle accelerators, named after the famous science research city Dubna in Russia.' },
+            { num: 106, symbol: 'Sg', name: 'Seaborgium', mass: '269', group: 6, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named after Glenn Seaborg, the American chemist who synthesized Plutonium and discovered 10 new chemical elements.' },
+            { num: 107, symbol: 'Bh', name: 'Bohrium', mass: '270', group: 7, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A synthetic superheavy element named after Danish physicist Niels Bohr, who explained atomic structure and electron orbits.' },
+            { num: 108, symbol: 'Hs', name: 'Hassium', mass: '271', group: 8, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A superheavy element synthesized in a German particle accelerator, named after the German state of Hesse.' },
+            { num: 109, symbol: 'Mt', name: 'Meitnerium', mass: '278', group: 9, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named in honor of Lise Meitner, the brilliant Austrian physicist who co-discovered nuclear fission.' },
+            { num: 110, symbol: 'Ds', name: 'Darmstadtium', mass: '281', group: 10, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A superheavy synthetic element created by fusing nickel and lead atoms in Darmstadt, Germany.' },
+            { num: 111, symbol: 'Rg', name: 'Roentgenium', mass: '282', group: 11, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'A superheavy element named after Wilhelm Röntgen, the scientist who discovered X-rays!' },
+            { num: 112, symbol: 'Cn', name: 'Copernicium', mass: '285', group: 12, period: 7, family: 'transition', valence: 2, shells: 7, en: '-', desc: 'Named in honor of Nicolaus Copernicus, the astronomer who proved Earth orbits around the Sun.' },
+            { num: 113, symbol: 'Nh', name: 'Nihonium', mass: '286', group: 13, period: 7, family: 'post', valence: 3, shells: 7, en: '-', desc: 'The first chemical element discovered in Asia, synthesized by Japanese scientists at RIKEN (named after "Nihon", the Japanese name for Japan).' },
+            { num: 114, symbol: 'Fl', name: 'Flerovium', mass: '289', group: 14, period: 7, family: 'post', valence: 4, shells: 7, en: '-', desc: 'A superheavy element synthesized in Russia, investigated by physicists to test the mysterious "Island of Stability".' },
+            { num: 115, symbol: 'Mc', name: 'Moscovium', mass: '290', group: 15, period: 7, family: 'post', valence: 5, shells: 7, en: '-', desc: 'A superheavy synthetic element created in particle colliders, named after the Moscow region in Russia.' },
+            { num: 116, symbol: 'Lv', name: 'Livermorium', mass: '293', group: 16, period: 7, family: 'post', valence: 6, shells: 7, en: '-', desc: 'A synthetic superheavy element named after Lawrence Livermore National Laboratory in California.' },
+            { num: 117, symbol: 'Ts', name: 'Tennessine', mass: '294', group: 17, period: 7, family: 'halogen', valence: 7, shells: 7, en: '-', desc: 'The second-heaviest known element, named after Tennessee state where Oak Ridge National Laboratory is located.' },
+            { num: 118, symbol: 'Og', name: 'Oganesson', mass: '294', group: 18, period: 7, family: 'noble', valence: 8, shells: 7, en: '-', desc: 'The heaviest element on the entire periodic table! Created by smashing atoms together in giant colliders, named after physicist Yuri Oganessian.' }
         ];
 
         // Helper to get CSS classes for families
@@ -950,29 +950,37 @@
             const container = document.getElementById('chemistry-gallery');
             if (!container) return;
             
-            container.innerHTML = chemistryData.map(item => `
-                <div class="h-48 w-full group perspective cursor-pointer" onclick="this.querySelector('.flip-card').classList.toggle('flipped')">
+            container.innerHTML = chemistryData.map(item => {
+                const imageName = item.name.toLowerCase().replace(/ & /g, '_and_').replace(/ /g, '_').replace(/'/g, '').replace(/[()]/g, '') + '.jpg';
+                return `
+                <div class="h-64 w-full group perspective cursor-pointer" onclick="this.querySelector('.flip-card').classList.toggle('flipped')">
                     <div class="flip-card w-full h-full relative">
                         <div class="flip-card-inner w-full h-full">
                             <!-- Front -->
                             <div class="flip-card-front bg-slate-800/80 border border-slate-700/50 rounded-2xl flex flex-col items-center justify-center p-4 shadow-lg group-hover:border-cyan-500/50 transition">
-                                <h3 class="text-xl font-bold text-cyan-300 mb-4">${item.name}</h3>
-                                <div class="bg-slate-900/80 px-5 py-2 rounded-full border border-slate-700 text-sm font-semibold text-slate-400 shadow-inner flex items-center gap-2">
-                                    <i class="fa-solid fa-flask text-cyan-500/50 text-xs"></i> 
-                                    Recipe: <span class="text-white tracking-widest">${item.mix}</span>
+                                <div class="w-32 h-32 mb-3 bg-slate-900/80 rounded-full flex items-center justify-center border border-slate-700 shadow-inner group-hover:scale-110 transition duration-300 overflow-hidden">
+                                    <img src="photos/${imageName}" alt="${item.name}" class="w-full h-full object-cover">
                                 </div>
-                                <div class="absolute bottom-4 text-[10px] text-slate-500 uppercase tracking-widest group-hover:text-cyan-400/70 transition"><i class="fa-solid fa-hand-pointer mr-1"></i> Click for Fact</div>
+                                <h3 class="text-lg font-bold text-cyan-300 text-center leading-tight">${item.name}</h3>
+                                <div class="absolute bottom-3 text-[10px] text-slate-500 uppercase tracking-widest group-hover:text-cyan-400/70 transition"><i class="fa-solid fa-rotate mr-1"></i> Click for Info</div>
                             </div>
                             <!-- Back -->
-                            <div class="flip-card-back bg-gradient-to-br from-indigo-900/90 to-purple-900/90 border border-indigo-500/50 rounded-2xl flex flex-col items-center justify-center p-6 shadow-xl relative overflow-hidden">
-                                <div class="absolute -right-4 -bottom-4 text-6xl text-white/5 blur-sm rotate-12"><i class="fa-solid fa-atom"></i></div>
-                                <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-3 border-b border-indigo-500/30 pb-1 w-full text-center relative z-10">Fun Fact</h4>
+                            <div class="flip-card-back bg-gradient-to-br from-indigo-900/90 to-purple-900/90 border border-indigo-500/50 rounded-2xl flex flex-col items-center justify-start p-5 shadow-xl relative overflow-hidden text-center overflow-y-auto">
+                                <div class="absolute -right-4 -top-4 text-7xl text-white/5 blur-sm rotate-12 pointer-events-none"><i class="fa-solid fa-atom"></i></div>
+                                
+                                <div class="bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-500/50 text-xs font-semibold text-indigo-200 shadow-inner flex items-center justify-center gap-2 mb-4 mt-2 relative z-10 w-full">
+                                    <i class="fa-solid fa-flask text-indigo-400"></i> 
+                                    <span>Recipe:</span> <span class="text-white tracking-widest">${item.mix}</span>
+                                </div>
+                                
+                                <h4 class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-2 border-b border-indigo-500/30 pb-1 w-full text-center relative z-10">Fun Fact</h4>
                                 <p class="text-sm text-indigo-50 leading-relaxed font-medium relative z-10">${item.desc}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         // Filter Logic

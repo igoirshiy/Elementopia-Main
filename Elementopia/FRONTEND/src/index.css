@@ -126,3 +126,132 @@
   scrollbar-width: thin;
   scrollbar-color: #3b216d #0a0612;
 }
+
+/* Flip Card styles */
+.perspective {
+  perspective: 1000px;
+}
+.flip-card {
+  background-color: transparent;
+  perspective: 1000px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Dr. Atom Workshop Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.anim-glow {
+  animation: glow-pulse 2s infinite;
+  border-radius: 50%;
+  background-color: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.4); }
+  50% { box-shadow: 0 0 25px rgba(34, 211, 238, 0.8); }
+}
+
+@keyframes ring-squeeze {
+  0%, 20% { transform: translate(-50%, -50%) scale(1); border-color: rgba(251, 113, 133, 0.4); }
+  40%, 80% { transform: translate(-50%, -50%) scale(0.6); border-color: rgba(34, 211, 238, 0.4); }
+  100% { transform: translate(-50%, -50%) scale(1); border-color: rgba(251, 113, 133, 0.4); }
+}
+
+@keyframes nucleus-power {
+  0%, 20% { background: linear-gradient(to right, #f43f5e, #f59e0b); }
+  40%, 80% { background: linear-gradient(to right, #10b981, #06b6d4); }
+  100% { background: linear-gradient(to right, #f43f5e, #f59e0b); }
+}
+
+@keyframes text-swap-na {
+  0%, 20% { opacity: 1; }
+  40%, 80% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes text-swap-cl {
+  0%, 20% { opacity: 0; }
+  40%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes tractor-beam-pulse {
+  0%, 20% {
+    width: 60px;
+    height: 2px;
+    background: transparent;
+    border-top: 2px dashed #fb923c;
+    opacity: 0.8;
+    box-shadow: none;
+  }
+  40%, 80% {
+    width: 30px;
+    height: 6px;
+    background: #22d3ee;
+    border-top: none;
+    opacity: 1;
+    box-shadow: 0 0 12px #22d3ee, 0 0 4px #22d3ee;
+    border-radius: 3px;
+  }
+  100% {
+    width: 60px;
+    height: 2px;
+    background: transparent;
+    border-top: 2px dashed #fb923c;
+    opacity: 0.8;
+    box-shadow: none;
+  }
+}
+
+@keyframes electron-wobble {
+  0%, 20% {
+    transform: translate(60px, -50%);
+  }
+  40%, 80% {
+    transform: translate(30px, -50%);
+  }
+  100% {
+    transform: translate(60px, -50%);
+  }
+}
+
+@keyframes nucleus-grip-color {
+  0%, 20% {
+    background: #fb923c;
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+  }
+  40%, 80% {
+    background: #22d3ee;
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.8);
+  }
+  100% {
+    background: #fb923c;
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+  }
+}
+
+
