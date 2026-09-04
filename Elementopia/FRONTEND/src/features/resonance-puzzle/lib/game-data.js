@@ -130,31 +130,33 @@ export const DOMAINS = [
       "Ionic bonding occurs when electropositive metals surrender valence electrons to electronegative nonmetals, creating oppositely charged ions (cations and anions) that attract into rigid crystal lattices.",
     stages: {
       1: {
-        title: "Stage 1: Binary 1:1 Electron Transfer",
+        title: "Stage 1: Binary Electron Transfer",
         story: "In the surface salt flats, electropositive metals surrender outer valence electrons to nonmetal acceptors. Deduce how 2 elements balance electrons to form neutral binary ionic compounds!",
         palette: ["Na", "Cl", "O", "H", "Mg", "Ne"],
         required: [
           { formula: "NaCl", name: "Table Salt", recipe: { Na: 1, Cl: 1 }, localVideo: "/videos/sodium%20chloride.mp4" },
           { formula: "Na₂O", name: "Sodium Oxide", recipe: { Na: 2, O: 1 }, localVideo: "/videos/sodium%20oxide.mp4" },
+          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 }, localVideo: "/videos/magnesium%20oxide.mp4" },
+          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 }, localVideo: "/videos/magnesium%20chloride.mp4" },
         ],
-        validInDomain: ["Na", "Cl", "O"],
+        validInDomain: ["Na", "Cl", "O", "Mg"],
       },
       2: {
         title: "Stage 2: Ternary Metal & Polyatomic Ions",
-        story: "Deeper in the flats, explore 3-element ionic salts! Divalent metals like Magnesium (Mg, 2 valence e⁻) surrender electrons across polyatomic groups. Determine the correct ratio for 3 elements!",
-        palette: ["Mg", "Cl", "O", "Na", "H", "Ne"],
+        story: "Deeper in the flats, explore 3-element ionic salts! Divalent metals like Magnesium (Mg, 2 valence e⁻) and alkali metals surrender electrons across polyatomic groups. Determine the correct ratio for 3 elements!",
+        palette: ["Mg", "Cl", "O", "Na", "H", "C", "Ne"],
         required: [
-          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 }, localVideo: "/videos/magnesium%20chloride.mp4" },
-          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 }, localVideo: "/videos/magnesium%20oxide.mp4" },
           { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, localVideo: "/videos/sodium_hydroxide.mp4" },
           { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, localVideo: "/videos/magnesium_hydroxide.mp4" },
+          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, localVideo: "/videos/sodium_carbonate.mp4" },
+          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, localVideo: "/videos/magnesium_carbonate.mp4" },
         ],
-        validInDomain: ["Mg", "Cl", "O", "Na", "H"],
+        validInDomain: ["Mg", "Cl", "O", "Na", "H", "C"],
       },
       3: {
         title: "Stage 3: Polyatomic Bicarbonate & Complex Core (4-Element Lattices)",
         story: "Entering the core salt cave, metals bind 3-and-4 element polyatomic groups like bicarbonate and ammonium. Deduce the exact element ratios needed to stabilize the ionic crystal!",
-        palette: ["Na", "H", "C", "O", "Mg", "Cl"],
+        palette: ["Na", "H", "C", "O", "Mg", "Cl", "N"],
         required: [
           { formula: "NaHCO₃", name: "Baking Soda", recipe: { Na: 1, H: 1, C: 1, O: 3 } },
           { formula: "NH₄Cl", name: "Ammonium Chloride", recipe: { N: 1, H: 4, Cl: 1 } },
