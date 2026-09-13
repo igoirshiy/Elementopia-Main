@@ -10,6 +10,7 @@ import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
 import { StageTransitionModal } from "./StageTransitionModal";
 import { DoctorAtomTutorialModal } from "./DoctorAtomTutorialModal";
 import { MolecularBondVisualizer } from "./MolecularBondVisualizer";
+import { API_BASE_URL } from "@/config/apiConfig";
 
 export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExit, onError }) {
   const [workbench, setWorkbench] = useState({});
@@ -78,7 +79,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const handleExitGame = async () => {
     persist({ stage: currentStage });
     try {
-      await fetch("http://localhost:8080/api/features/domain-interaction/reset-session", {
+      await fetch(`${API_BASE_URL}/api/features/domain-interaction/reset-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname })
@@ -137,7 +138,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
     setAttempts(newAttempts);
 
     try {
-      const response = await fetch("http://localhost:8080/api/features/domain-interaction/synthesize", {
+      const response = await fetch(`${API_BASE_URL}/api/features/domain-interaction/synthesize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

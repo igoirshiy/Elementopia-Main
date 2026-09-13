@@ -1,6 +1,7 @@
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
+import { API_BASE_URL } from "@/config/apiConfig";
 const KEY = "elementopia.progress.v1";
-const BASE_URL = "http://localhost:8080/api/progress";
+const BASE_URL = `${API_BASE_URL}/api/progress`;
 
 const DEFAULT = {
   nickname: "", sessions: [], clearedDomains: [], wins: 0, losses: 0,
@@ -45,7 +46,7 @@ export async function resetProgress(nickname) {
         body: JSON.stringify(fresh)
       });
 
-      await fetch("http://localhost:8080/api/features/progression/reset", {
+      await fetch(`${API_BASE_URL}/api/features/progression/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionNickname: nickname })
@@ -188,7 +189,7 @@ export async function upsertProgress(row) {
 
   if (row.completed) {
     try {
-      fetch("http://localhost:8080/api/features/analytics/session/log", {
+      fetch(`${API_BASE_URL}/api/features/analytics/session/log`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -200,7 +201,7 @@ export async function upsertProgress(row) {
       }).catch(e => console.warn("Telemetry log failed:", e));
 
       const roomId = DOMAINS.findIndex(d => d.id === row.domain) + 1;
-      fetch("http://localhost:8080/api/features/progression/log-reaction", {
+      fetch(`${API_BASE_URL}/api/features/progression/log-reaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

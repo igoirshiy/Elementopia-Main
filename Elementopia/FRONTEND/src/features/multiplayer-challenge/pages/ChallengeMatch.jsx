@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } from "lucide-react";
 import Confetti from "react-confetti";
+import { API_BASE_URL } from "@/config/apiConfig";
 
 export default function ChallengeMatch() {
   const { code } = useParams();
@@ -621,7 +622,7 @@ function Result({ room, players, me, isHost }) {
     const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
     const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
     
-    fetch("http://localhost:8080/api/features/match-consolidation/record-result", {
+    fetch(`${API_BASE_URL}/api/features/match-consolidation/record-result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

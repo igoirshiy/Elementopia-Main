@@ -1,7 +1,9 @@
+import { API_BASE_URL } from "@/config/apiConfig";
+
 // Cloud-Syncing UserService with Local Storage Fallback
 const USERS_KEY = "elementopia_users";
 const CURRENT_USER_KEY = "elementopia_current_user";
-const BASE_URL = "http://localhost:8080/api/users";
+const BASE_URL = `${API_BASE_URL}/api/users`;
 
 // Helper to get all users
 const getLocalUsers = () => {

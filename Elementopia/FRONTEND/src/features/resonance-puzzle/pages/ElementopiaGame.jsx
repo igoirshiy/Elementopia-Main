@@ -9,6 +9,7 @@ import { GameBoard } from "../components/GameBoard";
 import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { useLocation } from "react-router-dom";
+import { API_BASE_URL } from "@/config/apiConfig";
 import { DebriefingModal } from "../components/DebriefingModal";
 
 export default function ElementopiaGame() {
@@ -83,7 +84,7 @@ export default function ElementopiaGame() {
     const roomId = idx + 1;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/features/progression/verify-access?nicknameWithTag=${encodeURIComponent(nickname)}&roomId=${roomId}`);
+      const response = await fetch(`${API_BASE_URL}/api/features/progression/verify-access?nicknameWithTag=${encodeURIComponent(nickname)}&roomId=${roomId}`);
       const data = await response.json();
 
       if (data.action === "LAUNCH_PUZZLE_ARENA") {

@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:8080/api/features/mastery";
+import { API_BASE_URL } from "@/config/apiConfig";
+
+const BASE_URL = `${API_BASE_URL}/api/features/mastery`;
 
 const MasteryService = {
   getPersonalProficiencyMap: async (nickname) => {

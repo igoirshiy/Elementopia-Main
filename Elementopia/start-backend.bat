@@ -1,5 +1,5 @@
 @echo off
 echo Starting Elementopia Backend...
-set JAVA_HOME=C:\Program Files\Microsoft\jdk-21.0.5.11-hotspot
-cd BACKEND
-mvnw spring-boot:run
+set "JAVA_HOME=C:\Program Files\Java\jdk-22"
+cd /d "%~dp0BACKEND"
+call mvnw.cmd spring-boot:run

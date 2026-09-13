@@ -1,6 +1,8 @@
+import { API_BASE_URL } from "@/config/apiConfig";
+
 // Cloud-Syncing DiscoveryService with Local Storage Fallback
 const LOCAL_STORAGE_KEY = "elementopia_discoveries";
-const BASE_URL = "http://localhost:8080/api/discoveries";
+const BASE_URL = `${API_BASE_URL}/api/discoveries`;
 
 const getLocalDiscoveries = () => {
   const data = localStorage.getItem(LOCAL_STORAGE_KEY);
