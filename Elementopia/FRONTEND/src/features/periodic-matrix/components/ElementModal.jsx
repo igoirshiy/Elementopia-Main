@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Sparkles, Lightbulb } from "lucide-react";
+import { Sparkles, Lightbulb } from "lucide-react";
 import { getFamilyClasses, BohrModelVisualizer } from "@/features/dr-atom-workshop";
 
 export function ElementModal({ element, onClose }) {
@@ -11,14 +11,6 @@ export function ElementModal({ element, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
       <div className="glass-panel p-6 sm:p-8 rounded-3xl max-w-lg w-full space-y-5 relative border border-cyan-500/40 bg-slate-950/95 shadow-[0_0_50px_rgba(6,182,212,0.25)] max-h-[90vh] overflow-y-auto">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 text-gray-400 hover:text-white flex items-center justify-center transition cursor-pointer border border-slate-700 hover:border-cyan"
-        >
-          <X className="size-4" />
-        </button>
-
         {/* Element Header Badge */}
         <div className="flex items-center gap-5">
           <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex flex-col items-center justify-between text-white shadow-xl p-2.5 border shrink-0 ${familyClass}`}>

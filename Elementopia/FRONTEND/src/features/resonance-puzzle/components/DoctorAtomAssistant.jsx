@@ -16,14 +16,10 @@ export function DoctorAtomAssistant({
                     <img
                         src={avatarSrc}
                         alt="Doctor Atom"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-[center_12%] scale-125"
                         onError={(e) => { e.target.src = "/doctor_atom.png"; }}
                     />
                 </div>
-                <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-cyan border-2 border-slate-950"></span>
-                </span>
             </div>
             <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">

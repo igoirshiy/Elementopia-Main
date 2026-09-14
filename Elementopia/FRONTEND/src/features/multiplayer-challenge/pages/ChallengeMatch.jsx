@@ -5,6 +5,7 @@ import { Modal } from "@mui/material";
 import compoundElements from "@/features/resonance-puzzle/data/compound-elements.json";
 import { getSessionId } from "@/features/auth-user/lib/session";
 import {
+  advanceToNextRound,
   bumpErrors,
   returnToLobby,
   startMatch,
@@ -149,11 +150,10 @@ function Lobby({ room, players, me, isHost }) {
                 <button
                   key={d.key}
                   onClick={() => updateRoomSettings(room.id, d.key, room.puzzle?.maxQuestions || 3)}
-                  className={`flex-1 rounded-xl border py-2 text-xs font-mono font-bold transition duration-300 ${
-                    (room.puzzle?.difficulty || "medium") === d.key
-                      ? d.activeColor
-                      : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
-                  }`}
+                  className={`flex-1 rounded-xl border py-2 text-xs font-mono font-bold transition duration-300 ${(room.puzzle?.difficulty || "medium") === d.key
+                    ? d.activeColor
+                    : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
+                    }`}
                 >
                   {d.label}
                 </button>
@@ -290,19 +290,19 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
   const [flash, setFlash] = useState(null);
   const [solvedPuzzle, setSolvedPuzzle] = useState(null);
   const lastErrSync = useRef(0);
-
+  const [usedIndices, setUsedIndices] = useState([]);
   const discoveredCompoundInfo = useMemo(() => {
     const targetPuzzle = solvedPuzzle || puzzle;
     if (!targetPuzzle) return null;
-    
+
     const targetNameMap = {
       "Salt": "Sodium Chloride"
     };
     const lookupName = targetNameMap[targetPuzzle.targetName] || targetPuzzle.targetName;
-    
+
     const elementsArray = Array.isArray(compoundElements) ? compoundElements : (compoundElements.default || []);
     const found = elementsArray.find(c => c.NAME?.toLowerCase() === lookupName.toLowerCase());
-    
+
     if (!found) {
       return {
         name: targetPuzzle.targetName,
@@ -342,7 +342,9 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
     setProgress([]);
     setErrors(0);
     setSolved(false);
+    setUsedIndices([]);
   }, [room.started_at]);
+
 
   const teamA = players.filter((p) => p.team === "A");
   const teamB = players.filter((p) => p.team === "B");
@@ -364,12 +366,14 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
   const targetSeq = puzzle.sequence;
   const isSpectator = !me;
 
-  const handleTile = (sym) => {
+  const handleTile = (sym, cardIndex) => {
     if (!unlocked || solved || isSpectator || !me) return;
+    if (usedIndices.includes(cardIndex)) return;
     const nextIndex = progress.length;
     if (sym === targetSeq[nextIndex]) {
       const np = [...progress, sym];
       setProgress(np);
+      setUsedIndices((prev) => [...prev, cardIndex]);
       setFlash("ok");
       setTimeout(() => setFlash(null), 200);
       if (np.length === targetSeq.length) {
@@ -387,7 +391,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       const now = Date.now();
       if (now - lastErrSync.current > 300) {
         lastErrSync.current = now;
-        bumpErrors(room.id, me.session_id, ne).catch(() => {});
+        bumpErrors(room.id, me.session_id, ne).catch(() => { });
       }
     }
   };
@@ -399,7 +403,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
         <TeamHUD label="Team A" players={teamA} size={room.team_size} mySession={me?.session_id ?? null} accent="primary" />
         <TeamHUD label="Team B" players={teamB} size={room.team_size} mySession={me?.session_id ?? null} accent="defeat" />
       </div>
-      
+
       {/* Match HUD Scoreboard Header */}
       <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur">
         <div className="text-left">
@@ -444,17 +448,15 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       )}
 
       {(unlocked || solved || oppAllDone) && (
-        <div className={`relative rounded-3xl border bg-black/40 p-4 backdrop-blur transition ${
-          flash === "ok" ? "border-magenta shadow-glow" : flash === "err" ? "border-defeat" : "border-white/10"
-        }`}>
+        <div className={`relative rounded-3xl border bg-black/40 p-4 backdrop-blur transition ${flash === "ok" ? "border-magenta shadow-glow" : flash === "err" ? "border-defeat" : "border-white/10"
+          }`}>
           <div className="mb-4 flex flex-wrap items-center gap-2">
             {targetSeq.map((sym, i) => {
               const filled = i < progress.length;
               const info = elementInfo(sym);
               return (
-                <div key={i} className={`grid h-10 w-10 place-items-center rounded-xl border-2 font-mono font-bold transition ${
-                  filled ? "border-magenta bg-magenta/20 text-white" : "border-dashed border-white/20 text-white/30"
-                }`}>
+                <div key={i} className={`grid h-10 w-10 place-items-center rounded-xl border-2 font-mono font-bold transition ${filled ? "border-magenta bg-magenta/20 text-white" : "border-dashed border-white/20 text-white/30"
+                  }`}>
                   {filled ? info.symbol : "?"}
                 </div>
               );
@@ -468,16 +470,23 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
           <div className="grid grid-cols-4 gap-3">
             {puzzle.inventory.map((sym, i) => {
               const info = elementInfo(sym);
-              const disabled = !unlocked || solved || isSpectator;
+              const isUsed = usedIndices.includes(i);
+              const disabled = !unlocked || solved || isSpectator || isUsed;
               return (
                 <button
                   key={i}
                   disabled={disabled}
-                  onClick={() => handleTile(sym)}
-                  className="group relative h-[100px] rounded-2xl border border-white/10 bg-white/5 p-2 text-left transition hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+                  onClick={() => handleTile(sym, i)}
+                  className={`group relative h-[100px] rounded-2xl border p-2 text-left transition ${isUsed
+                    ? "border-white/5 bg-white/[0.02] opacity-20 cursor-not-allowed"
+                    : "border-white/10 bg-white/5 hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+                    }`}
                 >
                   <span className="block font-mono text-[10px] text-white/40">#{i + 1}</span>
-                  <span className="absolute inset-0 grid place-items-center font-display text-2xl font-bold" style={{ color: info.color }}>
+                  <span
+                    className={`absolute inset-0 grid place-items-center font-display text-2xl font-bold ${isUsed ? "line-through opacity-30" : ""}`}
+                    style={{ color: isUsed ? "#64748b" : info.color }}
+                  >
                     {info.symbol}
                   </span>
                   <span className="absolute bottom-2 right-2 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
@@ -485,6 +494,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
               );
             })}
           </div>
+
 
           {solved && !oppAllDone && (
             <div className="mt-6 rounded-2xl bg-victory/15 border border-victory/30 p-4 text-center text-sm text-victory">
@@ -501,66 +511,67 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       )}
 
       <Modal
-          open={showDiscoveryModal}
-          onClose={() => {
-            setShowDiscoveryModal(false);
-            setSolvedPuzzle(null);
-          }}
+        open={showDiscoveryModal}
+        onClose={() => {
+          setShowDiscoveryModal(false);
+          setSolvedPuzzle(null);
+        }}
       >
-      <div 
+        <div
           className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
           style={{ minHeight: 'auto', background: 'transparent' }}
-      >
+        >
           <div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
-              <div className="flex-1 pr-2 text-left">
-                  <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
-                      Laboratory Record
-                  </div>
-                  <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
-                      {discoveredCompoundInfo?.name}
-                  </h2>
-                  <p className="mt-2 font-mono text-sm text-cyan mb-8">
-                      Formula: {discoveredCompoundInfo?.symbol}
-                  </p>
-                  {discoveredCompoundInfo && (
-                      <div className="space-y-6">
-                           <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
-                              {discoveredCompoundInfo.description}
-                          </div>
-                          <div className="border-t border-border pt-6 text-left">
-                              <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                      <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-                                          Primary Applications
-                                      </h4>
-                                      <p className="text-sm font-bold text-white/90">
-                                          {discoveredCompoundInfo.uses}
-                                      </p>
-                                  </div>
-                                  <div>
-                                      <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-                                          Elemental Composition
-                                      </h4>
-                                      <p className="text-sm font-bold text-cyan">
-                                          {discoveredCompoundInfo.elements}
-                                      </p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  )}
+            <div className="flex-1 pr-2 text-left">
+              <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
+                Laboratory Record
               </div>
-              <button 
-                  onClick={() => {
-                    setShowDiscoveryModal(false);
-                    setSolvedPuzzle(null);
-                  }}
-                  className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
-              >
-                  Close Record
-              </button>
+              <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
+                {discoveredCompoundInfo?.name}
+              </h2>
+              <p className="mt-2 font-mono text-sm text-cyan mb-8">
+                Formula: {discoveredCompoundInfo?.symbol}
+              </p>
+              {discoveredCompoundInfo && (
+                <div className="space-y-6">
+                  <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
+                    {discoveredCompoundInfo.description}
+                  </div>
+                  <div className="border-t border-border pt-6 text-left">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                          Primary Applications
+                        </h4>
+                        <p className="text-sm font-bold text-white/90">
+                          {discoveredCompoundInfo.uses}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                          Elemental Composition
+                        </h4>
+                        <p className="text-sm font-bold text-cyan">
+                          {discoveredCompoundInfo.elements}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={async () => {
+                setShowDiscoveryModal(false);
+                setSolvedPuzzle(null);
+                await advanceToNextRound(room.id);
+              }}
+              className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
+            >
+              Close Record
+            </button>
           </div>
-      </div>
+        </div>
       </Modal>
     </section>
   );
@@ -582,9 +593,8 @@ function TeamHUD({ label, players, size, mySession, accent }) {
         {players.map((p) => (
           <span
             key={p.id}
-            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${
-              p.finished_at ? "border-victory/50 bg-victory/10 text-victory" : "border-white/20 bg-white/5 text-white/70"
-            } ${p.session_id === mySession ? "ring-1 ring-magenta" : ""}`}
+            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${p.finished_at ? "border-victory/50 bg-victory/10 text-victory" : "border-white/20 bg-white/5 text-white/70"
+              } ${p.session_id === mySession ? "ring-1 ring-magenta" : ""}`}
           >
             <span className="font-semibold">{p.nickname}</span>
             <span className="text-[10px] opacity-70">{p.finished_at ? "✓" : "…"}</span>
@@ -621,7 +631,7 @@ function Result({ room, players, me, isHost }) {
     if (!me || !winning) return;
     const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
     const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
-    
+
     fetch(`${API_BASE_URL}/api/features/match-consolidation/record-result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ELEMENTS, shuffle, liveCommentary, matchCompound, isCompoundInDomain } from "@/features/resonance-puzzle/lib/game-data";
+import { ELEMENTS, shuffle, liveCommentary, matchCompound, isCompoundInDomain, isCompoundInCurrentStage, explainFailure } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -152,11 +152,15 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
       switch (data.action) {
         case "UNLOCK_PATH": {
-          if (!isCompoundInDomain(workbench, domain)) {
+          if (!isCompoundInCurrentStage(workbench, domain, currentStage)) {
             const matchedAnywhere = matchCompound(workbench, domain, currentStage);
-            const name = matchedAnywhere ? matchedAnywhere.name : elementList.join("");
+            const name = matchedAnywhere ? `${matchedAnywhere.name} (${matchedAnywhere.formula})` : elementList.join("");
 
-            setByproduct(`Dr. Atoms: ${name} is a valid compound, but it uses different bonding rules! We are currently studying ${domain.name}.`);
+            if (isCompoundInDomain(workbench, domain)) {
+              setByproduct(`Dr. Atom: ${name} is a valid compound, but it belongs in another stage! Focus on the combinations required for Stage ${currentStage}.`);
+            } else {
+              setByproduct(`Dr. Atom: ${name} is a valid compound, but it uses different bonding rules! We are currently studying ${domain.name}.`);
+            }
             break;
           }
 
@@ -165,9 +169,11 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
           setSolved(newSolved);
           setCorrect(newCorrect);
-          setSynthLog(l => [`✓ Resonance Achieved: ${elementList.join(" + ")}`, ...l].slice(0, 12));
 
           const matchedCompound = matchCompound(workbench, domain, currentStage);
+          const displayName = matchedCompound ? `${matchedCompound.name} (${matchedCompound.formula})` : elementList.join(" + ");
+          setSynthLog(l => [`✓ Resonance Achieved: ${displayName}`, ...l].slice(0, 12));
+
           if (matchedCompound) {
             const reqList = activeStageData.required || domain.required;
             const isPrimary = reqList && reqList[0] && matchedCompound.formula === reqList[0].formula;
@@ -219,13 +225,17 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           setConsecutiveFailures(newFails);
           if (newFails >= 3) setShowFailsafeModal(true);
 
-          setByproduct(data.message);
+          const smartFeedback = explainFailure(workbench, activeStageData);
+          setByproduct(smartFeedback || data.message);
           setShake(true);
           setTimeout(() => setShake(false), 500);
 
+          setSynthLog(l => [`✗ Incompatible: ${elementList.join(" + ")}`, ...l].slice(0, 12));
           persist({ attempts: newAttempts });
           break;
         }
+
+
 
         case "LOCK_POINTER_INTERACTIONS": {
           const newFails = consecutiveFailures + 1;

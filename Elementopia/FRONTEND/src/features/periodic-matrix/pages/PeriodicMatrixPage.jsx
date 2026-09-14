@@ -113,16 +113,22 @@ export function PeriodicMatrixPage() {
                   if (cell.type === "anchor-lanthanide" || cell.type === "anchor-actinide") {
                     const isLanthanide = cell.type === "anchor-lanthanide";
                     const isAnchorDimmed = activeFamily !== "all" && activeFamily !== cell.family;
+                    const targetElement = ELEMENTS_DATA.find((e) => e.symbol === cell.symbol);
+
                     return (
                       <button
                         key={idx}
                         type="button"
-                        onClick={() => setActiveFamily(cell.family)}
-                        className={`series-anchor-tile flex flex-col items-center justify-center rounded-xl p-1 border transition-all cursor-pointer ${
-                          isLanthanide
-                            ? "bg-pink-950/45 border-pink-500/30 text-pink-300 hover:bg-pink-900/50"
-                            : "bg-fuchsia-950/45 border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-900/50"
-                        } ${isAnchorDimmed ? "opacity-15 pointer-events-none scale-95" : "opacity-100 hover:scale-105"}`}
+                        onClick={() => {
+                          if (targetElement) {
+                            setSelectedElement(targetElement);
+                          }
+                          setActiveFamily(cell.family);
+                        }}
+                        className={`series-anchor-tile flex flex-col items-center justify-center rounded-xl p-1 border transition-all cursor-pointer ${isLanthanide
+                          ? "bg-pink-950/45 border-pink-500/30 text-pink-300 hover:bg-pink-900/50 hover:shadow-[0_0_15px_rgba(244,114,182,0.4)]"
+                          : "bg-fuchsia-950/45 border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-900/50 hover:shadow-[0_0_15px_rgba(217,70,239,0.4)]"
+                          } ${isAnchorDimmed ? "opacity-30 hover:opacity-100" : "opacity-100 hover:scale-105"}`}
                         style={{ aspectRatio: "1 / 1" }}
                       >
                         <span className="text-[7px] font-mono leading-none">{cell.label}</span>

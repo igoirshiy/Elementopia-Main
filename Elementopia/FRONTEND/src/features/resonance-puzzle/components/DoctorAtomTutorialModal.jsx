@@ -48,8 +48,15 @@ export function DoctorAtomTutorialModal({ domainId, currentStage, onClose }) {
   return (
     <div className="fixed top-20 right-6 z-50 w-80 sm:w-96 rounded-2xl border border-cyan/50 bg-slate-950/95 p-4 shadow-[0_0_30px_rgba(6,182,212,0.35)] animate-fade-down backdrop-blur-md">
       <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <DoctorAtomAssistant mood="teaching" size="md" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-cyan bg-slate-950 shrink-0">
+            <img
+              src="/doctor_atom_talking.gif"
+              alt="Doctor Atom"
+              className="w-full h-full object-cover object-[center_12%] scale-125"
+              onError={(e) => { e.target.src = "/doctor_atom.png"; }}
+            />
+          </div>
           <div>
             <span className="font-mono text-xs font-bold text-cyan uppercase tracking-wider block">
               Doctor Atom Tutorial

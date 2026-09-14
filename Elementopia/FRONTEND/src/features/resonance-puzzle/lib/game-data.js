@@ -239,7 +239,6 @@ export function matchCompound(workbench, domain, currentStage = 1) {
     return true;
   };
 
-  // 1. Check current stage first
   const requiredList = domain?.stages ? (domain.stages[currentStage]?.required || domain.stages[1]?.required) : domain?.required;
   if (requiredList) {
     for (const c of requiredList) {
@@ -247,7 +246,6 @@ export function matchCompound(workbench, domain, currentStage = 1) {
     }
   }
 
-  // 2. Global fallback: search all domains and stages
   for (const d of DOMAINS) {
     if (d.stages) {
       for (const stageKey in d.stages) {
@@ -342,47 +340,54 @@ export function liveCommentary(workbench) {
   return `${parts} — ${detail}. Check the ratio: every electron offered should find a home.`;
 }
 
-export function explainFailure(workbench) {
+export function explainFailure(workbench, currentStageData = null) {
   const entries = Object.entries(workbench).filter(([, n]) => (n ?? 0) > 0);
   if (entries.length === 0) return "Empty workbench. Add at least two elements before synthesizing.";
 
   const symbols = entries.map(([s]) => s);
   const counts = Object.fromEntries(entries);
 
-  const noble = symbols.find(s => ELEMENTS[s].noble);
+  const noble = symbols.find(s => ELEMENTS[s]?.noble);
   if (noble) {
     const e = ELEMENTS[noble];
-    return `${e.name} (${e.symbol}) is a noble gas — its outer shell is already full, so it forms no bonds. It's a distractor placed here to test whether you remember the noble gas rule. Remove it.`;
+    return `Dr. Atom: ${e.name} (${e.symbol}) is a Noble Gas with a completely full outer shell. It cannot bond with other atoms! Remove it.`;
   }
-  if (symbols.length === 1 && symbols[0] === "H" && (counts.H ?? 0) >= 2) {
-    return "Two hydrogens alone just form H₂ gas, which floats away. Hydrogen is desperately trying to complete itself — pair it with an element that has unfilled outer shells.";
+
+  let totalValence = 0;
+  entries.forEach(([s, count]) => {
+    const val = ELEMENTS[s]?.valence || 0;
+    totalValence += val * count;
+  });
+
+  if (totalValence % 2 !== 0) {
+    return `Dr. Atom: Unpaired electron detected (${totalValence} valence e⁻ total)! In nature, nonmetals share electrons in pairs to satisfy the Octet Rule.`;
   }
-  if (symbols.length === 1 && (counts[symbols[0]] ?? 0) >= 2 && (symbols[0] === "Na" || symbols[0] === "Mg")) {
-    return "Two metals can't bond ionically — both want to give electrons away. A metal needs a nonmetal that wants to receive.";
-  }
-  if (symbols.length === 1 && symbols[0] === "C") {
-    return "Carbon bonded only to itself forms graphite or diamond — not what this domain wants. Pair carbon with another element.";
-  }
-  if (symbols.includes("N") && symbols.includes("H") && symbols.length === 2 && (counts.H ?? 0) < 3) {
-    return "Nitrogen needs 3 more electrons; Hydrogen brings 1 each. You're close — count carefully how many Hydrogens Nitrogen actually needs.";
-  }
+
   if (symbols.includes("O") && symbols.includes("H")) {
-    return "Right ingredients, wrong arithmetic. Oxygen wants 2 bonds, Hydrogen offers 1 each. Adjust your ratio.";
+    if (counts.H === 1 && counts.O === 1) {
+      return "Dr. Atom: Hydroxyl (OH) is an unstable radical in nature! Oxygen still has an unfilled valence slot. Add another Hydrogen to form stable Water (H₂O).";
+    }
+    if (counts.H === 3 && counts.O === 1) {
+      return "Dr. Atom: H₃O is an ion (hydronium) and unstable as a neutral molecule in nature. Stable water requires a 2:1 ratio (H₂O).";
+    }
   }
-  if (symbols.includes("C") && symbols.includes("H") && !symbols.includes("O")) {
-    return "Carbon + Hydrogen forms hydrocarbons. Carbon wants 4 bonds — make sure every one is satisfied.";
+
+  if (symbols.includes("C") && symbols.includes("H")) {
+    if (counts.C === 1 && counts.H === 2) {
+      return "Dr. Atom: CH₂ has unfilled valence slots on Carbon! Carbon needs 4 shared bonds to form stable Methane (CH₄).";
+    }
   }
-  if (symbols.includes("C") && symbols.includes("O")) {
-    return "Carbon and Oxygen combine, but ratios matter. Carbon offers 4 bonds; each Oxygen wants 2. Recount.";
+
+  if (symbols.includes("Na") && symbols.includes("O") && counts.Na === 1 && counts.O === 1) {
+    return "Dr. Atom: Oxygen needs 2 valence electrons to complete its octet, but Sodium can only donate 1! You need 2 Sodium atoms for every 1 Oxygen (Na₂O).";
   }
-  if (symbols.includes("Na") && symbols.includes("Cl")) {
-    return "Sodium gives 1 electron, Chlorine takes 1. The ratio must be exact — no spectators.";
-  }
-  if (symbols.includes("Mg") && symbols.includes("Cl")) {
-    return "Magnesium has 2 electrons to donate. Chlorine takes only 1 each. How many Chlorines does Magnesium actually need?";
-  }
-  return "These elements don't form anything this domain accepts. Reconsider which atoms actually want each other's electrons.";
+
+  const hintRequired = currentStageData?.required?.[0];
+  const hintText = hintRequired ? ` Try working towards ${hintRequired.name} (${hintRequired.formula}).` : "";
+
+  return `Dr. Atom: While the valence electrons might seem to pair up on paper (${totalValence} e⁻), this molecular structure is chemically unstable in the real world!${hintText}`;
 }
+
 
 export function shuffle(arr) {
   const a = [...arr];
