@@ -155,7 +155,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           if (!isCompoundInDomain(workbench, domain)) {
             const matchedAnywhere = matchCompound(workbench, domain, currentStage);
             const name = matchedAnywhere ? matchedAnywhere.name : elementList.join("");
-            
+
             setByproduct(`Dr. Atoms: ${name} is a valid compound, but it uses different bonding rules! We are currently studying ${domain.name}.`);
             break;
           }
@@ -184,7 +184,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                 }
               }).catch(e => console.warn("Failed to get user:", e));
             }
-            
+
             if (matchedCompound.localVideo) {
               setDiscoveryVideo(matchedCompound);
             }
@@ -348,9 +348,9 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             justCleared={justCleared}
           />
           <div className="mt-3 relative h-5 w-full overflow-hidden rounded-full bg-slate-950 border border-magenta/30 shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)]">
-            <div 
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-magenta transition-all duration-1000 ease-out" 
-              style={{ width: `${progressPct}%` }} 
+            <div
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-magenta transition-all duration-1000 ease-out"
+              style={{ width: `${progressPct}%` }}
             >
               <div className="absolute inset-0 bg-white/10 animate-pulse" />
             </div>
@@ -485,11 +485,12 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
               </button>
             </div>
             <div className="relative aspect-video bg-black flex items-center justify-center">
-              <video 
+              <video
                 key={discoveryVideo.localVideo}
-                src={discoveryVideo.localVideo} 
-                controls 
-                autoPlay 
+                src={discoveryVideo.localVideo}
+                controls
+                autoPlay
+                preload="metadata"
                 className="absolute inset-0 w-full h-full object-contain"
               />
             </div>
@@ -497,8 +498,8 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
               <div className="text-sm font-mono text-cyan/70">
                 Educational Broadcast • {discoveryVideo.formula}
               </div>
-              <button 
-                onClick={() => setDiscoveryVideo(null)} 
+              <button
+                onClick={() => setDiscoveryVideo(null)}
                 className="px-8 py-3 bg-gradient-to-r from-cyan to-blue-500 text-white font-bold font-mono text-sm rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(6,182,212,0.5)] uppercase tracking-wider"
               >
                 Got It

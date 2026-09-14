@@ -263,10 +263,10 @@ export function StudentDiscoveryPage() {
                       <img
                         src={selectedDiscovery.image}
                         alt={`${selectedDiscovery.name} real world photo`}
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
-                          if (e.currentTarget.src.endsWith('.jpg')) {
-                            e.currentTarget.src = e.currentTarget.src.replace('.jpg', '.jfif');
-                          }
+                          e.currentTarget.style.display = 'none';
                         }}
                         style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '0.75rem', display: 'block' }}
                       />
