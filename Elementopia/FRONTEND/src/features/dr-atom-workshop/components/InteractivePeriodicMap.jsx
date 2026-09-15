@@ -96,35 +96,42 @@ export function InteractivePeriodicMap({
   }
 
   return (
-    <div className="w-full">
-      <div
-        className="w-full"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(18, minmax(0, 1fr))",
-          gap: "3px",
-        }}
-      >
-        {gridCells.map(({ key, el }) => {
-          if (!el) {
-            return <div key={key} className="aspect-square" />;
-          }
+    <div className="w-full overflow-hidden">
+      <div className="lg:hidden text-[11px] font-mono text-cyan/70 text-center mb-2 flex items-center justify-center gap-1.5 animate-pulse">
+        <span>←</span>
+        <span>Swipe to explore all 18 groups</span>
+        <span>→</span>
+      </div>
+      <div className="w-full overflow-x-auto pb-2 scrollbar-thin">
+        <div
+          className="min-w-[620px]"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(18, minmax(0, 1fr))",
+            gap: "3px",
+          }}
+        >
+          {gridCells.map(({ key, el }) => {
+            if (!el) {
+              return <div key={key} className="aspect-square" />;
+            }
 
-          const dynamicStyles = getCellStyles(el);
-          const familyClass = getFamilyClasses(el.family);
+            const dynamicStyles = getCellStyles(el);
+            const familyClass = getFamilyClasses(el.family);
 
-          return (
-            <button
-              key={key}
-              onClick={() => onSelectElement && onSelectElement(el.num)}
-              style={dynamicStyles}
-              className={`aspect-square rounded-md border flex flex-col justify-center items-center font-mono font-bold text-white transition-all duration-300 cursor-pointer p-0.5 select-none ${familyClass}`}
-            >
-              <span className="text-[6px] opacity-75 leading-none">{el.num}</span>
-              <span className="text-[9px] leading-none mt-0.5 font-sans font-bold">{el.symbol}</span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={key}
+                onClick={() => onSelectElement && onSelectElement(el.num)}
+                style={dynamicStyles}
+                className={`aspect-square rounded-md border flex flex-col justify-center items-center font-mono font-bold text-white transition-all duration-300 cursor-pointer p-0.5 select-none ${familyClass}`}
+              >
+                <span className="text-[6px] opacity-75 leading-none">{el.num}</span>
+                <span className="text-[9px] leading-none mt-0.5 font-sans font-bold">{el.symbol}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ export function DrAtomWorkshopPage() {
     <div className="elementopia-scope min-h-screen grid-bg text-foreground flex flex-col bg-slate-950">
       <SiteHeader />
 
-      <main className="mx-auto max-w-[1400px] w-full px-4 sm:px-8 lg:px-12 py-8 flex-1 flex flex-col">
+      <main className="mx-auto max-w-[1400px] w-full px-3 sm:px-8 lg:px-12 py-6 sm:py-8 flex-1 flex flex-col overflow-x-hidden">
         {/* Page Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
           <div>
@@ -128,7 +128,7 @@ export function DrAtomWorkshopPage() {
         {/* 2-Column Workshop Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start pb-12">
           {/* Left Column: Periodic Table Map + Interactive Sub-Widget */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             {/* Interactive Map Box */}
             <div className="glass-panel p-5 rounded-3xl border border-slate-800/80 bg-slate-900/60 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
               <div className="flex items-center justify-between mb-3 text-xs font-mono">
@@ -157,7 +157,7 @@ export function DrAtomWorkshopPage() {
           </div>
 
           {/* Right Column: Dr. Atom Avatar, Subtitles & Slide Controls */}
-          <div className="glass-panel p-6 rounded-3xl border border-slate-800/80 bg-slate-900/60 shadow-[0_4px_30px_rgba(0,0,0,0.5)] flex flex-col items-center sticky top-24">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-800/80 bg-slate-900/60 shadow-[0_4px_30px_rgba(0,0,0,0.5)] flex flex-col items-center lg:sticky lg:top-24 order-1 lg:order-2">
             <DrAtomAvatar
               currentSlideIndex={currentSlideIndex}
               totalSlides={WORKSHOP_SLIDES.length}

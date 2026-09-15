@@ -7,9 +7,9 @@ export function StoryCard({ domain, currentStage = 1, onEnter, onCancel }) {
   const activeStage = hasStages ? (domain.stages[currentStage] || domain.stages[1]) : domain;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-background/90 backdrop-blur-md grid-bg" />
-      <div className="relative w-full max-w-xl rounded-3xl border border-cyan/40 bg-slate-950/95 p-6 md:p-8 shadow-[0_0_50px_rgba(6,182,212,0.25)] animate-fade-up">
+      <div className="relative w-full max-w-xl rounded-3xl border border-cyan/40 bg-slate-950/95 p-4 sm:p-6 md:p-8 shadow-[0_0_50px_rgba(6,182,212,0.25)] animate-fade-up max-h-[92vh] overflow-y-auto my-auto">
         <div className="flex items-center justify-between mb-3">
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan/20 text-cyan border border-cyan/40 font-mono text-xs font-bold uppercase tracking-wider">
             <Layers className="w-3.5 h-3.5" /> Stage {currentStage} / {maxStages} Briefing
@@ -64,7 +64,7 @@ export function StoryCard({ domain, currentStage = 1, onEnter, onCancel }) {
         <div className="flex justify-end pt-2 border-t border-slate-800">
           <button
             onClick={onEnter}
-            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan to-blue-600 px-7 py-3 font-mono font-bold text-xs text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] uppercase tracking-wider"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-cyan to-blue-600 px-7 py-3 font-mono font-bold text-xs text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] uppercase tracking-wider"
           >
             Initiate Stage {currentStage} Mission →
           </button>
