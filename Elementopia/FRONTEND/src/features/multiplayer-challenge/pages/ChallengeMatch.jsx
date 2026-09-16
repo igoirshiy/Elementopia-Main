@@ -136,88 +136,19 @@ function Lobby({ room, players, me, isHost }) {
         </div>
       </div>
 
-      {/* Lobby Settings configuration panel */}
-      <div className="mt-6 grid md:grid-cols-2 gap-6 border-t border-b border-white/10 py-6">
-        <div>
-          <label className="text-xs uppercase tracking-wider text-white/50 block mb-2 font-mono">Difficulty</label>
-          {isHost ? (
-            <div className="flex gap-2">
-              {[
-                { key: "easy", label: "Easy", activeColor: "border-emerald-500 bg-emerald-500/20 text-emerald-400" },
-                { key: "medium", label: "Medium", activeColor: "border-amber-500 bg-amber-500/20 text-amber-400" },
-                { key: "hard", label: "Hard", activeColor: "border-rose-500 bg-rose-500/20 text-rose-400" }
-              ].map((d) => (
-                <button
-                  key={d.key}
-                  onClick={() => updateRoomSettings(room.id, d.key, room.puzzle?.maxQuestions || 3)}
-                  className={`flex-1 rounded-xl border py-2 text-xs font-mono font-bold transition duration-300 ${(room.puzzle?.difficulty || "medium") === d.key
-                    ? d.activeColor
-                    : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
-                    }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="capitalize font-mono font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl inline-block">
-              {room.puzzle?.difficulty || "medium"}
-            </div>
-          )}
+      {/* Lobby Settings summary badge */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-b border-white/10 py-4 font-mono text-xs">
+        <div className="flex items-center gap-3">
+          <span className="text-white/50 uppercase tracking-wider">Match Config:</span>
+          <span className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 font-bold text-white capitalize">
+            {room.puzzle?.difficulty || "medium"} Difficulty
+          </span>
+          <span className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 font-bold text-cyan">
+            {room.puzzle?.maxQuestions || 3} Questions
+          </span>
         </div>
-
-        <div>
-          <label className="text-xs uppercase tracking-wider text-white/50 block mb-2 font-mono">Match Length (Questions)</label>
-          {isHost ? (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const currentQ = room.puzzle?.maxQuestions || 3;
-                  updateRoomSettings(room.id, room.puzzle?.difficulty || "medium", Math.max(1, currentQ - 1));
-                }}
-                className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 font-mono text-base font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
-              >
-                -
-              </button>
-              <input
-                type="text"
-                value={room.puzzle?.maxQuestions ?? ""}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value.replace(/[^0-9]/g, ""), 10);
-                  const difficulty = room.puzzle?.difficulty || "medium";
-                  if (!isNaN(val)) {
-                    updateRoomSettings(room.id, difficulty, Math.min(30, Math.max(1, val)));
-                  } else {
-                    updateRoomSettings(room.id, difficulty, ""); // Allow empty string momentarily during typing
-                  }
-                }}
-                onBlur={() => {
-                  const currentQ = room.puzzle?.maxQuestions;
-                  const difficulty = room.puzzle?.difficulty || "medium";
-                  if (currentQ === "" || isNaN(currentQ) || currentQ === null || currentQ === undefined) {
-                    updateRoomSettings(room.id, difficulty, 3);
-                  }
-                }}
-                className="h-10 w-20 text-center rounded-xl border border-white/20 bg-black/40 text-white font-mono text-sm outline-none focus:border-magenta"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const currentQ = room.puzzle?.maxQuestions || 3;
-                  updateRoomSettings(room.id, room.puzzle?.difficulty || "medium", Math.min(30, currentQ + 1));
-                }}
-                className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 font-mono text-base font-bold text-white transition hover:border-magenta hover:bg-magenta/10 cursor-pointer"
-              >
-                +
-              </button>
-              <span className="text-[10px] text-white/40 font-mono ml-1">Limit: 1 - 30</span>
-            </div>
-          ) : (
-            <div className="font-mono font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl inline-block">
-              {room.puzzle?.maxQuestions || 3} Questions
-            </div>
-          )}
+        <div className="text-white/40 text-[11px] font-mono">
+          Synchronized Real-time Chemistry Duel
         </div>
       </div>
 
