@@ -337,13 +337,15 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
     return () => cancelAnimationFrame(raf);
   }, [room.started_at]);
 
-  // Reset on new match
+  // Reset on new match or next question
   useEffect(() => {
     setProgress([]);
     setErrors(0);
     setSolved(false);
     setUsedIndices([]);
-  }, [room.started_at]);
+    setShowDiscoveryModal(false);
+    setSolvedPuzzle(null);
+  }, [room.started_at, room.puzzle?.currentQuestionIndex]);
 
 
   const teamA = players.filter((p) => p.team === "A");
@@ -564,11 +566,13 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
               onClick={async () => {
                 setShowDiscoveryModal(false);
                 setSolvedPuzzle(null);
-                await advanceToNextRound(room.id);
+                if (room.status === "active") {
+                  await advanceToNextRound(room.id);
+                }
               }}
               className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
             >
-              Close Record
+              Continue
             </button>
           </div>
         </div>

@@ -220,10 +220,38 @@ export async function submitSolved(roomId, sessionId, steps, errors) {
       puzzleMeta.scores.B += 1;
     }
 
-    await supabase
-      .from("rooms")
-      .update({ puzzle: puzzleMeta })
-      .eq("id", roomId);
+    const nextIndex = puzzleMeta.currentQuestionIndex + 1;
+    if (nextIndex < puzzleMeta.maxQuestions) {
+      puzzleMeta.currentQuestionIndex = nextIndex;
+      const startAt = new Date(Date.now() + 3500).toISOString();
+
+      await supabase
+        .from("room_players")
+        .update({ finished_at: null, steps: null, errors: 0 })
+        .eq("room_id", roomId);
+
+      await supabase
+        .from("rooms")
+        .update({
+          status: "countdown",
+          puzzle: puzzleMeta,
+          started_at: startAt
+        })
+        .eq("id", roomId);
+    } else {
+      let overallWinner = "draw";
+      if (puzzleMeta.scores.A > puzzleMeta.scores.B) overallWinner = "A";
+      else if (puzzleMeta.scores.B > puzzleMeta.scores.A) overallWinner = "B";
+
+      await supabase
+        .from("rooms")
+        .update({
+          winning_team: overallWinner,
+          status: "finished",
+          puzzle: puzzleMeta
+        })
+        .eq("id", roomId);
+    }
   }
 }
 
