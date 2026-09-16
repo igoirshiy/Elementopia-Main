@@ -56,38 +56,44 @@ export function SiteHeader({ view, setView }) {
 
         <nav className="hidden sm:flex items-center gap-6 text-[0.95rem] font-sans">
           <button 
+            type="button"
             onClick={handleDashboardClick} 
-            className={`transition-colors cursor-pointer ${isDashboardActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isDashboardActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Dashboard
           </button>
           <button 
-            onClick={() => { window.location.href = "/student/matrix"; }} 
-            className={`transition-colors cursor-pointer ${isMatrixActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            type="button"
+            onClick={() => navigate("/student/matrix")} 
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isMatrixActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Periodic Matrix
           </button>
           <button 
-            onClick={() => { window.location.href = "/student/workshop"; }} 
-            className={`transition-colors cursor-pointer ${isWorkshopActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            type="button"
+            onClick={() => navigate("/student/workshop")} 
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isWorkshopActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Workshop
           </button>
           <button 
-            onClick={() => { window.location.href = "/student/gallery"; }} 
-            className={`transition-colors cursor-pointer ${isGalleryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            type="button"
+            onClick={() => navigate("/student/gallery")} 
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isGalleryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Gallery
           </button>
           <button 
-            onClick={() => { window.location.href = "/student/discovery"; }} 
-            className={`transition-colors cursor-pointer ${isDiscoveryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            type="button"
+            onClick={() => navigate("/student/discovery")} 
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isDiscoveryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Discoveries
           </button>
           <button 
+            type="button"
             onClick={handleMasteryClick} 
-            className={`transition-colors cursor-pointer ${isMasteryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
+            className={`transition-colors cursor-pointer bg-transparent border-0 p-0 ${isMasteryActive ? "text-white font-bold text-glow-cyan" : "text-white/70 hover:text-white"}`}
           >
             Mastery
           </button>
@@ -98,8 +104,9 @@ export function SiteHeader({ view, setView }) {
             Challenge
           </Link>
           <button
-            onClick={() => { localStorage.clear(); window.location.href = "/"; }}
-            className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+            type="button"
+            onClick={() => { localStorage.clear(); navigate("/"); }}
+            className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all cursor-pointer border-0"
           >
             Exit
           </button>
