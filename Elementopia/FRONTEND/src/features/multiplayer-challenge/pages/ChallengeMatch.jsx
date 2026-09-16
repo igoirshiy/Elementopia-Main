@@ -335,33 +335,9 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
   };
 
   return (
-    <section className="space-y-3">
-      {/* HUD: team rosters with live real-time progress */}
-      <div className="grid gap-3 md:grid-cols-2">
-        <TeamHUD
-          label="Team A"
-          players={teamA}
-          size={room.team_size}
-          mySession={me?.session_id ?? null}
-          accent="primary"
-          isMyTeamSolved={solved && me?.team === "A"}
-          totalTargetSteps={targetSeq.length}
-          localProgress={progress.length}
-        />
-        <TeamHUD
-          label="Team B"
-          players={teamB}
-          size={room.team_size}
-          mySession={me?.session_id ?? null}
-          accent="defeat"
-          isMyTeamSolved={solved && me?.team === "B"}
-          totalTargetSteps={targetSeq.length}
-          localProgress={progress.length}
-        />
-      </div>
-
+    <section className="space-y-4">
       {/* Match HUD Scoreboard Header */}
-      <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur">
+      <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur shadow-[0_0_30px_rgba(236,72,153,0.15)]">
         <div className="text-left">
           <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">ROUND</p>
           <h3 className="text-lg font-bold text-white font-mono">
@@ -532,66 +508,6 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
         </div>
       </Modal>
     </section>
-  );
-}
-
-function TeamHUD({ label, players, size, mySession, accent, isMyTeamSolved, totalTargetSteps, localProgress }) {
-  const done = players.filter((p) => p.finished_at || (p.session_id === mySession && isMyTeamSolved)).length;
-  const isTeamComplete = done >= size && size > 0;
-  const dotClass = accent === "primary" ? "bg-magenta" : "bg-defeat";
-
-  return (
-    <div className={`rounded-2xl border ${isTeamComplete ? "border-victory/60 bg-victory/10 shadow-[0_0_20px_rgba(34,197,94,0.2)]" : "border-white/10 bg-black/40"} p-3 py-2.5 backdrop-blur transition-all duration-300`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={`h-2.5 w-2.5 rounded-full ${isTeamComplete ? "bg-victory animate-pulse" : dotClass}`} />
-          <p className="text-[11px] font-mono font-bold uppercase tracking-widest text-white">{label}</p>
-        </div>
-        <span className={`font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${isTeamComplete ? "bg-victory/20 text-victory border border-victory/40" : "bg-white/5 text-white/80 border border-white/10"}`}>
-          {done}/{size} Solved
-        </span>
-      </div>
-
-      <div className="mt-2.5 flex flex-wrap gap-2">
-        {players.map((p) => {
-          const isMe = p.session_id === mySession;
-          const isPlayerDone = Boolean(p.finished_at || (isMe && isMyTeamSolved));
-          const currentSteps = isMe ? localProgress : (p.steps || 0);
-
-          return (
-            <div
-              key={p.id}
-              className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-1.5 text-xs transition-all flex-1 min-w-[140px] ${
-                isPlayerDone
-                  ? "border-victory/50 bg-victory/15 text-victory shadow-[0_0_10px_rgba(34,197,94,0.15)]"
-                  : isMe
-                  ? "border-magenta/60 bg-magenta/15 text-white ring-1 ring-magenta/40"
-                  : "border-white/10 bg-white/5 text-white/80"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-white/10 text-[9px] font-bold text-white uppercase">
-                  {p.nickname.slice(0, 2)}
-                </span>
-                <span className="font-semibold text-xs truncate max-w-[90px]">{p.nickname}{isMe ? " (You)" : ""}</span>
-              </div>
-
-              <div className="flex items-center gap-1.5 font-mono">
-                {isPlayerDone ? (
-                  <span className="flex items-center gap-1 text-victory font-bold text-[11px] bg-victory/20 px-1.5 py-0.5 rounded">
-                    <Check className="size-3" /> Done
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-cyan bg-cyan/10 px-1.5 py-0.5 rounded border border-cyan/20">
-                    {currentSteps}/{totalTargetSteps || 4}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
   );
 }
 
