@@ -255,6 +255,14 @@ export async function submitSolved(roomId, sessionId, steps, errors) {
   }
 }
 
+export async function bumpSteps(roomId, sessionId, steps) {
+  await supabase
+    .from("room_players")
+    .update({ steps })
+    .eq("room_id", roomId)
+    .eq("session_id", sessionId);
+}
+
 export async function bumpErrors(roomId, sessionId, current) {
   await supabase
     .from("room_players")
