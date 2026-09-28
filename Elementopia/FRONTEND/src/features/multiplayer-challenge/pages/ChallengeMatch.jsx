@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } from "lucide-react";
 import Confetti from "react-confetti";
 import { API_BASE_URL } from "@/config/apiConfig";
+import { BohrAtomVisualizer } from "@/features/resonance-puzzle/components/BohrAtomVisualizer";
 
 export default function ChallengeMatch() {
   const { code } = useParams();
@@ -49,14 +50,22 @@ export default function ChallengeMatch() {
       .on("postgres_changes", { event: "*", schema: "public", table: "rooms", filter: `code=eq.${code}` },
         (payload) => {
           const next = (payload.new ?? null);
-          if (next) setRoom(next);
+          if (next) {
+            if (payload.commit_timestamp) {
+              window.__serverTimeOffset = new Date(payload.commit_timestamp).getTime() - Date.now();
+            }
+            setRoom(next);
+          }
         })
       .on("postgres_changes", { event: "*", schema: "public", table: "room_players" },
-        async () => {
-          const { data: r } = await supabase.from("rooms").select("id").eq("code", code).maybeSingle();
-          if (!r) return;
-          const { data: ps } = await supabase.from("room_players").select("*").eq("room_id", r.id).order("joined_at");
-          setPlayers(ps ?? []);
+        (payload) => {
+          const next = payload.new;
+          if (next) {
+            setPlayers(prev => {
+               if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at));
+               return prev.map(p => p.id === next.id ? next : p);
+            });
+          }
         })
       .subscribe();
     return () => { active = false; supabase.removeChannel(channel); };
@@ -212,12 +221,23 @@ function TeamColumn({ label, team, players, size, me, onSwitch, accent }) {
 }
 
 /* ----------------------- MATCH ----------------------- */
+const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
+
 function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal }) {
   const puzzle = room.puzzle?.questions ? room.puzzle.questions[room.puzzle.currentQuestionIndex] : room.puzzle;
   const [countdownLeft, setCountdownLeft] = useState(3);
   const [unlocked, setUnlocked] = useState(false);
   const [progress, setProgress] = useState([]);
   const [errors, setErrors] = useState(0);
+
+  useEffect(() => {
+    if (me && progress.length === 0 && me.steps?.length > 0) {
+       setProgress(me.steps);
+    }
+    if (me && errors === 0 && (me.errors || 0) > 0) {
+       setErrors(me.errors);
+    }
+  }, [me]);
   const [solved, setSolved] = useState(false);
   const [flash, setFlash] = useState(null);
   const [solvedPuzzle, setSolvedPuzzle] = useState(null);
@@ -259,7 +279,9 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
     const targetMs = new Date(room.started_at).getTime();
     let raf = 0;
     const tick = () => {
-      const remain = Math.max(0, targetMs - Date.now());
+      const offset = window.__serverTimeOffset || 0;
+      const currentMs = Date.now() + offset;
+      const remain = Math.max(0, targetMs - currentMs);
       const secs = Math.ceil(remain / 1000);
       setCountdownLeft(secs);
       if (remain <= 0) setUnlocked(true);
@@ -404,24 +426,32 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
               const info = elementInfo(sym);
               const isUsed = usedIndices.includes(i);
               const disabled = !unlocked || solved || isSpectator || isUsed;
+              const themeColor = THEME_COLORS[i % 3];
               return (
                 <button
                   key={i}
                   disabled={disabled}
                   onClick={() => handleTile(sym, i)}
-                  className={`group relative h-[100px] rounded-2xl border p-2 text-left transition ${isUsed
+                  className={`group relative h-[100px] overflow-hidden rounded-2xl border p-2 text-left transition ${isUsed
                     ? "border-white/5 bg-white/[0.02] opacity-20 cursor-not-allowed"
                     : "border-white/10 bg-white/5 hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
                     }`}
                 >
-                  <span className="block font-mono text-[10px] text-white/40">#{i + 1}</span>
+                  <span className="relative z-10 block font-mono text-[10px] text-white/40">#{i + 1}</span>
+                  
+                  <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 grid place-items-center pointer-events-none transition-opacity ${isUsed ? "opacity-10" : "opacity-40 group-hover:opacity-100"}`}>
+                    <div className="scale-[0.8] origin-center flex items-center justify-center">
+                      <BohrAtomVisualizer symbol={sym} size="md" showNucleus={false} animated={!isUsed} themeColor={themeColor} />
+                    </div>
+                  </div>
+
                   <span
-                    className={`absolute inset-0 grid place-items-center font-display text-2xl font-bold ${isUsed ? "line-through opacity-30" : ""}`}
-                    style={{ color: isUsed ? "#64748b" : info.color }}
+                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 font-display text-2xl font-bold ${isUsed ? "line-through opacity-30" : ""}`}
+                    style={{ color: isUsed ? "#64748b" : themeColor, textShadow: isUsed ? "none" : `0 0 10px ${themeColor}` }}
                   >
                     {info.symbol}
                   </span>
-                  <span className="absolute bottom-2 right-2 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
+                  <span className="absolute bottom-2 right-2 z-10 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
                 </button>
               );
             })}

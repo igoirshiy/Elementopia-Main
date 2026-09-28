@@ -86,7 +86,7 @@ export function StudentDiscoveryPage() {
             </div>
             <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden p-0.5 border border-slate-700">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-magenta transition-all duration-700 shadow-[0_0_12px_rgba(6,182,212,0.6)]"
+                className="h-full rounded-full bg-gradient-to-r from-cyan via-indigo-500 to-magenta transition-all duration-700 shadow-[0_0_12px_rgba(6,182,212,0.6)]"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -110,7 +110,7 @@ export function StudentDiscoveryPage() {
           <button
             onClick={() => setActiveFilter("Natural")}
             className={`flex items-center gap-1.5 rounded-xl px-4 py-2 font-mono text-xs font-bold transition-all ${activeFilter === "Natural"
-              ? "bg-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+              ? "bg-cyan text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
               : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
               }`}
           >
@@ -185,7 +185,7 @@ export function StudentDiscoveryPage() {
                     {/* Header Badges */}
                     <div className="flex items-center justify-between mb-3">
                       <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${isNatural
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                        ? "bg-cyan/10 text-cyan border-cyan/30"
                         : "bg-magenta/10 text-magenta border-magenta/30"
                         }`}>
                         {isNatural ? <Leaf className="size-3" /> : <FlaskConical className="size-3" />}
@@ -280,7 +280,7 @@ export function StudentDiscoveryPage() {
                     <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block mb-1">
                       Natural vs Synthetic Origin
                     </span>
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-mono font-bold ${selectedDiscovery.origin === "Natural" ? "text-emerald-400" : "text-magenta"
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-mono font-bold ${selectedDiscovery.origin === "Natural" ? "text-cyan" : "text-magenta"
                       }`}>
                       {selectedDiscovery.origin === "Natural" ? <Leaf className="size-3.5" /> : <FlaskConical className="size-3.5" />}
                       {selectedDiscovery.origin === "Natural" ? "Naturally Occurring" : "Human-Made / Synthetic"}
@@ -326,7 +326,7 @@ export function StudentDiscoveryPage() {
                 {/* Close Button */}
                 <button
                   onClick={() => setSelectedDiscovery(null)}
-                  className="mt-6 w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-2.5 font-mono text-xs font-bold text-white shadow-md transition hover:scale-[1.01] uppercase tracking-wider"
+                  className="mt-6 w-full rounded-xl bg-gradient-to-r from-cyan via-indigo-500 to-magenta py-2.5 font-mono text-xs font-bold text-white shadow-md transition hover:scale-[1.01] uppercase tracking-wider"
                 >
                   Close Codex Entry
                 </button>

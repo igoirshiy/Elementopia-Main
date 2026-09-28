@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="elementopia-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00FFFF;stop-opacity:1" /> <!-- Cyan -->
+      <stop offset="50%" style="stop-color:#4B0082;stop-opacity:1" /> <!-- Indigo -->
+      <stop offset="100%" style="stop-color:#FF00FF;stop-opacity:1" /> <!-- Magenta -->
+    </linearGradient>
+  </defs>
+  
+  <!-- Hexagon Base -->
+  <polygon points="50,2 95,25 95,75 50,98 5,75 5,25" fill="url(#elementopia-grad)" />
+  
+  <!-- Atomic Orbital Rings -->
+  <ellipse cx="50" cy="50" rx="40" ry="12" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3" transform="rotate(30 50 50)" />
+  <ellipse cx="50" cy="50" rx="40" ry="12" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3" transform="rotate(-30 50 50)" />
+  
+  <!-- Bold "E" -->
+  <text x="50" y="72" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="65" fill="#FFFFFF" text-anchor="middle">E</text>
+</svg>

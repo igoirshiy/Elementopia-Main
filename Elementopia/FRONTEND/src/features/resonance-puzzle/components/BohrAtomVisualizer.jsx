@@ -14,7 +14,7 @@ const ATOMIC_SHELLS = {
   Ne: { total: 10, valence: 8, rings: [2, 8], noble: true },
 };
 
-export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true }) {
+export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true, showNucleus = true, themeColor = "var(--cyan)" }) {
   const elem = ELEMENTS[symbol] || { symbol, name: symbol, gradient: "from-cyan-500 to-blue-600" };
   const config = ATOMIC_SHELLS[symbol] || { total: 1, valence: 1, rings: [1] };
 
@@ -30,9 +30,9 @@ export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true 
           const radius = (dim * 0.22) + ringIdx * (dim * 0.14);
           const isValenceRing = ringIdx === config.rings.length - 1;
           const strokeColor = config.noble
-            ? "rgba(234, 179, 8, 0.4)"
+            ? themeColor
             : isValenceRing
-            ? "rgba(6, 182, 212, 0.6)"
+            ? themeColor
             : "rgba(148, 163, 184, 0.25)";
 
           return (
@@ -72,8 +72,8 @@ export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true 
                       cx={ex}
                       cy={ey}
                       r={size === "xs" ? 1.8 : size === "sm" ? 2.5 : 3.5}
-                      fill={config.noble ? "#facc15" : isValence ? "#06b6d4" : "#94a3b8"}
-                      filter={isValence ? "drop-shadow(0px 0px 3px #06b6d4)" : "none"}
+                      fill={config.noble ? themeColor : isValence ? themeColor : "#94a3b8"}
+                      filter={isValence || config.noble ? `drop-shadow(0px 0px 3px ${themeColor})` : "none"}
                     />
                   );
                 })}
@@ -84,16 +84,18 @@ export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true 
       </svg>
 
       {/* Nucleus Core */}
-      <div
-        className={`relative z-10 flex items-center justify-center rounded-full bg-gradient-to-br ${elem.gradient} font-bold text-white shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all`}
-        style={{
-          width: dim * 0.34,
-          height: dim * 0.34,
-          fontSize: size === "xs" ? "9px" : size === "sm" ? "11px" : size === "lg" ? "20px" : "13px",
-        }}
-      >
-        <span>{symbol}</span>
-      </div>
+      {showNucleus && (
+        <div
+          className={`relative z-10 flex items-center justify-center rounded-full bg-gradient-to-br ${elem.gradient} font-bold text-white shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all`}
+          style={{
+            width: dim * 0.34,
+            height: dim * 0.34,
+            fontSize: size === "xs" ? "9px" : size === "sm" ? "11px" : size === "lg" ? "20px" : "13px",
+          }}
+        >
+          <span>{symbol}</span>
+        </div>
+      )}
     </div>
   );
 }

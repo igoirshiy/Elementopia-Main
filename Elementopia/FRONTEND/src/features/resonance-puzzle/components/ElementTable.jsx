@@ -71,8 +71,8 @@ const elementGroups = [
 const ElementTable = ({ selectedElement, setSelectedElement }) => {
   return (
     <Box
-      className="mx-auto rounded-3xl border border-white/10 bg-black/40 p-5 backdrop-blur shadow-[0_0_15px_rgba(236,72,153,0.05)]"
-      sx={{ width: "fit-content", marginBottom: 0 }}
+      className="mx-auto w-full rounded-3xl border border-white/10 bg-black/40 p-5 backdrop-blur shadow-[0_0_15px_rgba(236,72,153,0.05)]"
+      sx={{ marginBottom: 0 }}
     >
       <div className="flex flex-col gap-1.5">
         {elementGroups.map((row, rowIndex) => (

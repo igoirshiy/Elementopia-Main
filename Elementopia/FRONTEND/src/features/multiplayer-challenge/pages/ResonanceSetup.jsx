@@ -38,7 +38,7 @@ export default function ResonanceSetup() {
           <section className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <h1 className="text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl text-white">
-                Race to <span className="text-magenta text-glow-magenta font-pixel text-4xl leading-tight block mt-2">compound</span> first.
+                Race to <span className="text-magenta drop-shadow-[0_0_10px_rgba(236,72,153,0.8)] font-pixel text-4xl leading-tight block mt-2">compound</span> first.
               </h1>
               <p className="mt-6 max-w-md text-lg text-white/70">
                 No accounts. No friction. Spin up a duel, share a 5-digit code, and out-think your opponent in synchronized real-time chemistry combat.
@@ -56,14 +56,14 @@ export default function ResonanceSetup() {
                 <button
                   onClick={() => navigate("/challenge")}
                   style={{ width: '26px', height: '26px', minWidth: '26px', minHeight: '26px', padding: 0 }}
-                  className="absolute -top-3 -right-3 flex items-center justify-center rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] text-white shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all hover:scale-110 hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] z-10 font-sans leading-none"
+                  className="absolute -top-3 -right-3 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-magenta text-white shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all hover:scale-110 hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] z-10 font-sans leading-none"
                 >
                   <span className="text-[16px] font-bold pb-[2px]">&times;</span>
                 </button>
 
                 {mode !== "idle" && (
                   <div className="space-y-4">
-                    <h2 className="text-xl font-['Montserrat',sans-serif] font-[800] text-white tracking-wide uppercase">
+                    <h2 className="text-xl font-mono font-bold text-white tracking-wide uppercase">
                       Create a room
                     </h2>
                     <div className="space-y-2">
@@ -97,9 +97,9 @@ export default function ResonanceSetup() {
                           <label className="text-xs uppercase tracking-wider text-white/50">Difficulty</label>
                           <div className="grid grid-cols-3 gap-2">
                             {[
-                              { key: "easy", label: "Easy", color: "border-emerald-500/30 hover:border-emerald-500/60", activeColor: "border-emerald-500 bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" },
-                              { key: "medium", label: "Medium", color: "border-amber-500/30 hover:border-amber-500/60", activeColor: "border-amber-500 bg-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]" },
-                              { key: "hard", label: "Hard", color: "border-rose-500/30 hover:border-rose-500/60", activeColor: "border-rose-500 bg-rose-500/20 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]" }
+                              { key: "easy", label: "Easy", color: "border-cyan/30 hover:border-cyan/60", activeColor: "border-cyan bg-cyan/20 text-cyan shadow-[0_0_15px_rgba(6,182,212,0.3)]" },
+                              { key: "medium", label: "Medium", color: "border-indigo-500/30 hover:border-indigo-500/60", activeColor: "border-indigo-500 bg-indigo-500/20 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]" },
+                              { key: "hard", label: "Hard", color: "border-magenta/30 hover:border-magenta/60", activeColor: "border-magenta bg-magenta/20 text-magenta shadow-[0_0_15px_rgba(236,72,153,0.3)]" }
                             ].map((d) => (
                               <button
                                 key={d.key}
@@ -159,7 +159,7 @@ export default function ResonanceSetup() {
                     <button
                       onClick={handleCreate}
                       disabled={loading}
-                      className="mt-6 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+                      className="mt-6 w-full rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-6 py-3.5 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
                       {loading ? "Connecting…" : `Generate ${teamSize}v${teamSize} Code`}
                     </button>
@@ -174,7 +174,7 @@ export default function ResonanceSetup() {
               <div>
                 <span className="font-mono text-xs tracking-widest text-white/50">HOW IT WORKS</span>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl text-white">
-                  From zero to <span className="text-magenta text-glow-magenta font-pixel text-xl leading-tight">duel</span> in seconds.
+                  From zero to <span className="text-magenta drop-shadow-[0_0_10px_rgba(236,72,153,0.8)] font-pixel text-xl leading-tight">duel</span> in seconds.
                 </h2>
               </div>
               <span className="hidden font-mono text-xs text-white/30 md:block">04 STEPS</span>

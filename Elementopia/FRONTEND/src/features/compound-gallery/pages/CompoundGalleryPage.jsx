@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { CompoundCard } from "../components/CompoundCard";
 import { COMPOUND_GALLERY_DATA } from "../data/compound-gallery-data";
@@ -6,6 +6,19 @@ import { FlaskConical, Search, Sparkles, Filter, Layers } from "lucide-react";
 
 export function CompoundGalleryPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [cols, setCols] = useState(4);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) setCols(2);
+      else if (window.innerWidth < 1024) setCols(3);
+      else if (window.innerWidth < 1280) setCols(4);
+      else setCols(5);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const filteredCompounds = useMemo(() => {
     if (!searchQuery.trim()) return COMPOUND_GALLERY_DATA;
@@ -17,6 +30,16 @@ export function CompoundGalleryPage() {
         c.desc.toLowerCase().includes(q)
     );
   }, [searchQuery]);
+
+  const honeycombRows = useMemo(() => {
+    const strips = [];
+    let i = 0;
+    while (i < filteredCompounds.length) {
+      strips.push(filteredCompounds.slice(i, i + cols));
+      i += cols;
+    }
+    return strips;
+  }, [filteredCompounds, cols]);
 
   return (
     <div className="elementopia-scope min-h-screen grid-bg text-foreground flex flex-col bg-slate-950">
@@ -64,7 +87,7 @@ export function CompoundGalleryPage() {
         </div>
 
         {/* Search / Filter Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-800">
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
             <input
@@ -89,11 +112,32 @@ export function CompoundGalleryPage() {
           </div>
         </div>
 
-        {/* Compound Grid */}
+        {/* Beehive Hexagon Grid */}
         {filteredCompounds.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16">
-            {filteredCompounds.map((compound) => (
-              <CompoundCard key={compound.id} compound={compound} />
+          <div className="flex flex-col items-center pb-32">
+            {honeycombRows.map((strip, sIdx) => (
+              <div 
+                key={sIdx} 
+                className="flex justify-center" 
+                style={{ 
+                  marginTop: sIdx === 0 ? 0 : "-116px",
+                  zIndex: 20 - sIdx // prevent z-fighting on overlaps
+                }}
+              >
+                {strip.map((compound, cIdx) => (
+                  <div 
+                    key={compound.id}
+                    className="relative"
+                    style={{
+                      marginLeft: cIdx === 0 ? 0 : "-60px",
+                      marginTop: cIdx % 2 === 1 ? "128px" : "0px",
+                      zIndex: 30 - cIdx // left-to-right stacking
+                    }}
+                  >
+                    <CompoundCard compound={compound} />
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         ) : (

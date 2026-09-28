@@ -132,15 +132,22 @@ const ChemSim = () => {
 			const now = Date.now();
 			const dt = (now - lastTime) / 1000;
 			lastTime = now;
-			setAnimProgress((prev) => (prev + dt * 0.8) % 1);
+			
+			React.startTransition(() => {
+				setAnimProgress((prev) => (prev + dt * 0.8) % 1);
+			});
 
 			if (layerRef.current) {
-				layerRef.current.batchDraw();
+				try {
+					layerRef.current.batchDraw();
+				} catch(e) {}
 			}
 			animId = requestAnimationFrame(loop);
 		};
 		animId = requestAnimationFrame(loop);
-		return () => cancelAnimationFrame(animId);
+		return () => {
+			if (animId) cancelAnimationFrame(animId);
+		};
 	}, []);
 
 	const navigate = useNavigate();
@@ -385,97 +392,111 @@ const ChemSim = () => {
 	};
 
 	return (
-		<div className="w-full h-full flex flex-col overflow-y-auto lg:overflow-hidden">
-			{/* Responsive Header with Visual Guide & Erase Mode Toggle */}
-			<div className="mb-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+		<div className="w-full h-full flex flex-col p-2 sm:p-4 md:p-6 overflow-y-auto">
+			{/* Responsive Header */}
+			<div className="mb-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
 				<div className="text-left">
-					<div className="mb-0.5 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Simulation Laboratory</div>
-					<h1 className="font-pixel text-lg sm:text-xl font-bold text-white tracking-wider uppercase text-glow-magenta">
+					<div className="mb-1 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">Simulation Laboratory</div>
+					<h1 className="font-pixel text-2xl sm:text-3xl font-bold text-white tracking-wider uppercase text-glow-magenta">
 						Chemistry Sandbox
 					</h1>
 				</div>
-
-				<div className="font-mono text-xs text-cyan/90 bg-cyan/10 border border-cyan/30 px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
-					<span>🖱️ Left-Click Stage: Add Atom</span>
-					<span className="text-white/30">|</span>
-					<span>🖱️ Right-Click Atom: Remove</span>
-				</div>
 			</div>
-			<div className="w-full flex flex-col lg:flex-row gap-4 lg:gap-5 flex-1 min-h-0 items-start overflow-y-auto lg:overflow-hidden">
-				<div className="w-full lg:w-[270px] flex flex-col gap-3 shrink-0 lg:h-full overflow-y-auto custom-scrollbar">
+
+			{/* Main Layout Grid */}
+			<div className="w-full grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)_250px] gap-6 flex-1 min-h-0 items-start pb-4">
+				{/* Left Sidebar: Element Properties */}
+				<div className="w-full flex flex-col gap-4 bg-card/40 rounded-2xl border border-border/40 p-4 h-full">
 					<button
 						onClick={handleClear}
-						className="rounded-xl w-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] py-2.5 font-['Montserrat',sans-serif] font-[800] text-[0.75rem] text-white shadow-[0_0_12px_rgba(236,72,153,0.3)] transition-all uppercase tracking-wider whitespace-nowrap hover:shadow-[0_0_18px_rgba(236,72,153,0.5)] flex items-center justify-center gap-2"
+						className="w-full rounded-xl bg-gradient-to-br from-indigo-500 to-magenta py-3 font-mono font-bold text-xs text-white shadow-[0_0_12px_rgba(236,72,153,0.3)] transition-all uppercase tracking-wider hover:shadow-[0_0_18px_rgba(236,72,153,0.5)] flex items-center justify-center gap-2 shrink-0"
 					>
-						<Trash2 size={14} /> Clear Workbench
+						<Trash2 size={16} /> Clear Workbench
 					</button>
-					<div className="rounded-xl border border-border/40 bg-card p-4 shadow-sm text-left flex-1">
-						<h2 className="font-mono text-[10px] mb-3 text-cyan tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-1.5">
+
+					<div className="flex-1 flex flex-col min-h-0">
+						<h2 className="font-mono text-xs mb-3 text-cyan tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-2 shrink-0 text-left">
 							Element Properties
 						</h2>
-						{selectedElementInfo ? (
-							<div className="font-mono text-[11px] text-muted-foreground space-y-1.5">
-								<p><strong className="text-white">Name:</strong> {selectedElementInfo.name || "N/A"}</p>
-								<p><strong className="text-white">Symbol:</strong> {selectedElementInfo.symbol || "N/A"}</p>
-								<p><strong className="text-white">Atomic Mass:</strong> {selectedElementInfo.atomic_mass || "N/A"}</p>
-								<p><strong className="text-white">Atomic Number:</strong> {selectedElementInfo.number || "N/A"}</p>
-								<p><strong className="text-white">Category:</strong> {selectedElementInfo.category || "N/A"}</p>
-								<p><strong className="text-white">Phase:</strong> {selectedElementInfo.phase || "N/A"}</p>
-								<p><strong className="text-white">Group:</strong> {selectedElementInfo.group || "N/A"}</p>
-								<p><strong className="text-white">Period:</strong> {selectedElementInfo.period || "N/A"}</p>
-								<p><strong className="text-white">Density:</strong> {selectedElementInfo.density ? `${selectedElementInfo.density} g/cm³` : "N/A"}</p>
-							</div>
-						) : (
-							<p className="font-mono text-[11px] text-muted-foreground">Select an element from the table to inspect properties.</p>
-						)}
+						<div className="flex-1 overflow-y-auto custom-scrollbar text-left pr-2">
+							{selectedElementInfo ? (
+								<div className="font-mono text-xs text-muted-foreground space-y-2.5">
+									<p><strong className="text-white font-bold">Name:</strong> {selectedElementInfo.name || "N/A"}</p>
+									<p><strong className="text-white font-bold">Symbol:</strong> {selectedElementInfo.symbol || "N/A"}</p>
+									<p><strong className="text-white font-bold">Atomic Mass:</strong> {selectedElementInfo.atomic_mass || "N/A"}</p>
+									<p><strong className="text-white font-bold">Atomic Number:</strong> {selectedElementInfo.number || "N/A"}</p>
+									<p><strong className="text-white font-bold">Category:</strong> {selectedElementInfo.category || "N/A"}</p>
+									<p><strong className="text-white font-bold">Phase:</strong> {selectedElementInfo.phase || "N/A"}</p>
+									<p><strong className="text-white font-bold">Group:</strong> {selectedElementInfo.group || "N/A"}</p>
+									<p><strong className="text-white font-bold">Period:</strong> {selectedElementInfo.period || "N/A"}</p>
+									<p><strong className="text-white font-bold">Density:</strong> {selectedElementInfo.density ? `${selectedElementInfo.density} g/cm³` : "N/A"}</p>
+								</div>
+							) : (
+								<p className="font-mono text-xs text-muted-foreground leading-relaxed">Select an element from the table to inspect properties.</p>
+							)}
+						</div>
 					</div>
 				</div>
-				<div className="w-full lg:flex-1 flex flex-col min-w-0 lg:h-full overflow-hidden">
-					<div className="flex items-center justify-between gap-3 mb-2 rounded-xl border border-cyan/30 bg-slate-950/90 py-2 px-3.5 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md shrink-0">
-						<div className="flex items-center gap-2">
-							<Beaker className="size-4 text-cyan animate-pulse" />
-							<div className="text-left">
-								<span className="font-mono text-[9px] text-slate-400 uppercase tracking-wider block">
+
+				{/* Center Column: Canvas and Periodic Table */}
+				<div className="w-full flex flex-col gap-4">
+					{/* Active Mixture Header with Combined Controls */}
+					<div className="flex items-center justify-between gap-4 rounded-xl border border-cyan/30 bg-slate-950/90 py-2.5 px-4 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md shrink-0">
+						<div className="flex items-center gap-3">
+							<Beaker className="size-5 text-cyan animate-pulse shrink-0" />
+							<div className="text-left flex flex-col justify-center">
+								<span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block leading-tight">
 									Active Workbench Mixture
 								</span>
-								<span className="font-pixel text-xs sm:text-sm font-bold text-white">
+								<span className="font-pixel text-sm font-bold text-white leading-tight mt-0.5">
 									{atoms.length === 0 ? "Empty Canvas" : (discoveredCompoundInfo ? discoveredCompoundInfo.name : `${atoms.length} Atom${atoms.length === 1 ? '' : 's'} Placed`)}
 								</span>
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-3 shrink-0">
+							{/* Mouse Instructions */}
+							<div className="hidden sm:flex font-mono text-[10px] text-cyan/90 bg-cyan/10 border border-cyan/30 px-3 py-1 rounded-full items-center gap-2">
+								<span>🖱️ Add</span>
+								<span className="text-white/30">|</span>
+								<span>Remove</span>
+							</div>
+
+							{/* Status Pill */}
 							{atoms.length === 0 ? (
-								<span className="font-mono text-[11px] px-2.5 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">
+								<span className="font-mono text-[10px] px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">
 									⚪ CANVAS EMPTY
 								</span>
 							) : discoveredCompoundInfo ? (
-								<span className="font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-bounce">
-									🟢 STABLE OCTET COMPOUND! 🎉
+								<span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-bounce">
+									🟢 COMPOUND
 								</span>
 							) : (
-								<span className="font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40">
-									🔴 REACTION INCOMPLETE (Open Slots)
+								<span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40">
+									🔴 OPEN SLOTS
 								</span>
 							)}
+
+							{/* Expand Toggle */}
+							<button
+								onClick={() => setIsExpanded(!isExpanded)}
+								className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white p-1.5 rounded-lg transition-colors flex items-center justify-center group"
+								title={isExpanded ? "Collapse Stage" : "Expand Stage"}
+							>
+								{isExpanded ? (
+									<Minimize2 size={14} className="text-white/80 group-hover:text-white" />
+								) : (
+									<Maximize2 size={14} className="text-white/80 group-hover:text-white" />
+								)}
+							</button>
 						</div>
 					</div>
 
-					<div className="flex justify-center mb-2 relative shrink-0 w-full overflow-hidden">
-						<button
-							onClick={() => setIsExpanded(!isExpanded)}
-							className="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 border border-white/20 text-white p-1.5 rounded-lg backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
-							title={isExpanded ? "Collapse Stage" : "Expand Stage"}
-						>
-							{isExpanded ? (
-								<Minimize2 size={16} className="text-white/80 group-hover:text-white transition-colors" />
-							) : (
-								<Maximize2 size={16} className="text-white/80 group-hover:text-white transition-colors" />
-							)}
-						</button>
+					{/* Canvas Area */}
+					<div className="flex justify-center relative shrink-0 w-full min-h-[250px] rounded-3xl border border-white/10 bg-black/40 p-5 pb-8 backdrop-blur shadow-[0_0_15px_rgba(236,72,153,0.05)]">
 						<Stage
 							width={stageWidth}
-							height={isExpanded ? 320 : 150}
+							height={isExpanded ? 350 : 250}
 							scaleX={stageScale}
 							scaleY={stageScale}
 							x={stagePos.x}
@@ -485,11 +506,8 @@ const ChemSim = () => {
 							onDragEnd={handleStageDragEnd}
 							onContextMenu={(e) => e.evt.preventDefault()}
 							style={{
-								border: "1px solid rgba(255,255,255,0.1)",
-								borderRadius: "14px",
-								backgroundColor: "rgba(0,0,0,0.4)",
 								cursor: "grab",
-								overflow: "hidden"
+								overflow: "visible"
 							}}
 						>
 							<Layer ref={layerRef}>
@@ -572,7 +590,8 @@ const ChemSim = () => {
 						</Stage>
 					</div>
 
-					<div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+					{/* Expanded Periodic Table Area (Unconstrained) */}
+					<div className="w-full">
 						<ElementTable
 							selectedElement={selectedElement}
 							setSelectedElement={setSelectedElement}
@@ -580,30 +599,33 @@ const ChemSim = () => {
 					</div>
 				</div>
 
-				<div className="w-full lg:w-[270px] flex flex-col gap-3 shrink-0 lg:h-full overflow-y-auto custom-scrollbar">
-					<div className="rounded-xl border border-border/40 bg-card p-4 shadow-sm text-left">
-						<h2 className="font-mono text-[10px] mb-2 text-magenta tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-1.5">
+				{/* Right Sidebar: Synthesis Result */}
+				<div className="w-full flex flex-col gap-4 bg-card/40 rounded-2xl border border-border/40 p-4 h-full">
+					<div className="flex-1 flex flex-col min-h-0 text-left">
+						<h2 className="font-mono text-xs mb-3 text-magenta tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-2 shrink-0">
 							Synthesis Result
 						</h2>
-						{loadingDefinition ? (
-							<div className="font-mono text-xs text-magenta animate-pulse">Scanning database...</div>
-						) : (
-							<div className="font-mono text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-								{moleculeOutput || "No molecule formed yet."}
-							</div>
-						)}
+						<div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+							{loadingDefinition ? (
+								<div className="font-mono text-xs text-magenta animate-pulse">Scanning database...</div>
+							) : (
+								<div className="font-mono text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+									{moleculeOutput || "No molecule formed yet."}
+								</div>
+							)}
+						</div>
 					</div>
 
 					{discoveredCompoundInfo && (
-						<div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 shadow-sm text-left">
-							<div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[10px] uppercase tracking-wider mb-2">
-								<Sparkles size={13} /> Discovery Record Unlocked
+						<div className="shrink-0 rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 shadow-sm text-left">
+							<div className="flex items-center gap-2 text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2 font-bold">
+								<Sparkles size={14} /> Discovery Unlocked
 							</div>
-							<p className="font-pixel text-xs text-white font-bold mb-0.5">{discoveredCompoundInfo.name}</p>
-							<p className="font-mono text-[11px] text-cyan mb-2">Formula: {discoveredCompoundInfo.symbol}</p>
+							<p className="font-pixel text-sm text-white font-bold mb-1">{discoveredCompoundInfo.name}</p>
+							<p className="font-mono text-xs text-cyan mb-3">Formula: {discoveredCompoundInfo.symbol}</p>
 							<button
 								onClick={() => setShowDiscoveryModal(true)}
-								className="w-full py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-mono text-[10px] uppercase tracking-wider transition-colors"
+								className="w-full py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-mono text-xs uppercase tracking-wider transition-colors font-bold"
 							>
 								Inspect Record 📖
 							</button>

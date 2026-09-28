@@ -84,7 +84,6 @@ export async function joinRoom(code, nickname) {
   if (fetchErr) throw fetchErr;
   if (!room) throw new Error("Room Not Found");
 
-  // Already seated?
   const { data: existing } = await supabase
     .from("room_players")
     .select("*")
@@ -92,6 +91,19 @@ export async function joinRoom(code, nickname) {
     .eq("session_id", sessionId)
     .maybeSingle();
   if (existing) return room;
+
+  // Reconnection fallback by nickname
+  const { data: dropped } = await supabase
+    .from("room_players")
+    .select("*")
+    .eq("room_id", room.id)
+    .eq("nickname", nick)
+    .maybeSingle();
+    
+  if (dropped) {
+    await supabase.from("room_players").update({ session_id: sessionId }).eq("id", dropped.id);
+    return room;
+  }
 
   if (room.status !== "lobby") throw new Error("Match already in progress");
 

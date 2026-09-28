@@ -66,31 +66,31 @@ export default function ChallengeLobby() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mt-8">
-          <div className="card-glass rounded-2xl p-8 border border-white/10 hover:border-magenta/30 transition-colors flex flex-col justify-between group">
+          <div className="card-glass rounded-2xl p-8 border border-white/10 hover:border-cyan/50 transition-colors flex flex-col justify-between group shadow-none hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]">
             <div>
-              <div className="font-pixel text-glow-yellow text-sm group-hover:text-yellow-300 transition-colors">CREATE ROOM</div>
+              <div className="font-pixel text-cyan text-sm drop-shadow-[0_0_10px_rgba(6,182,212,0.8)] transition-colors">CREATE ROOM</div>
               <p className="text-white/60 text-sm mt-4 leading-relaxed">Generate a 5-digit access code and configure your 1v1 up to 5v5 team duel.</p>
             </div>
-            <button onClick={handleCreateRoom} className="mt-8 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap">Configure &amp; share code</button>
+            <button onClick={handleCreateRoom} className="mt-8 w-full rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-6 py-3.5 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap">Configure &amp; share code</button>
           </div>
 
-          <form onSubmit={handleJoinRoom} className="card-glass rounded-2xl p-8 border border-white/10 hover:border-cyan-500/30 transition-colors flex flex-col justify-between group">
+          <form onSubmit={handleJoinRoom} className="card-glass rounded-2xl p-8 border border-white/10 hover:border-magenta/50 transition-colors flex flex-col justify-between group shadow-none hover:shadow-[0_0_20px_rgba(236,72,153,0.2)]">
             <div>
-              <div className="font-pixel text-glow-pink text-sm group-hover:text-cyan-400 transition-colors">JOIN ROOM</div>
+              <div className="font-pixel text-magenta text-sm drop-shadow-[0_0_10px_rgba(236,72,153,0.8)] transition-colors">JOIN ROOM</div>
               <p className="text-white/60 text-sm mt-4 leading-relaxed">Enter the 5-digit access code from your host.</p>
               <input
                 value={joinCode}
                 onChange={e => setJoinCode(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 5))}
                 placeholder="00000"
-                className="mt-6 w-full bg-black/60 border border-white/15 rounded-lg px-4 py-4 text-center font-mono text-glow-pink text-2xl tracking-[0.4em] outline-none focus:border-cyan-400 focus:shadow-[0_0_10px_rgba(34,211,238,0.2)] transition-all uppercase"
+                className="mt-6 w-full bg-black/60 border border-white/15 rounded-lg px-4 py-4 text-center font-mono text-magenta text-2xl tracking-[0.4em] outline-none focus:border-magenta focus:shadow-[0_0_10px_rgba(236,72,153,0.3)] transition-all uppercase"
                 disabled={loading}
               />
-              {error && <div className="mt-3 text-xs text-pink-400 font-mono text-center">{error}</div>}
+              {error && <div className="mt-3 text-xs text-magenta font-mono text-center">{error}</div>}
             </div>
             <button
               type="submit"
               disabled={loading || joinCode.length !== 5}
-              className="mt-6 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-3.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+              className="mt-6 w-full rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-6 py-3.5 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
             >
               {loading ? "Joining..." : "Enter match"}
             </button>
