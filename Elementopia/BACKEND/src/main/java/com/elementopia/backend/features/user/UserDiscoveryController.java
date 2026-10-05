@@ -33,12 +33,15 @@ public class UserDiscoveryController {
             return ResponseEntity.badRequest().body("userId, name, and dateDiscovered are required.");
         }
 
-        // Check if user already discovered this to avoid duplicate DB rows
+        // Check if user already discovered this in the same source (sandbox vs domain) to avoid duplicate DB rows
         List<UserDiscovery> existing = discoveryRepository.findByUserId(userId);
-        boolean alreadyDiscovered = existing.stream().anyMatch(d -> d.getName().equalsIgnoreCase(name));
+        boolean alreadyDiscovered = existing.stream().anyMatch(d -> 
+            d.getName().equalsIgnoreCase(name) && 
+            (submissionString == null || submissionString.equalsIgnoreCase(d.getSubmissionString()))
+        );
 
         if (alreadyDiscovered) {
-            return ResponseEntity.ok(Map.of("message", "Already discovered", "success", true));
+            return ResponseEntity.ok(Map.of("message", "Already discovered in this mode", "success", true));
         }
 
         UserDiscovery discovery = new UserDiscovery(userId, name, dateDiscovered, submissionString);

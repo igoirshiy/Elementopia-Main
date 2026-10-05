@@ -1,184 +1,434 @@
 [
-    {
-        "NAME": "Water",
-        "Symbol": "H2O",
-        "Description": "A colorless, tasteless, and odorless liquid essential for most forms of life.",
-        "Elements": ["H", "H", "O"],
-        "Uses": ["Drinking", "Cooking", "Industrial processes"]
-    },
-    {
-        "NAME": "Sodium Chloride",
-        "Symbol": "NaCl",
-        "Description": "Commonly known as table salt, it is a white crystalline solid.",
-        "Elements": ["Na", "Cl"],
-        "Uses": ["Food seasoning", "Food preservation", "Deicing agent"]
-    },
-    {
-        "NAME": "Carbon Dioxide",
-        "Symbol": "CO2",
-        "Description": "A colorless gas with a faint sharp odor and a sour taste.",
-        "Elements": ["C", "O", "O"],
-        "Uses": ["Carbonation of beverages", "Fire extinguishing", "Plant photosynthesis"]
-    },
-    {
-        "NAME": "Ammonia",
-        "Symbol": "NH3",
-        "Description": "A colorless gas with a characteristic pungent smell.",
-        "Elements": ["N", "H", "H", "H"],
-        "Uses": ["Fertilizer production", "Household cleaners", "Refrigerant"]
-    },
-    {
-        "NAME": "Calcium Carbonate",
-        "Symbol": "CaCO3",
-        "Description": "A white insoluble solid occurring naturally as chalk, limestone, marble, and calcite.",
-        "Elements": ["Ca", "C", "O", "O", "O"],
-        "Uses": ["Antacid", "Calcium supplement", "Building material"]
-    },
-    {
-        "NAME": "Methane",
-        "Symbol": "CH4",
-        "Description": "A colorless, odorless, flammable gas that is the simplest alkane.",
-        "Elements": ["C", "H", "H", "H", "H"],
-        "Uses": ["Fuel", "Natural gas component", "Hydrogen production"]
-    },
-    {
-        "NAME": "Hydrochloric Acid",
-        "Symbol": "HCl",
-        "Description": "A strong, corrosive acid that is commonly used as a laboratory reagent.",
-        "Elements": ["H", "Cl"],
-        "Uses": ["Food processing", "Leather processing", "Household cleaning"]
-    },
-    {
-        "NAME": "Sulfuric Acid",
-        "Symbol": "H2SO4",
-        "Description": "A highly corrosive strong mineral acid.",
-        "Elements": ["H", "H", "S", "O", "O", "O", "O"],
-        "Uses": ["Industrial processes", "Battery acid", "pH regulator"]
-    },
-    {
-        "NAME": "Ethanol",
-        "Symbol": "C2H5OH",
-        "Description": "A volatile, flammable, colorless liquid with a slight characteristic odor.",
-        "Elements": ["C", "C", "H", "H", "H", "H", "H", "O"],
-        "Uses": ["Alcoholic beverages", "Solvent", "Fuel"]
-    },
-    {
-        "NAME": "Glucose",
-        "Symbol": "C6H12O6",
-        "Description": "A simple sugar that is an important energy source in living organisms.",
-        "Elements": ["C", "C", "C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "O", "O", "O", "O", "O", "O"],
-        "Uses": ["Energy source", "Food production"]
-    },
-    {
-        "NAME": "Hydrogen Peroxide",
-        "Symbol": "H2O2",
-        "Description": "A pale blue liquid in its pure form, commonly used as a disinfectant and bleaching agent.",
-        "Elements": ["H", "H", "O", "O"],
-        "Uses": ["Antiseptic", "Bleaching", "Rocket propellant"]
-    },
-    {
-        "NAME": "Nitric Acid",
-        "Symbol": "HNO3",
-        "Description": "A highly corrosive and toxic strong acid used in fertilizer and explosives production.",
-        "Elements": ["H", "N", "O", "O", "O"],
-        "Uses": ["Fertilizers", "Explosives", "Etching"]
-    },
-    {
-        "NAME": "Calcium Hydroxide",
-        "Symbol": "Ca(OH)2",
-        "Description": "Also known as slaked lime, a white powder or crystal used in construction and agriculture.",
-        "Elements": ["Ca", "O", "H", "H"],
-        "Uses": ["Soil treatment", "Water purification", "Construction (plaster, mortar)"]
-    },
-    {
-        "NAME": "Magnesium Oxide",
-        "Symbol": "MgO",
-        "Description": "A white powder used as a refractory material and antacid.",
-        "Elements": ["Mg", "O"],
-        "Uses": ["Refractory bricks", "Medical antacids", "Insulation"]
-    },
-    {
-        "NAME": "Silicon Dioxide",
-        "Symbol": "SiO2",
-        "Description": "Also known as silica, a major component of sand, quartz, and glass.",
-        "Elements": ["Si", "O", "O"],
-        "Uses": ["Glass production", "Construction", "Semiconductors"]
-    },
-    {
-        "NAME": "Aluminum Oxide",
-        "Symbol": "Al2O3",
-        "Description": "A white or nearly colorless crystalline substance used as an abrasive and in ceramics.",
-        "Elements": ["Al", "Al", "O", "O", "O"],
-        "Uses": ["Abrasives", "Refractories", "Catalyst support"]
-    },
-    {
-        "NAME": "Phosphoric Acid",
-        "Symbol": "H3PO4",
-        "Description": "A colorless, odorless acid used in fertilizers and food flavoring.",
-        "Elements": ["H", "H", "H", "P", "O", "O", "O", "O"],
-        "Uses": ["Fertilizers", "Food additives", "Rust removal"]
-    },
-    {
-        "NAME": "Potassium Nitrate",
-        "Symbol": "KNO3",
-        "Description": "A white crystalline salt used in fertilizers and explosives.",
-        "Elements": ["K", "N", "O", "O", "O"],
-        "Uses": ["Gunpowder", "Fertilizers", "Food preservation"]
-    },
-    {
-        "NAME": "Calcium Phosphate",
-        "Symbol": "Ca3(PO4)2",
-        "Description": "A white powder used in animal feed, fertilizers, and toothpaste.",
-        "Elements": ["Ca", "Ca", "Ca", "P", "O", "O", "O", "P", "O", "O", "O"],
-        "Uses": ["Dental products", "Fertilizers", "Calcium supplements"]
-    },
-    {
-        "NAME": "Acetic Acid",
-        "Symbol": "CH3COOH",
-        "Description": "An organic acid giving vinegar its sour taste and strong smell.",
-        "Elements": ["C", "H", "H", "H", "C", "O", "O", "H"],
-        "Uses": ["Food preservative", "Chemical reagent", "Cleaning agent"]
-    },
-    {
-        "NAME": "Baking Soda",
-        "Symbol": "NaHCO3",
-        "Description": "Also known as sodium bicarbonate, a white solid that is commonly used as a leavening agent.",
-        "Elements": ["Na", "H", "C", "O", "O", "O"],
-        "Uses": ["Baking", "Cleaning", "Fire extinguishers"]
-    },
-    {
-        "NAME": "Sodium Hydroxide",
-        "Symbol": "NaOH",
-        "Description": "Also known as lye or caustic soda, a highly caustic base used in many industries.",
-        "Elements": ["Na", "O", "H"],
-        "Uses": ["Soap making", "Drain cleaning", "Paper manufacturing"]
-    },
-    {
-        "NAME": "Calcium Chloride",
-        "Symbol": "CaCl2",
-        "Description": "A white crystalline salt that is highly soluble in water, often used for de-icing.",
-        "Elements": ["Ca", "Cl", "Cl"],
-        "Uses": ["De-icing", "Dust control", "Food additive"]
-    },
-    {
-        "NAME": "Iron(III) Oxide",
-        "Symbol": "Fe2O3",
-        "Description": "Commonly known as rust, a reddish-brown solid formed when iron oxidizes.",
-        "Elements": ["Fe", "Fe", "O", "O", "O"],
-        "Uses": ["Pigments", "Polishing", "Thermite reactions"]
-    },
-    {
-        "NAME": "Zinc Oxide",
-        "Symbol": "ZnO",
-        "Description": "A white powder used in rubber, cosmetics, and sunscreen.",
-        "Elements": ["Zn", "O"],
-        "Uses": ["Skin protectant", "Rubber manufacturing", "Sunscreen"]
-    },
-    {
-        "NAME": "Sodium Carbonate",
-        "Symbol": "Na2CO3",
-        "Description": "Also known as washing soda, used in manufacturing glass and in water softening.",
-        "Elements": ["Na", "Na", "C", "O", "O", "O"],
-        "Uses": ["Glass manufacturing", "Water softening", "Cleaning"]
-    }
+  {
+    "NAME": "Water",
+    "Symbol": "H₂O",
+    "BondType": "Polar Covalent",
+    "Description": "A colorless liquid formed by two hydrogen atoms sharing electrons with one oxygen atom.",
+    "Elements": ["H", "H", "O"],
+    "Uses": ["Drinking", "Universal solvent", "Photosynthesis in plants"],
+    "RealWorldApplication": "Essential for all known forms of life; covers about 71% of Earth's surface and makes up roughly 60% of the human body."
+  },
+  {
+    "NAME": "Hydrogen Gas",
+    "Symbol": "H₂",
+    "BondType": "Covalent (Diatomic)",
+    "Description": "The simplest and lightest molecular gas, composed of two hydrogen atoms sharing a single covalent bond.",
+    "Elements": ["H", "H"],
+    "Uses": ["Clean rocket fuel", "Fuel cells", "Ammonia synthesis"],
+    "RealWorldApplication": "Fuels the nuclear fusion in our Sun and is being developed as zero-emission green vehicle fuel."
+  },
+  {
+    "NAME": "Oxygen Gas",
+    "Symbol": "O₂",
+    "BondType": "Covalent (Diatomic)",
+    "Description": "A colorless, odorless diatomic gas that sustains aerobic cellular respiration and combustion.",
+    "Elements": ["O", "O"],
+    "Uses": ["Respiration", "Hospital oxygen therapy", "Steel manufacturing"],
+    "RealWorldApplication": "Makes up 21% of Earth's atmosphere and is breathed into human lungs to generate energy in cells."
+  },
+  {
+    "NAME": "Nitrogen Gas",
+    "Symbol": "N₂",
+    "BondType": "Covalent (Diatomic)",
+    "Description": "A super-stable diatomic molecule held together by a strong triple covalent bond.",
+    "Elements": ["N", "N"],
+    "Uses": ["Food packaging preservative", "Fertilizer production", "Liquid nitrogen cryogenics"],
+    "RealWorldApplication": "Comprises 78% of Earth's air and protects snack chips from going stale inside bags."
+  },
+  {
+    "NAME": "Chlorine Gas",
+    "Symbol": "Cl₂",
+    "BondType": "Covalent (Diatomic)",
+    "Description": "A greenish-yellow gas with a pungent odor, composed of two covalently bonded chlorine atoms.",
+    "Elements": ["Cl", "Cl"],
+    "Uses": ["Water disinfection", "Bleaching agent", "PVC plastic production"],
+    "RealWorldApplication": "Used in municipal water treatment plants worldwide to kill harmful bacteria in drinking water."
+  },
+  {
+    "NAME": "Fluorine Gas",
+    "Symbol": "F₂",
+    "BondType": "Covalent (Diatomic)",
+    "Description": "An extremely reactive, pale yellow diatomic halogen gas.",
+    "Elements": ["F", "F"],
+    "Uses": ["Teflon non-stick coating", "Toothpaste fluoride additives", "Refrigerants"],
+    "RealWorldApplication": "Its compounds prevent tooth decay and create super-slippery non-stick cookware coatings."
+  },
+  {
+    "NAME": "Ozone",
+    "Symbol": "O₃",
+    "BondType": "Covalent",
+    "Description": "A triatomic molecule with a pungent smell that forms a protective layer in Earth's stratosphere.",
+    "Elements": ["O", "O", "O"],
+    "Uses": ["UV radiation shielding", "Water purification", "Air sterilization"],
+    "RealWorldApplication": "The stratospheric ozone layer absorbs 97-99% of the Sun's harmful ultraviolet rays."
+  },
+  {
+    "NAME": "Sodium Chloride",
+    "Symbol": "NaCl",
+    "BondType": "Ionic",
+    "Description": "An ionic crystal lattice where sodium transfers 1 electron to chlorine to achieve stable octets.",
+    "Elements": ["Na", "Cl"],
+    "Uses": ["Table salt food seasoning", "Food preservation", "Road deicing"],
+    "RealWorldApplication": "Critical electrolyte in the human bloodstream and nervous system for nerve signal transmission."
+  },
+  {
+    "NAME": "Potassium Chloride",
+    "Symbol": "KCl",
+    "BondType": "Ionic",
+    "Description": "An ionic salt composed of potassium cations and chloride anions.",
+    "Elements": ["K", "Cl"],
+    "Uses": ["Low-sodium salt substitute", "Crop fertilizer", "Medical electrolyte replenisher"],
+    "RealWorldApplication": "Supplies potassium necessary for healthy plant root growth and prevents muscle cramps in humans."
+  },
+  {
+    "NAME": "Magnesium Oxide",
+    "Symbol": "MgO",
+    "BondType": "Ionic",
+    "Description": "A white ionic solid formed by electron transfer from magnesium to oxygen.",
+    "Elements": ["Mg", "O"],
+    "Uses": ["Refractory furnace bricks", "Antacid medicine", "Gymnastics grip chalk"],
+    "RealWorldApplication": "Withstands temperatures up to 2,800°C, making it essential for lining steel-melting blast furnaces."
+  },
+  {
+    "NAME": "Calcium Oxide",
+    "Symbol": "CaO",
+    "BondType": "Ionic",
+    "Description": "Also called quicklime, an alkaline ionic compound formed from calcium and oxygen.",
+    "Elements": ["Ca", "O"],
+    "Uses": ["Cement and mortar", "Steel making", "Paper bleaching"],
+    "RealWorldApplication": "Core ingredient in manufacturing Portland cement that builds concrete bridges and buildings."
+  },
+  {
+    "NAME": "Calcium Chloride",
+    "Symbol": "CaCl₂",
+    "BondType": "Ionic",
+    "Description": "A hygroscopic ionic salt formed by one calcium atom and two chlorine atoms.",
+    "Elements": ["Ca", "Cl", "Cl"],
+    "Uses": ["Road ice melter", "Moisture absorber (desiccant)", "Cheese making"],
+    "RealWorldApplication": "Melts highway ice at lower temperatures than table salt by releasing heat when dissolving."
+  },
+  {
+    "NAME": "Magnesium Chloride",
+    "Symbol": "MgCl₂",
+    "BondType": "Ionic",
+    "Description": "An ionic halide salt highly soluble in water.",
+    "Elements": ["Mg", "Cl", "Cl"],
+    "Uses": ["Dust control on roads", "Tofu coagulant (nigari)", "Dietary magnesium supplement"],
+    "RealWorldApplication": "The primary ingredient in traditional Japanese nigari used to solidify soy milk into tofu."
+  },
+  {
+    "NAME": "Carbon Dioxide",
+    "Symbol": "CO₂",
+    "BondType": "Covalent",
+    "Description": "A linear covalent molecule where carbon forms double bonds with two oxygen atoms.",
+    "Elements": ["C", "O", "O"],
+    "Uses": ["Soda carbonation", "Fire extinguishers", "Plant photosynthesis reactant"],
+    "RealWorldApplication": "Green plants absorb CO₂ and water during photosynthesis to generate glucose and oxygen."
+  },
+  {
+    "NAME": "Carbon Monoxide",
+    "Symbol": "CO",
+    "BondType": "Covalent",
+    "Description": "A toxic, odorless, colorless gas formed during incomplete combustion of carbon fuels.",
+    "Elements": ["C", "O"],
+    "Uses": ["Industrial synthesis gas", "Metal extraction metallurgy"],
+    "RealWorldApplication": "Emitted by car exhausts and faulty heaters; home CO detectors warn against its toxic buildup."
+  },
+  {
+    "NAME": "Sulfur Dioxide",
+    "Symbol": "SO₂",
+    "BondType": "Covalent",
+    "Description": "A pungent, suffocating toxic gas released by volcanoes and burning fossil fuels.",
+    "Elements": ["S", "O", "O"],
+    "Uses": ["Sulfuric acid precursor", "Wine preservative", "Bleaching paper"],
+    "RealWorldApplication": "Primary cause of acid rain when it reacts with atmospheric moisture to form sulfurous acid."
+  },
+  {
+    "NAME": "Sulfur Trioxide",
+    "Symbol": "SO₃",
+    "BondType": "Covalent",
+    "Description": "A key chemical intermediate that vigorously reacts with water to form sulfuric acid.",
+    "Elements": ["S", "O", "O", "O"],
+    "Uses": ["Sulfuric acid manufacturing", "Detergent production"],
+    "RealWorldApplication": "Central intermediate in the industrial Contact Process for producing high-grade sulfuric acid."
+  },
+  {
+    "NAME": "Nitric Oxide",
+    "Symbol": "NO",
+    "BondType": "Covalent",
+    "Description": "A free radical gas molecule that plays critical signaling roles in animal cardiovascular systems.",
+    "Elements": ["N", "O"],
+    "Uses": ["Vasodilation therapy", "Chemical reagent"],
+    "RealWorldApplication": "Acts as a biological neurotransmitter causing blood vessels to dilate and lower blood pressure."
+  },
+  {
+    "NAME": "Nitrogen Dioxide",
+    "Symbol": "NO₂",
+    "BondType": "Covalent",
+    "Description": "A reddish-brown toxic gas with a biting odor, prominent in smog pollution.",
+    "Elements": ["N", "O", "O"],
+    "Uses": ["Nitric acid production", "Rocket oxidizer"],
+    "RealWorldApplication": "Key air pollutant produced by internal combustion engines that creates urban photochemical smog."
+  },
+  {
+    "NAME": "Nitrous Oxide",
+    "Symbol": "N₂O",
+    "BondType": "Covalent",
+    "Description": "Commonly known as laughing gas, a sweet-smelling covalent gas.",
+    "Elements": ["N", "N", "O"],
+    "Uses": ["Dental anesthesia", "Whipped cream propellant", "Racing car engine booster"],
+    "RealWorldApplication": "Used safely by dentists as a mild pain reliever and sedative during dental procedures."
+  },
+  {
+    "NAME": "Methane",
+    "Symbol": "CH₄",
+    "BondType": "Covalent",
+    "Description": "A tetrahedral covalent molecule; the simplest hydrocarbon and main constituent of natural gas.",
+    "Elements": ["C", "H", "H", "H", "H"],
+    "Uses": ["Cooking and heating fuel", "Electricity generation", "Hydrogen production"],
+    "RealWorldApplication": "Piped into kitchen stoves and water heaters as clean-burning natural gas."
+  },
+  {
+    "NAME": "Ethane",
+    "Symbol": "C₂H₆",
+    "BondType": "Covalent",
+    "Description": "The second-simplest alkane hydrocarbon gas.",
+    "Elements": ["C", "C", "H", "H", "H", "H", "H", "H"],
+    "Uses": ["Ethylene petrochemical feedstock", "Heating fuel"],
+    "RealWorldApplication": "Cracked at high temperatures into ethylene to produce polyethylene plastic bottles and bags."
+  },
+  {
+    "NAME": "Ethylene",
+    "Symbol": "C₂H₄",
+    "BondType": "Covalent",
+    "Description": "An unsaturated hydrocarbon containing a carbon-carbon double bond; also a natural plant ripening hormone.",
+    "Elements": ["C", "C", "H", "H", "H", "H"],
+    "Uses": ["Polyethylene plastic manufacturing", "Fruit ripening accelerator"],
+    "RealWorldApplication": "Naturally released by bananas and apples that triggers nearby fruit to ripen faster."
+  },
+  {
+    "NAME": "Propane",
+    "Symbol": "C₃H₈",
+    "BondType": "Covalent",
+    "Description": "A three-carbon alkane gas easily compressed into a portable liquid.",
+    "Elements": ["C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H"],
+    "Uses": ["LPG barbecue tanks", "Rural home heating", "Camp stoves"],
+    "RealWorldApplication": "Stored in metal cylinders for outdoor barbecue grilling and mobile camping stoves."
+  },
+  {
+    "NAME": "Ammonia",
+    "Symbol": "NH₃",
+    "BondType": "Covalent",
+    "Description": "A trigonal pyramidal covalent gas with a pungent, recognizable odor.",
+    "Elements": ["N", "H", "H", "H"],
+    "Uses": ["Agricultural fertilizers", "Window glass cleaners", "Industrial refrigerant"],
+    "RealWorldApplication": "Provides the essential nitrogen fertilizer that sustains nearly half of global food production."
+  },
+  {
+    "NAME": "Hydrochloric Acid",
+    "Symbol": "HCl",
+    "BondType": "Polar Covalent",
+    "Description": "A binary polar covalent compound that ionizes completely in water to form gastric acid.",
+    "Elements": ["H", "Cl"],
+    "Uses": ["Stomach digestive acid", "Metal pickling and cleaning", "pH balancing"],
+    "RealWorldApplication": "Produced naturally in human stomachs to break down food proteins and kill ingested bacteria."
+  },
+  {
+    "NAME": "Hydrofluoric Acid",
+    "Symbol": "HF",
+    "BondType": "Polar Covalent",
+    "Description": "A highly reactive acid capable of dissolving glass and silicate minerals.",
+    "Elements": ["H", "F"],
+    "Uses": ["Glass etching and frosting", "Silicon microchip etching", "Teflon production"],
+    "RealWorldApplication": "Used in high-tech cleanrooms to etch microscopic circuits onto computer microprocessor chips."
+  },
+  {
+    "NAME": "Sulfuric Acid",
+    "Symbol": "H₂SO₄",
+    "BondType": "Covalent",
+    "Description": "A dense, oily mineral acid and the world's most widely produced industrial chemical.",
+    "Elements": ["H", "H", "S", "O", "O", "O", "O"],
+    "Uses": ["Car battery electrolyte", "Fertilizer synthesis", "Chemical refining"],
+    "RealWorldApplication": "Serves as the liquid electrolyte inside 12V lead-acid car batteries that starts vehicle engines."
+  },
+  {
+    "NAME": "Nitric Acid",
+    "Symbol": "HNO₃",
+    "BondType": "Covalent",
+    "Description": "A strong, oxidizing corrosive acid with a choking scent.",
+    "Elements": ["H", "N", "O", "O", "O"],
+    "Uses": ["Ammonium nitrate fertilizer", "Etching metals", "Dyes and pharmaceuticals"],
+    "RealWorldApplication": "Reacted with ammonia to create ammonium nitrate, feeding crops in modern agriculture."
+  },
+  {
+    "NAME": "Phosphoric Acid",
+    "Symbol": "H₃PO₄",
+    "BondType": "Covalent",
+    "Description": "A triprotic acid commonly added to dark sodas for a tangy tart flavor.",
+    "Elements": ["H", "H", "H", "P", "O", "O", "O", "O"],
+    "Uses": ["Cola soft drink flavor enhancer", "Rust converter", "Dental etching gel"],
+    "RealWorldApplication": "Gives cola soft drinks their crisp tangy kick and chemically converts orange rust into iron phosphate."
+  },
+  {
+    "NAME": "Carbonic Acid",
+    "Symbol": "H₂CO₃",
+    "BondType": "Covalent",
+    "Description": "A weak acid formed when carbon dioxide gas dissolves into water.",
+    "Elements": ["H", "H", "C", "O", "O", "O"],
+    "Uses": ["Sparkling water carbonation", "Cave limestone formation", "Blood pH buffer"],
+    "RealWorldApplication": "Maintains human blood pH precisely between 7.35 and 7.45 so enzymes continue functioning."
+  },
+  {
+    "NAME": "Hydrogen Peroxide",
+    "Symbol": "H₂O₂",
+    "BondType": "Covalent",
+    "Description": "A pale blue liquid containing an unstable oxygen-oxygen single peroxide bond.",
+    "Elements": ["H", "H", "O", "O"],
+    "Uses": ["Antiseptic wound disinfectant", "Hair and paper bleach", "Eco-friendly cleaner"],
+    "RealWorldApplication": "Bubbles and fizzes on cuts as enzymes break it down into harmless water and oxygen gas."
+  },
+  {
+    "NAME": "Sodium Hydroxide",
+    "Symbol": "NaOH",
+    "BondType": "Ionic",
+    "Description": "A caustic strong base known as lye, composed of sodium cations and hydroxide anions.",
+    "Elements": ["Na", "O", "H"],
+    "Uses": ["Soap making", "Drain cleaning", "Paper pulping"],
+    "RealWorldApplication": "Reacts with oils and fats in traditional soapmaking to create cleansing body and dish soaps."
+  },
+  {
+    "NAME": "Potassium Hydroxide",
+    "Symbol": "KOH",
+    "BondType": "Ionic",
+    "Description": "Known as caustic potash, a powerful base used in liquid soaps and alkaline batteries.",
+    "Elements": ["K", "O", "H"],
+    "Uses": ["Liquid soaps", "Alkaline AA/AAA batteries", "Biodiesel production"],
+    "RealWorldApplication": "The conductive electrolyte solution inside everyday alkaline AA and AAA batteries."
+  },
+  {
+    "NAME": "Calcium Hydroxide",
+    "Symbol": "Ca(OH)₂",
+    "BondType": "Ionic",
+    "Description": "Also called slaked lime, a basic powder made by adding water to quicklime.",
+    "Elements": ["Ca", "O", "O", "H", "H"],
+    "Uses": ["Agricultural acidic soil neutralizer", "Sugar refining", "Traditional plaster"],
+    "RealWorldApplication": "Spread across farm fields to neutralize soil acidity so crops can absorb nutrients effectively."
+  },
+  {
+    "NAME": "Magnesium Hydroxide",
+    "Symbol": "Mg(OH)₂",
+    "BondType": "Ionic",
+    "Description": "A mild basic suspension famously known as Milk of Magnesia.",
+    "Elements": ["Mg", "O", "O", "H", "H"],
+    "Uses": ["Heartburn antacid", "Laxative", "Fire retardant filler"],
+    "RealWorldApplication": "Neutralizes excess hydrochloric acid in the stomach to quickly soothe heartburn and indigestion."
+  },
+  {
+    "NAME": "Calcium Carbonate",
+    "Symbol": "CaCO₃",
+    "BondType": "Ionic",
+    "Description": "A widespread mineral found in chalk, limestone, marble, and sea snail shells.",
+    "Elements": ["Ca", "C", "O", "O", "O"],
+    "Uses": ["Classroom chalk", "Building marble", "Chewable antacid tablets"],
+    "RealWorldApplication": "Forms ocean coral reefs and sea snail shells, and is carved into magnificent marble statues."
+  },
+  {
+    "NAME": "Sodium Bicarbonate",
+    "Symbol": "NaHCO₃",
+    "BondType": "Ionic",
+    "Description": "Everyday baking soda, an amphoteric salt that releases CO₂ gas when heated or mixed with acids.",
+    "Elements": ["Na", "H", "C", "O", "O", "O"],
+    "Uses": ["Baking leavening agent", "Refrigerator deodorizer", "Dry chemical fire extinguisher"],
+    "RealWorldApplication": "Releases carbon dioxide gas bubbles in cake and cookie batter, making baked goods light and fluffy."
+  },
+  {
+    "NAME": "Sodium Carbonate",
+    "Symbol": "Na₂CO₃",
+    "BondType": "Ionic",
+    "Description": "Commonly called washing soda, a water-soluble alkaline sodium salt.",
+    "Elements": ["Na", "Na", "C", "O", "O", "O"],
+    "Uses": ["Glass manufacturing", "Laundry detergent water softener", "Swimming pool pH raiser"],
+    "RealWorldApplication": "Acts as a flux in glass furnaces to lower silica melting temperature, saving tremendous energy."
+  },
+  {
+    "NAME": "Potassium Nitrate",
+    "Symbol": "KNO₃",
+    "BondType": "Ionic",
+    "Description": "Also called saltpeter, a strong oxidizer used in pyrotechnics and plant nutrients.",
+    "Elements": ["K", "N", "O", "O", "O"],
+    "Uses": ["Greenhouse fertilizer", "Fireworks oxidizer", "Toothpaste for sensitive teeth"],
+    "RealWorldApplication": "Calms nerve sensitivity in specialized toothpaste for sensitive teeth and enriches plant foliage."
+  },
+  {
+    "NAME": "Silicon Dioxide",
+    "Symbol": "SiO₂",
+    "BondType": "Covalent Network",
+    "Description": "Also known as silica or quartz; the principal component of beach sand and window glass.",
+    "Elements": ["Si", "O", "O"],
+    "Uses": ["Glass production", "Quartz watch crystals", "Raw material for computer chips"],
+    "RealWorldApplication": "Vibrates at an exact frequency (32,768 Hz) in quartz watches to keep precise time."
+  },
+  {
+    "NAME": "Aluminum Oxide",
+    "Symbol": "Al₂O₃",
+    "BondType": "Ionic",
+    "Description": "An ultra-hard ceramic mineral occurring naturally as corundum, rubies, and sapphires.",
+    "Elements": ["Al", "Al", "O", "O", "O"],
+    "Uses": ["Sandpaper abrasive", "Ceramic armor", "Precious ruby and sapphire gemstones"],
+    "RealWorldApplication": "Forms the mineral base of red rubies (with trace chromium) and blue sapphires."
+  },
+  {
+    "NAME": "Iron(III) Oxide",
+    "Symbol": "Fe₂O₃",
+    "BondType": "Ionic",
+    "Description": "Common red rust formed when iron reacts with oxygen and water vapor.",
+    "Elements": ["Fe", "Fe", "O", "O", "O"],
+    "Uses": ["Red paint pigments", "Magnetic recording tapes", "Cosmetic blush powders"],
+    "RealWorldApplication": "Gives the surface of the planet Mars and Australian outback sands their iconic red coloration."
+  },
+  {
+    "NAME": "Iron(II) Oxide",
+    "Symbol": "FeO",
+    "BondType": "Ionic",
+    "Description": "A black-colored iron oxide powder used as a pigment and in chemical manufacturing.",
+    "Elements": ["Fe", "O"],
+    "Uses": ["Black ceramic pigments", "Heat absorption glass", "Cosmetics"],
+    "RealWorldApplication": "Used to produce heat-absorbing tinted green glass for automotive and architectural windows."
+  },
+  {
+    "NAME": "Zinc Oxide",
+    "Symbol": "ZnO",
+    "BondType": "Ionic",
+    "Description": "An insoluble white powder that reflects broad-spectrum UVA and UVB ultraviolet radiation.",
+    "Elements": ["Zn", "O"],
+    "Uses": ["Mineral sunscreen", "Diaper rash soothing ointment", "Rubber vulcanization"],
+    "RealWorldApplication": "The safe, white physical UV blocker in mineral sunscreens that protects skin from sunburn."
+  },
+  {
+    "NAME": "Ethanol",
+    "Symbol": "C₂H₅OH",
+    "BondType": "Covalent",
+    "Description": "A volatile, flammable clear alcohol produced by yeast fermentation of sugars.",
+    "Elements": ["C", "C", "H", "H", "H", "H", "H", "O"],
+    "Uses": ["Hand sanitizer antiseptic", "E10 gasoline biofuel additive", "Chemical solvent"],
+    "RealWorldApplication": "The active antimicrobial agent in hospital hand sanitizers that instantly destroys viral membranes."
+  },
+  {
+    "NAME": "Acetic Acid",
+    "Symbol": "CH₃COOH",
+    "BondType": "Covalent",
+    "Description": "A pungent organic carboxylic acid that gives household vinegar its sharp sour taste.",
+    "Elements": ["C", "C", "H", "H", "H", "H", "O", "O"],
+    "Uses": ["Table vinegar (5% solution)", "Food pickling preservative", "Descaling cleaning agent"],
+    "RealWorldApplication": "Household white vinegar dissolves white hard-water mineral stains and limescale on faucets."
+  },
+  {
+    "NAME": "Glucose",
+    "Symbol": "C₆H₁₂O₆",
+    "BondType": "Covalent",
+    "Description": "The primary simple monosaccharide sugar that fuels cellular metabolism in animals and plants.",
+    "Elements": ["C", "C", "C", "C", "C", "C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "O", "O", "O", "O", "O", "O"],
+    "Uses": ["Biological cellular energy (ATP)", "Intravenous hospital drips", "Sports nutrition"],
+    "RealWorldApplication": "Circulates as blood sugar in the human body, supplying the primary energy fuel needed by brain neurons."
+  }
 ]

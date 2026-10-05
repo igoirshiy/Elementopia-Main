@@ -175,21 +175,18 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           setSynthLog(l => [`✓ Resonance Achieved: ${displayName}`, ...l].slice(0, 12));
 
           if (matchedCompound) {
-            const reqList = activeStageData.required || domain.required;
-            const isPrimary = reqList && reqList[0] && matchedCompound.formula === reqList[0].formula;
-
-            if (!isPrimary) {
-              UserService.getCurrentUser().then(user => {
-                if (user && user.userId) {
-                  const discoveryData = {
-                    name: matchedCompound.name,
-                    dateDiscovered: new Date().toISOString(),
-                    submissionString: elementList.join(" + ")
-                  };
-                  DiscoveryService.createDiscovery(user.userId, discoveryData).catch(e => console.warn("Discovery save failed:", e));
-                }
-              }).catch(e => console.warn("Failed to get user:", e));
-            }
+            UserService.getCurrentUser().then(user => {
+              const userId = user?.userId || "guest_id";
+              const discoveryData = {
+                name: matchedCompound.name,
+                symbol: matchedCompound.formula,
+                source: "domain",
+                domainId: domain?.id || domain?.name || "domain",
+                dateDiscovered: new Date().toISOString().split("T")[0],
+                submissionString: elementList.join(" + ")
+              };
+              DiscoveryService.createDiscovery(userId, discoveryData).catch(e => console.warn("Discovery save failed:", e));
+            }).catch(e => console.warn("Failed to get user:", e));
 
             if (matchedCompound.localVideo) {
               setDiscoveryVideo(matchedCompound);
