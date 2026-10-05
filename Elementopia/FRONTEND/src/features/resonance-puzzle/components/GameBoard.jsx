@@ -5,7 +5,7 @@ import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
 import DiscoveryService from "@/features/student-discovery/services/DiscoveryService";
 import UserService from "@/features/auth-user";
-import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw } from "lucide-react";
+import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw, Target, CheckCircle2, Lightbulb } from "lucide-react";
 import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
 import { StageTransitionModal } from "./StageTransitionModal";
 import { DoctorAtomTutorialModal } from "./DoctorAtomTutorialModal";
@@ -51,6 +51,10 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   }, [TOTAL_BLOCKS, requiredOrder]);
 
   const cleared = Math.min(TOTAL_BLOCKS, solved.length * blocksPerReaction);
+
+  const currentTargetIndex = Math.min(solved.length, Math.max(0, requiredOrder.length - 1));
+  const currentTarget = requiredOrder[currentTargetIndex] || requiredOrder[0];
+  const isStageComplete = solved.length >= requiredOrder.length;
 
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
@@ -222,7 +226,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           setConsecutiveFailures(newFails);
           if (newFails >= 3) setShowFailsafeModal(true);
 
-          const smartFeedback = explainFailure(workbench, activeStageData);
+          const smartFeedback = explainFailure(workbench, currentTarget);
           setByproduct(smartFeedback || data.message);
           setShake(true);
           setTimeout(() => setShake(false), 500);
@@ -341,7 +345,77 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             </div>
             <h2 className="font-pixel text-xl font-bold text-glow-magenta sm:text-2xl">{domain.name}</h2>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-slate-900 border border-slate-700 font-mono text-xs text-slate-300 font-bold">
+              Stage {currentStage} / {maxStages}
+            </span>
+          </div>
         </div>
+
+        {/* Active Stage Mission Objective Card */}
+        <div className="rounded-2xl border border-cyan/40 bg-slate-950/95 p-4 shadow-[0_0_20px_rgba(6,182,212,0.15)] animate-fade-down backdrop-blur-md">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-800/80">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan/20 border border-cyan/40 font-mono text-xs font-bold text-cyan">
+                <Target className="size-3.5 text-cyan" />
+                Target {Math.min(solved.length + 1, requiredOrder.length)} of {requiredOrder.length}
+              </span>
+              {currentTarget?.missionRole && (
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/40 font-mono text-[11px] font-semibold text-purple-300">
+                  {currentTarget.missionRole}
+                </span>
+              )}
+            </div>
+
+            {/* Target Step Progress */}
+            <div className="flex items-center gap-1.5">
+              {requiredOrder.map((req, idx) => {
+                const isDone = idx < solved.length;
+                const isCurrent = idx === solved.length;
+                return (
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-center size-6 rounded-full font-mono text-[10px] font-bold transition-all ${
+                      isDone
+                        ? "bg-emerald-500/20 border border-emerald-500 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+                        : isCurrent
+                        ? "bg-cyan/30 border border-cyan text-cyan animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+                        : "bg-slate-900 border border-slate-800 text-slate-500"
+                    }`}
+                    title={isDone ? `Solved: ${req.name}` : isCurrent ? `Current Objective: ${req.name}` : `Locked Target`}
+                  >
+                    {isDone ? <CheckCircle2 className="size-3.5" /> : idx + 1}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <h3 className="font-pixel text-sm sm:text-base text-white flex items-center gap-2">
+                <span>Objective:</span>
+                <span className="text-cyan font-bold underline decoration-cyan/40">{currentTarget?.name || "Target Compound"}</span>
+                <span className="text-slate-400 font-mono text-xs">({currentTarget?.formula})</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans mt-1">
+                {currentTarget?.clue || "Combine elements on the workbench to deduce this chemical bond."}
+              </p>
+            </div>
+
+            {/* Dr. Atom Chemistry Clue */}
+            {currentTarget?.hint && (
+              <div className="mt-2.5 rounded-xl border border-indigo-500/30 bg-indigo-950/30 p-2.5 flex items-start gap-2 text-xs font-mono text-indigo-200">
+                <Lightbulb className="size-4 text-indigo-400 shrink-0 mt-0.5" />
+                <div className="leading-tight">
+                  <span className="font-bold text-indigo-300 mr-1">Dr. Atom Clue:</span>
+                  <span>{currentTarget.hint}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div>
           <div className="mb-2 flex items-center justify-between text-xs font-mono text-muted-foreground">
             <span>Obstacle integrity</span>
