@@ -83,10 +83,10 @@ export const DOMAINS = [
         story: "In this surface layer, nonmetals with 1 to 3 missing valence electrons seek partners. Experiment with electron-sharing pairs between 2 elements to reach octet stability. Deduce the ratios based on each atom's valence needs!",
         palette: ["H", "O", "Cl", "N", "He", "Ne"],
         required: [
-          { formula: "H₂O", name: "Water", recipe: { H: 2, O: 1 }, missionRole: "Cooling Solvent", clue: "The cavern heat is rising! Synthesize the universal cooling solvent to lower the temperature.", hint: "Oxygen (needs 2 e⁻) pairs with 2 Hydrogen atoms (2× H + 1× O).", localVideo: "/videos/water.mp4" },
-          { formula: "H₂O₂", name: "Hydrogen Peroxide", recipe: { H: 2, O: 2 }, missionRole: "Disinfectant Oxidizer", clue: "Sterilize the toxic fungal spore barrier blocking the passage!", hint: "Two Oxygen atoms form a bridge, each holding one Hydrogen (2× H + 2× O)." },
-          { formula: "NH₃", name: "Ammonia", recipe: { H: 3, N: 1 }, missionRole: "Alkaline Neutralizer", clue: "Neutralize the sharp acidic vapors lingering in the cavern air!", hint: "Nitrogen (needs 3 e⁻) shares single bonds with 3 Hydrogens (3× H + 1× N).", localVideo: "/videos/ammonia.mp4" },
-          { formula: "HCl", name: "Hydrogen Chloride", recipe: { H: 1, Cl: 1 }, missionRole: "Mineral Dissolver", clue: "Dissolve the tough limestone crust sealing the chamber door!", hint: "Chlorine (needs 1 e⁻) shares 1 electron pair with Hydrogen (1× H + 1× Cl).", localVideo: "/videos/hydrogen_chloride.mp4" },
+          { formula: "H₂O", name: "Water", recipe: { H: 2, O: 1 }, missionRole: "Cooling Solvent", clue: "The cavern heat is rising! Synthesize the universal cooling liquid.", hint: "The clear liquid we drink every day to stay hydrated!", localVideo: "/videos/water.mp4" },
+          { formula: "H₂O₂", name: "Hydrogen Peroxide", recipe: { H: 2, O: 2 }, missionRole: "Disinfectant Oxidizer", clue: "Sterilize the toxic fungal spore barrier blocking the passage!", hint: "A powerful oxidizer with an Oxygen-Oxygen bridge holding 2 Hydrogens (Agua oxigenada in brown bottles)." },
+          { formula: "NH₃", name: "Ammonia", recipe: { H: 3, N: 1 }, missionRole: "Alkaline Neutralizer", clue: "Neutralize the sharp acidic vapors lingering in the cavern air!", hint: "A common pungent household glass cleaner smell made of nitrogen and hydrogen.", localVideo: "/videos/ammonia.mp4" },
+          { formula: "HCl", name: "Hydrogen Chloride", recipe: { H: 1, Cl: 1 }, missionRole: "Mineral Dissolver", clue: "Dissolve the tough limestone crust sealing the chamber door!", hint: "Muriatic acid used for cleaning tough bathroom tiles and pools (hydrogen + chlorine).", localVideo: "/videos/hydrogen_chloride.mp4" },
         ],
         validInDomain: ["H", "O", "N", "Cl"],
       },
@@ -95,25 +95,22 @@ export const DOMAINS = [
         story: "As you descend deeper, explore 3-element compounds! Carbon has 4 open valence slots while Oxygen seeks 2 electrons. Nonmetals can share multiple electron pairs simultaneously. Deduce how to balance 3 elements at once!",
         palette: ["H", "O", "N", "C", "Cl", "He"],
         required: [
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Fire Extinguisher", clue: "Fill the fire suppression nozzles with non-flammable gas to extinguish the flames!", hint: "Carbon shares two double bonds with 2 Oxygen atoms (1× C + 2× O).", localVideo: "/videos/carbon_dioxide.mp4" },
-          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, missionRole: "Clean Fuel", clue: "Power up the thermal generator with the simplest tetrahedral hydrocarbon gas!", hint: "Carbon forms 4 single covalent bonds with 4 Hydrogens (1× C + 4× H).", localVideo: "/videos/methane.mp4" },
-          { formula: "CH₂O₂", name: "Formic Acid", recipe: { C: 1, H: 2, O: 2 }, missionRole: "Organic Etching Agent", clue: "Synthesize the defense acid found in natural ant venom to etch through glass!", hint: "Combine 1 Carbon, 2 Hydrogens, and 2 Oxygens in a stable octet (1× C + 2× H + 2× O)." },
-          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, missionRole: "Volatile Precursor", clue: "Synthesize the linear precursor with a strong carbon-nitrogen triple bond!", hint: "1 Hydrogen single-bonded to Carbon, triple-bonded to Nitrogen (1× H + 1× C + 1× N).", localVideo: "/videos/hydrogen%20cyanide.mp4" },
-          { formula: "N₂O", name: "Nitrous Oxide", recipe: { N: 2, O: 1 }, missionRole: "Resonance Gas", clue: "Synthesize the calming laughing gas to neutralize chamber pressure oscillations!", hint: "2 Nitrogen atoms resonance-bonded to 1 Oxygen atom (2× N + 1× O)." },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Fire Extinguisher", clue: "Fill the fire suppression nozzles with non-flammable gas to extinguish the flames!", hint: "The fizzy gas in soda bubbles and the gas we breathe out from our lungs!", localVideo: "/videos/carbon_dioxide.mp4" },
+          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, missionRole: "Clean Fuel", clue: "Power up the thermal generator with the simplest tetrahedral hydrocarbon gas!", hint: "The natural cooking gas (LPG component) burned on kitchen stoves.", localVideo: "/videos/methane.mp4" },
+          { formula: "CH₂O₂", name: "Formic Acid", recipe: { C: 1, H: 2, O: 2 }, missionRole: "Organic Etching Agent", clue: "Synthesize the defense acid found in natural ant venom to etch through glass!", hint: "The natural stinging acid when red ants bite you." },
+          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, missionRole: "Volatile Precursor", clue: "Synthesize the linear precursor with a strong carbon-nitrogen triple bond!", hint: "The infamous almond-scented chemical bond between hydrogen, carbon, and nitrogen.", localVideo: "/videos/hydrogen%20cyanide.mp4" },
+          { formula: "N₂O", name: "Nitrous Oxide", recipe: { N: 2, O: 1 }, missionRole: "Resonance Gas", clue: "Synthesize the calming laughing gas to neutralize chamber pressure oscillations!", hint: "Also known as 'laughing gas' used by dentists to relax patients, and NOS in racing cars!" },
         ],
         validInDomain: ["C", "O", "N", "H"],
       },
       3: {
-        title: "Stage 3: Polyatomic Organic Core (4-Element Macromolecules)",
-        story: "Entering the domain core, Carbon chains link together into complex 3-and-4 element organic backbones. Combine Carbon, Hydrogen, Nitrogen, and Oxygen in precise ratios so every valence electron finds a partner!",
+        title: "Stage 3: Polyatomic Organic Core (Organic Backbones)",
+        story: "Entering the domain core, Carbon chains link together into essential organic backbones. Combine Carbon, Hydrogen, Nitrogen, and Oxygen in precise ratios so every valence electron finds a partner!",
         palette: ["C", "H", "O", "N", "Cl", "He"],
         required: [
-          { formula: "C₆H₁₂O₆", name: "Glucose", recipe: { C: 6, H: 12, O: 6 }, missionRole: "Cellular Energy Sugar", clue: "Synthesize the primary cellular energy fuel to reactivate the bioluminescent crystals!", hint: "6 Carbons, 12 Hydrogens, and 6 Oxygens (6× C + 12× H + 6× O)." },
-          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, missionRole: "Organic Milestone", clue: "Synthesize the historical compound that proved organic molecules can be created in a lab!", hint: "1 Carbon, 4 Hydrogens, 2 Nitrogens, and 1 Oxygen (1× C + 4× H + 2× N + 1× O).", localVideo: "/videos/urea.mp4" },
-          { formula: "C₂H₅NO₂", name: "Glycine Amino Acid", recipe: { C: 2, H: 5, N: 1, O: 2 }, missionRole: "Protein Building Block", clue: "Build the foundational amino acid needed to repair the organic seal!", hint: "2 Carbons, 5 Hydrogens, 1 Nitrogen, and 2 Oxygens (2× C + 5× H + 1× N + 2× O)." },
-          { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Fermentation Acid", clue: "Synthesize the pungent acid found in vinegar to balance pH levels!", hint: "2 Carbons, 4 Hydrogens, and 2 Oxygens (2× C + 4× H + 2× O)." },
-          { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 }, missionRole: "Bio-Alcohol Solvent", clue: "Produce the versatile renewable bio-alcohol solvent to clean delicate sensors!", hint: "2 Carbons, 6 Hydrogens, and 1 Oxygen (2× C + 6× H + 1× O)." },
-          { formula: "HNO₃", name: "Nitric Acid", recipe: { H: 1, N: 1, O: 3 }, missionRole: "Strong Oxidizing Acid", clue: "Produce the powerful oxidizing acid to dissolve high-density mineral ores!", hint: "1 Hydrogen, 1 Nitrogen, and 3 Oxygens (1× H + 1× N + 3× O).", localVideo: "/videos/nitric%20acid.mp4" },
+          { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Fermentation Acid", clue: "Synthesize the pungent acid found in vinegar to balance pH levels!", hint: "The sour, sharp-smelling acid found in everyday kitchen vinegar (suka)!" },
+          { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 }, missionRole: "Bio-Alcohol Solvent", clue: "Produce the versatile renewable bio-alcohol solvent to clean delicate sensors!", hint: "Rubbing alcohol (70% antiseptic) used to sanitize hands and clean electronics." },
+          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, missionRole: "Organic Milestone", clue: "Synthesize the historical compound that proved organic molecules can be created in a lab!", hint: "The primary nitrogen waste compound found in urine and plant fertilizers.", localVideo: "/videos/urea.mp4" },
         ],
         validInDomain: ["C", "H", "O", "N"],
       }
@@ -134,10 +131,10 @@ export const DOMAINS = [
         story: "In the surface salt flats, electropositive metals surrender outer valence electrons to nonmetal acceptors. Deduce how 2 elements balance electrons to form neutral binary ionic compounds!",
         palette: ["Na", "Cl", "O", "H", "Mg", "Ne"],
         required: [
-          { formula: "NaCl", name: "Table Salt", recipe: { Na: 1, Cl: 1 }, missionRole: "Electrolyte Crystal", clue: "Crystallize the foundational ionic mineral to stabilize the salt flat ground!", hint: "1 Sodium metal donates 1 e⁻ to 1 Chlorine nonmetal (1× Na + 1× Cl).", localVideo: "/videos/sodium%20chloride.mp4" },
-          { formula: "Na₂O", name: "Sodium Oxide", recipe: { Na: 2, O: 1 }, missionRole: "Alkaline Oxide", clue: "Synthesize the strong basic oxide crystal to neutralize acidic brine!", hint: "Oxygen needs 2 electrons; balance with 2 Sodium donors (2× Na + 1× O).", localVideo: "/videos/sodium%20oxide.mp4" },
-          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 }, missionRole: "Refractory Shield", clue: "Form the ultra-heat resistant refractory mineral to shield against magma heat!", hint: "Magnesium (+2 donation) balances Oxygen (-2 acceptance) (1× Mg + 1× O).", localVideo: "/videos/magnesium%20oxide.mp4" },
-          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 }, missionRole: "Desiccant Salt", clue: "Synthesize the moisture-absorbing brine salt to prevent humidity short-circuits!", hint: "1 Magnesium metal donates 2 electrons to 2 Chlorine atoms (1× Mg + 2× Cl).", localVideo: "/videos/magnesium%20chloride.mp4" },
+          { formula: "NaCl", name: "Table Salt", recipe: { Na: 1, Cl: 1 }, missionRole: "Electrolyte Crystal", clue: "Crystallize the foundational ionic mineral to stabilize the salt flat ground!", hint: "The common white seasoning salt we put on fries and food to make it salty!", localVideo: "/videos/sodium%20chloride.mp4" },
+          { formula: "Na₂O", name: "Sodium Oxide", recipe: { Na: 2, O: 1 }, missionRole: "Alkaline Oxide", clue: "Synthesize the strong basic oxide crystal to neutralize acidic brine!", hint: "What forms when reactive sodium metal reacts with oxygen in dry air." },
+          { formula: "MgO", name: "Magnesium Oxide", recipe: { Mg: 1, O: 1 }, missionRole: "Refractory Shield", clue: "Form the ultra-heat resistant refractory mineral to shield against magma heat!", hint: "The white heat-resistant powder gymnasts and rock climbers rub on hands for grip.", localVideo: "/videos/magnesium%20oxide.mp4" },
+          { formula: "MgCl₂", name: "Magnesium Chloride", recipe: { Mg: 1, Cl: 2 }, missionRole: "Desiccant Salt", clue: "Synthesize the moisture-absorbing brine salt to prevent humidity short-circuits!", hint: "The ocean salt mineral used to de-ice freezing winter roads and set tofu.", localVideo: "/videos/magnesium%20chloride.mp4" },
         ],
         validInDomain: ["Na", "Cl", "O", "Mg"],
       },
@@ -146,10 +143,10 @@ export const DOMAINS = [
         story: "Deeper in the flats, explore 3-element ionic salts! Divalent metals like Magnesium (Mg, 2 valence e⁻) and alkali metals surrender electrons across polyatomic groups. Determine the correct ratio for 3 elements!",
         palette: ["Mg", "Cl", "O", "Na", "H", "C", "Ne"],
         required: [
-          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, missionRole: "Caustic Lye Base", clue: "Synthesize the potent caustic lye to clear away stubborn grease blockages!", hint: "1 Sodium cation binds 1 Hydroxide polyatomic anion (1× Na + 1× O + 1× H).", localVideo: "/videos/sodium_hydroxide.mp4" },
-          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, missionRole: "Milk of Magnesia", clue: "Form the soothing antacid compound to coat and protect delicate pipelines!", hint: "1 Magnesium metal (+2) balances 2 Hydroxide groups (1× Mg + 2× O + 2× H).", localVideo: "/videos/magnesium_hydroxide.mp4" },
-          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, missionRole: "Washing Soda", clue: "Synthesize washing soda crystals to precipitate hard mineral ions out of water!", hint: "2 Sodium cations balance 1 Carbonate anion (2× Na + 1× C + 3× O).", localVideo: "/videos/sodium_carbonate.mp4" },
-          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, missionRole: "Insoluble Carbonate", clue: "Create the natural chalk mineral deposit to absorb excess humidity!", hint: "1 Magnesium (+2) binds 1 Carbonate (-2) group (1× Mg + 1× C + 3× O).", localVideo: "/videos/magnesium_carbonate.mp4" },
+          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, missionRole: "Caustic Lye Base", clue: "Synthesize the potent caustic lye to clear away stubborn grease blockages!", hint: "Strong caustic lye used to unclog greasy sink drains and make soap!", localVideo: "/videos/sodium_hydroxide.mp4" },
+          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, missionRole: "Milk of Magnesia", clue: "Form the soothing antacid compound to coat and protect delicate pipelines!", hint: "'Milk of Magnesia' — the soothing white medicine we take for stomach hyperacidity!", localVideo: "/videos/magnesium_hydroxide.mp4" },
+          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, missionRole: "Washing Soda", clue: "Synthesize washing soda crystals to precipitate hard mineral ions out of water!", hint: "Washing soda used in laundry detergent to soften hard water.", localVideo: "/videos/sodium_carbonate.mp4" },
+          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, missionRole: "Insoluble Carbonate", clue: "Create the natural chalk mineral deposit to absorb excess humidity!", hint: "White blackboard chalk and mineral antacid powder.", localVideo: "/videos/magnesium_carbonate.mp4" },
         ],
         validInDomain: ["Mg", "Cl", "O", "Na", "H", "C"],
       },
@@ -158,13 +155,13 @@ export const DOMAINS = [
         story: "Entering the core salt cave, metals bind 3-and-4 element polyatomic groups like bicarbonate and ammonium. Deduce the exact element ratios needed to stabilize the ionic crystal!",
         palette: ["Na", "H", "C", "O", "Mg", "Cl", "N"],
         required: [
-          { formula: "NaHCO₃", name: "Baking Soda", recipe: { Na: 1, H: 1, C: 1, O: 3 }, missionRole: "pH Buffer & Leavener", clue: "Synthesize sodium bicarbonate to buffer the corrosive acid lake!", hint: "1 Sodium, 1 Hydrogen, 1 Carbon, and 3 Oxygens (1× Na + 1× H + 1× C + 3× O)." },
-          { formula: "NH₄Cl", name: "Ammonium Chloride", recipe: { N: 1, H: 4, Cl: 1 }, missionRole: "Volatile Sal Ammoniac", clue: "Synthesize the ionic salt composed of an ammonium cation and chloride anion!", hint: "1 Nitrogen, 4 Hydrogens, and 1 Chlorine (1× N + 4× H + 1× Cl)." },
-          { formula: "NaNO₃", name: "Sodium Nitrate", recipe: { Na: 1, N: 1, O: 3 }, missionRole: "Chile Saltpeter", clue: "Form the nitrate salt required for chemical resonance fuel synthesis!", hint: "1 Sodium, 1 Nitrogen, and 3 Oxygens (1× Na + 1× N + 3× O)." },
-          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, missionRole: "Chalk Mineral", clue: "Form the durable carbonate mineral to pave the core pathway!", hint: "1 Magnesium, 1 Carbon, and 3 Oxygens (1× Mg + 1× C + 3× O).", localVideo: "/videos/magnesium_carbonate.mp4" },
-          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, missionRole: "Protective Hydroxide", clue: "Synthesize magnesium hydroxide to seal the conduit cracks!", hint: "1 Magnesium, 2 Oxygens, and 2 Hydrogens (1× Mg + 2× O + 2× H).", localVideo: "/videos/magnesium_hydroxide.mp4" },
-          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, missionRole: "Soda Ash", clue: "Refine soda ash to glassify the glowing silica pillars!", hint: "2 Sodiums, 1 Carbon, and 3 Oxygens (2× Na + 1× C + 3× O).", localVideo: "/videos/sodium_carbonate.mp4" },
-          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, missionRole: "Caustic Catalyst", clue: "Produce sodium hydroxide to initiate the core crystallization!", hint: "1 Sodium, 1 Oxygen, and 1 Hydrogen (1× Na + 1× O + 1× H).", localVideo: "/videos/sodium_hydroxide.mp4" },
+          { formula: "NaHCO₃", name: "Baking Soda", recipe: { Na: 1, H: 1, C: 1, O: 3 }, missionRole: "pH Buffer & Leavener", clue: "Synthesize sodium bicarbonate to buffer the corrosive acid lake!", hint: "Baking soda used in kitchen baking to make cakes rise and remove fridge odors!" },
+          { formula: "NH₄Cl", name: "Ammonium Chloride", recipe: { N: 1, H: 4, Cl: 1 }, missionRole: "Volatile Sal Ammoniac", clue: "Synthesize the ionic salt composed of an ammonium cation and chloride anion!", hint: "The salty-spicy mineral salt used in traditional Nordic licorice candy and dry-cell batteries." },
+          { formula: "NaNO₃", name: "Sodium Nitrate", recipe: { Na: 1, N: 1, O: 3 }, missionRole: "Chile Saltpeter", clue: "Form the nitrate salt required for chemical resonance fuel synthesis!", hint: "Saltpeter mineral used to cure meats like bacon and hotdogs." },
+          { formula: "MgCO₃", name: "Magnesium Carbonate", recipe: { Mg: 1, C: 1, O: 3 }, missionRole: "Chalk Mineral", clue: "Form the durable carbonate mineral to pave the core pathway!", hint: "The solid white mineral found in dolomite rocks and blackboard chalk.", localVideo: "/videos/magnesium_carbonate.mp4" },
+          { formula: "Mg(OH)₂", name: "Magnesium Hydroxide", recipe: { Mg: 1, O: 2, H: 2 }, missionRole: "Protective Hydroxide", clue: "Synthesize magnesium hydroxide to seal the conduit cracks!", hint: "The milky white stomach antacid liquid that calms heartburn.", localVideo: "/videos/magnesium_hydroxide.mp4" },
+          { formula: "Na₂CO₃", name: "Sodium Carbonate", recipe: { Na: 2, C: 1, O: 3 }, missionRole: "Soda Ash", clue: "Refine soda ash to glassify the glowing silica pillars!", hint: "Soda ash used in factories to make clear glass bottles and soaps.", localVideo: "/videos/sodium_carbonate.mp4" },
+          { formula: "NaOH", name: "Sodium Hydroxide", recipe: { Na: 1, O: 1, H: 1 }, missionRole: "Caustic Catalyst", clue: "Produce sodium hydroxide to initiate the core crystallization!", hint: "Caustic soda (lye) used to make slippery soap bars.", localVideo: "/videos/sodium_hydroxide.mp4" },
         ],
         validInDomain: ["Na", "H", "C", "O", "Mg", "N", "Cl"],
       }
@@ -185,9 +182,9 @@ export const DOMAINS = [
         story: "Carbon possesses 4 open valence slots and requires 4 shared electrons to complete its octet. Combine Carbon with 1 other element while avoiding inert Noble Gas distractors (He, Ne)!",
         palette: ["C", "H", "O", "He", "Ne", "Cl"],
         required: [
-          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, missionRole: "Natural Gas", clue: "Synthesize the simplest saturated hydrocarbon to power the carbon engine!", hint: "Carbon needs 4 bonds; connect 4 Hydrogen atoms (1× C + 4× H).", localVideo: "/videos/methane.mp4" },
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Plant Nutrient Gas", clue: "Produce the dense gas needed to feed the underground hydroponic flora!", hint: "Carbon shares 2 double bonds with 2 Oxygen atoms (1× C + 2× O).", localVideo: "/videos/carbon_dioxide.mp4" },
-          { formula: "C₂H₂", name: "Acetylene", recipe: { C: 2, H: 2 }, missionRole: "Torch Gas", clue: "Synthesize the ultra-hot welding gas containing a carbon-carbon triple bond!", hint: "2 Carbons sharing a triple bond with 2 Hydrogens (2× C + 2× H).", localVideo: "/videos/ethyne.mp4" },
+          { formula: "CH₄", name: "Methane", recipe: { C: 1, H: 4 }, missionRole: "Natural Gas", clue: "Synthesize the simplest saturated hydrocarbon to power the carbon engine!", hint: "The natural cooking gas inside LPG tanks that lights kitchen stoves with a blue flame!", localVideo: "/videos/methane.mp4" },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Plant Nutrient Gas", clue: "Produce the dense gas needed to feed the underground hydroponic flora!", hint: "The gas that makes soda pop fizzy, and what green plants breathe in during daytime!", localVideo: "/videos/carbon_dioxide.mp4" },
+          { formula: "C₂H₂", name: "Acetylene", recipe: { C: 2, H: 2 }, missionRole: "Torch Gas", clue: "Synthesize the ultra-hot welding gas containing a carbon-carbon triple bond!", hint: "The super hot fuel gas used in blowtorches to cut and weld steel.", localVideo: "/videos/ethyne.mp4" },
         ],
         validInDomain: ["C", "H", "O"],
       },
@@ -196,11 +193,11 @@ export const DOMAINS = [
         story: "As you descend deeper, Carbon forms dual double bonds with Oxygen and Hydrogen simultaneously across 3 elements. Figure out the ratio between Carbon, Hydrogen, and Oxygen!",
         palette: ["C", "O", "H", "N", "He", "Ne"],
         required: [
-          { formula: "CH₂O", name: "Formaldehyde", recipe: { C: 1, H: 2, O: 1 }, missionRole: "Preservative Aldehyde", clue: "Synthesize the planar aldehyde molecule used to preserve biological specimens!", hint: "1 Carbon double-bonded to Oxygen and single-bonded to 2 Hydrogens (1× C + 2× H + 1× O).", localVideo: "/videos/formaldehye.mp4" },
-          { formula: "CH₄O", name: "Methanol", recipe: { C: 1, H: 4, O: 1 }, missionRole: "Wood Alcohol", clue: "Synthesize clean wood alcohol fuel to charge the backup generator!", hint: "1 Carbon, 4 Hydrogens, and 1 Oxygen (1× C + 4× H + 1× O).", localVideo: "/videos/methanol.mp4" },
-          { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Carboxylic Acid", clue: "Synthesize the pure carboxylic acid found in vinegar to clean oxidized plates!", hint: "2 Carbons, 4 Hydrogens, and 2 Oxygens (2× C + 4× H + 2× O)." },
-          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, missionRole: "Organic Intermediate", clue: "Deduce the high-energy triple-bonded nitrile compound!", hint: "1 Hydrogen, 1 Carbon, and 1 Nitrogen (1× H + 1× C + 1× N).", localVideo: "/videos/hydrogen%20cyanide.mp4" },
-          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Heavy Atmosphere Gas", clue: "Synthesize carbon dioxide to test the life-support scrubber systems!", hint: "1 Carbon atom with 2 Oxygen atoms (1× C + 2× O).", localVideo: "/videos/carbon_dioxide.mp4" },
+          { formula: "CH₂O", name: "Formaldehyde", recipe: { C: 1, H: 2, O: 1 }, missionRole: "Preservative Aldehyde", clue: "Synthesize the planar aldehyde molecule used to preserve biological specimens!", hint: "Formalin — the strong chemical liquid used to preserve science lab frogs and specimens!", localVideo: "/videos/formaldehye.mp4" },
+          { formula: "CH₄O", name: "Methanol", recipe: { C: 1, H: 4, O: 1 }, missionRole: "Wood Alcohol", clue: "Synthesize clean wood alcohol fuel to charge the backup generator!", hint: "Wood alcohol used in portable camp stoves and racing car fuel.", localVideo: "/videos/methanol.mp4" },
+          { formula: "C₂H₄O₂", name: "Acetic Acid", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Carboxylic Acid", clue: "Synthesize the pure carboxylic acid found in vinegar to clean oxidized plates!", hint: "Sour vinegar (suka) used on salads and dipping sauces!", localVideo: "/videos/ethyne.mp4" },
+          { formula: "HCN", name: "Hydrogen Cyanide", recipe: { H: 1, C: 1, N: 1 }, missionRole: "Organic Intermediate", clue: "Deduce the high-energy triple-bonded nitrile compound!", hint: "The bitter-almond smelling compound with a triple bond." },
+          { formula: "CO₂", name: "Carbon Dioxide", recipe: { C: 1, O: 2 }, missionRole: "Heavy Atmosphere Gas", clue: "Synthesize carbon dioxide to test the life-support scrubber systems!", hint: "The bubbles in sparkling water and the gas exhaled by humans!", localVideo: "/videos/carbon_dioxide.mp4" },
         ],
         validInDomain: ["C", "O", "H", "N"],
       },
@@ -209,12 +206,12 @@ export const DOMAINS = [
         story: "Entering the core, Carbon chains link together into complex 4-element organic macromolecules. Deduce the exact ratios of Carbon, Hydrogen, Nitrogen, and Oxygen required to synthesize life building blocks!",
         palette: ["C", "H", "O", "N", "Cl", "He"],
         required: [
-          { formula: "C₆H₁₂O₆", name: "Glucose", recipe: { C: 6, H: 12, O: 6 }, missionRole: "Life Fuel Sugar", clue: "Synthesize glucose sugar to nourish the core synthetic ecosystem!", hint: "6 Carbons, 12 Hydrogens, and 6 Oxygens (6× C + 12× H + 6× O)." },
-          { formula: "C₂H₅NO₂", name: "Glycine Amino Acid", recipe: { C: 2, H: 5, N: 1, O: 2 }, missionRole: "Basic Amino Acid", clue: "Construct the fundamental amino acid building block of proteins!", hint: "2 Carbons, 5 Hydrogens, 1 Nitrogen, and 2 Oxygens (2× C + 5× H + 1× N + 2× O)." },
-          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, missionRole: "Synthetic Organic Salt", clue: "Form the nitrogenous organic compound to neutralize alkaline runoff!", hint: "1 Carbon, 4 Hydrogens, 2 Nitrogens, and 1 Oxygen (1× C + 4× H + 2× N + 1× O).", localVideo: "/videos/urea.mp4" },
-          { formula: "C₃H₈O₃", name: "Glycerol", recipe: { C: 3, H: 8, O: 3 }, missionRole: "Lipid Backbone", clue: "Synthesize the sweet triol backbone essential for cell membranes!", hint: "3 Carbons, 8 Hydrogens, and 3 Oxygens (3× C + 8× H + 3× O)." },
-          { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 }, missionRole: "Bio-Fuel", clue: "Produce bio-ethanol to calibrate high-octane combustion thrusters!", hint: "2 Carbons, 6 Hydrogens, and 1 Oxygen (2× C + 6× H + 1× O)." },
-          { formula: "C₂H₄O₂", name: "Vinegar", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Vinegar Acid", clue: "Synthesize natural vinegar acid to dissolve mineral buildup!", hint: "2 Carbons, 4 Hydrogens, and 2 Oxygens (2× C + 4× H + 2× O)." },
+          { formula: "C₆H₁₂O₆", name: "Glucose", recipe: { C: 6, H: 12, O: 6 }, missionRole: "Life Fuel Sugar", clue: "Synthesize glucose sugar to nourish the core synthetic ecosystem!", hint: "Sweet sugar made by plants that gives our brain and muscles energy!" },
+          { formula: "C₂H₅NO₂", name: "Glycine Amino Acid", recipe: { C: 2, H: 5, N: 1, O: 2 }, missionRole: "Basic Amino Acid", clue: "Construct the fundamental amino acid building block of proteins!", hint: "The basic protein building block found in eggs, meat, and gelatin." },
+          { formula: "CH₄N₂O", name: "Urea", recipe: { C: 1, H: 4, N: 2, O: 1 }, missionRole: "Synthetic Organic Salt", clue: "Form the nitrogenous organic compound to neutralize alkaline runoff!", hint: "Natural fertilizer crystals rich in nitrogen.", localVideo: "/videos/urea.mp4" },
+          { formula: "C₃H₈O₃", name: "Glycerol", recipe: { C: 3, H: 8, O: 3 }, missionRole: "Lipid Backbone", clue: "Synthesize the sweet triol backbone essential for cell membranes!", hint: "Glycerin — the sweet, moisturizing syrup found in skin lotions and soaps." },
+          { formula: "C₂H₆O", name: "Ethanol", recipe: { C: 2, H: 6, O: 1 }, missionRole: "Bio-Fuel", clue: "Produce bio-ethanol to calibrate high-octane combustion thrusters!", hint: "Everyday rubbing alcohol used to disinfect hands and clean wounds." },
+          { formula: "C₂H₄O₂", name: "Vinegar", recipe: { C: 2, H: 4, O: 2 }, missionRole: "Vinegar Acid", clue: "Synthesize natural vinegar acid to dissolve mineral buildup!", hint: "Sour vinegar that gives adobo and pickles their tangy taste!" },
         ],
         validInDomain: ["C", "H", "O", "N"],
       }
@@ -312,7 +309,7 @@ export function isCompoundInDomain(workbench, domain) {
   return false;
 }
 
-export function calculateValenceStatus(workbench = {}) {
+export function calculateValenceStatus(workbench = {}, currentTarget = null) {
   const entries = Object.entries(workbench).filter(([, n]) => (n ?? 0) > 0);
   if (entries.length === 0) {
     return {
@@ -425,14 +422,73 @@ export function calculateValenceStatus(workbench = {}) {
     openSlots = Math.max(0, totalBondsNeeded - totalBondsSupplied);
   }
 
-  if (entries.length === 1 && entries[0][1] === 1) {
-    const el = ELEMENTS[entries[0][0]];
+  // If only 1 element type is on the workbench:
+  // e.g. 2 Hydrogens (H2) or 1 Hydrogen (H)
+  if (entries.length === 1) {
+    const [sym, count] = entries[0];
+    const el = ELEMENTS[sym];
     const needed = el.valence === 1 ? 1 : 8 - el.valence;
+
+    // If student has a target (e.g. Hydrogen Peroxide or Water) that requires multiple elements,
+    // single element combinations like H2 should prompt them to add the other required elements!
+    if (currentTarget && Object.keys(currentTarget.recipe || {}).length > 1) {
+      const missingElements = Object.keys(currentTarget.recipe).filter(s => s !== sym);
+      return {
+        status: "incomplete",
+        message: `${el.name} is on the bench. Target (${currentTarget.name}) still needs ${missingElements.map(s => ELEMENTS[s]?.name || s).join(", ")}!`,
+        slotsNeeded: Object.values(currentTarget.recipe).reduce((a, b) => a + b, 0),
+        slotsFilled: count,
+        balanced: false,
+        isNoble: false
+      };
+    }
+
+    if (count === 1) {
+      return {
+        status: "incomplete",
+        message: `${el.name} has ${el.valence} valence e⁻ (needs ${needed} bond${needed > 1 ? "s" : ""}). Add partner atoms!`,
+        slotsNeeded: needed,
+        slotsFilled: 0,
+        balanced: false,
+        isNoble: false
+      };
+    }
+  }
+
+  // If target compound is known, check if current workbench matches the required recipe
+  if (currentTarget && currentTarget.recipe) {
+    const targetKeys = Object.keys(currentTarget.recipe);
+    const benchKeys = entries.map(([s]) => s);
+    const hasAllKeys = targetKeys.every(k => benchKeys.includes(k));
+    const isExactMatch = hasAllKeys && targetKeys.length === benchKeys.length && targetKeys.every(k => (workbench[k] ?? 0) === currentTarget.recipe[k]);
+
+    if (isExactMatch) {
+      return {
+        status: "balanced",
+        message: `Perfect! All atoms for ${currentTarget.name} are balanced into a stable structure. Ready to synthesize!`,
+        slotsNeeded: Object.values(currentTarget.recipe).reduce((a, b) => a + b, 0),
+        slotsFilled: Object.values(workbench).reduce((a, b) => a + b, 0),
+        balanced: true,
+        isNoble: false
+      };
+    }
+
+    // Check what is missing
+    const missing = [];
+    for (const [k, reqQty] of Object.entries(currentTarget.recipe)) {
+      const curr = workbench[k] ?? 0;
+      if (curr < reqQty) {
+        missing.push(`${reqQty - curr} more ${ELEMENTS[k]?.name || k}`);
+      } else if (curr > reqQty) {
+        missing.push(`too many ${ELEMENTS[k]?.name || k}`);
+      }
+    }
+
     return {
       status: "incomplete",
-      message: `${el.name} has ${el.valence} valence e⁻ (needs ${needed} bond${needed > 1 ? "s" : ""}). Add partner atoms!`,
-      slotsNeeded: needed,
-      slotsFilled: 0,
+      message: missing.length > 0 ? `To form ${currentTarget.name}: need ${missing.join(", ")}.` : "Adjust atom ratios.",
+      slotsNeeded: Object.values(currentTarget.recipe).reduce((a, b) => a + b, 0),
+      slotsFilled: Object.values(workbench).reduce((a, b) => a + b, 0),
       balanced: false,
       isNoble: false
     };
