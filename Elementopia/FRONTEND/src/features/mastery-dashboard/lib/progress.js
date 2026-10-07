@@ -32,12 +32,6 @@ export async function resetProgress(nickname) {
     rating: 1200
   };
 
-  memoryCache = fresh;
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEY, JSON.stringify(fresh));
-    window.dispatchEvent(new Event("elementopia:progress"));
-  }
-
   if (nickname && nickname !== "Guest Alchemist") {
     try {
       await fetch(BASE_URL, {
@@ -54,6 +48,12 @@ export async function resetProgress(nickname) {
     } catch (e) {
       console.warn("Backend reset sync failed:", e.message);
     }
+  }
+
+  memoryCache = fresh;
+  if (typeof window !== "undefined") {
+    localStorage.setItem(KEY, JSON.stringify(fresh));
+    window.dispatchEvent(new Event("elementopia:progress"));
   }
 
   return fresh;

@@ -41,7 +41,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   const [showNicknameGate, setShowNicknameGate] = useState(() => !localStorage.getItem("elementopia_current_user"));
   
   useEffect(() => {
-    const initProgress = async () => {
+    const reloadData = async () => {
       let localUser = null;
       try {
         const userStr = localStorage.getItem("elementopia_current_user");
@@ -58,13 +58,20 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
           if (data && data.success && data.metrics) {
             const map = new Map(data.metrics.map(m => [m.domainName, m]));
             setCloudMetrics(map);
+          } else {
+            setCloudMetrics(null);
           }
-        });
+        }).catch(() => setCloudMetrics(null));
+      } else {
+        setRows([]);
+        setCloudMetrics(null);
+        setProgress(loadProgress());
       }
     };
-    initProgress();
 
-    const h = () => setProgress(loadProgress());
+    void reloadData();
+
+    const h = () => void reloadData();
     window.addEventListener("elementopia:progress", h);
     
     return () => window.removeEventListener("elementopia:progress", h);

@@ -44,9 +44,9 @@ export function SiteHeader({ view, setView }) {
 
       const nick = localUser?.username || progress.nickname;
       if (nick && nick !== "Guest Alchemist") {
-        const p = await fetchProgress(nick);
-        setProgress(p);
+        await fetchProgress(nick);
       }
+      setProgress(loadProgress());
     };
     initProgress();
 
