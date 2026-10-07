@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, LayoutDashboard, Grid, Wrench, Image as ImageIcon, Search, Swords, FlaskConical } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Grid, Wrench, Image as ImageIcon, Search, Swords, FlaskConical, AlertTriangle, RotateCcw } from "lucide-react";
 import { loadProgress, resetProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 
 // Stat Component
@@ -17,6 +17,8 @@ function Stat({ label, value, accent }) {
 
 export function SiteHeader({ view, setView }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
@@ -117,12 +119,7 @@ export function SiteHeader({ view, setView }) {
               <Stat label="Wins" value={progress?.wins || 0} accent />
             </div>
             <button 
-              onClick={async () => {
-                if (window.confirm("Are you sure you want to reset all your progress?")) {
-                  const fresh = await resetProgress(displayName);
-                  setProgress(fresh);
-                }
-              }} 
+              onClick={() => setShowResetModal(true)} 
               className="hidden sm:block rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-4 py-1.5 font-mono font-bold text-[0.65rem] sm:text-[0.75rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider cursor-pointer"
             >
               Reset Progress
@@ -263,7 +260,18 @@ export function SiteHeader({ view, setView }) {
           </Link>
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-slate-800">
+        <div className="mt-auto pt-4 border-t border-slate-800 space-y-2">
+          <button
+            type="button"
+            onClick={() => {
+              setSidebarOpen(false);
+              setShowResetModal(true);
+            }}
+            className="flex items-center justify-center gap-2 w-full rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-4 py-2.5 text-xs font-mono font-bold text-rose-400 hover:text-rose-300 transition-all cursor-pointer"
+          >
+            <RotateCcw className="size-3.5" />
+            Reset Progress
+          </button>
           <button
             type="button"
             onClick={() => { localStorage.clear(); window.location.href = "/"; }}
@@ -274,6 +282,64 @@ export function SiteHeader({ view, setView }) {
           </button>
         </div>
       </div>
+
+      {/* Custom Elementopia Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            onClick={() => !isResetting && setShowResetModal(false)}
+          />
+          <div className="relative w-full max-w-md rounded-3xl border border-rose-500/40 bg-slate-950/95 p-6 sm:p-7 shadow-[0_0_50px_rgba(244,63,94,0.25)] animate-fade-up z-10">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="p-3 rounded-2xl bg-rose-500/15 text-rose-400 border border-rose-500/30 shrink-0">
+                <AlertTriangle className="size-6 text-rose-400 animate-pulse" />
+              </div>
+              <div>
+                <div className="font-mono text-[10px] text-rose-400 uppercase tracking-widest font-bold">
+                  Irreversible Action
+                </div>
+                <h3 className="font-pixel text-lg font-bold text-white mt-0.5">
+                  Reset All Progress?
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed font-sans mb-6">
+              This will permanently clear your completed domain records, session history, and synthesis performance for <strong className="text-white font-mono">{displayName}</strong>. Are you sure you want to proceed?
+            </p>
+
+            <div className="flex items-center justify-end gap-3 border-t border-slate-800/80 pt-4">
+              <button
+                type="button"
+                disabled={isResetting}
+                onClick={() => setShowResetModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 font-mono text-xs hover:bg-slate-800 transition disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isResetting}
+                onClick={async () => {
+                  setIsResetting(true);
+                  try {
+                    const fresh = await resetProgress(displayName);
+                    setProgress(fresh);
+                  } finally {
+                    setIsResetting(false);
+                    setShowResetModal(false);
+                  }
+                }}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-500 px-5 py-2 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(244,63,94,0.6)] uppercase tracking-wider disabled:opacity-50 cursor-pointer"
+              >
+                <RotateCcw className={`size-3.5 ${isResetting ? "animate-spin" : ""}`} />
+                {isResetting ? "Resetting..." : "Reset Everything"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
