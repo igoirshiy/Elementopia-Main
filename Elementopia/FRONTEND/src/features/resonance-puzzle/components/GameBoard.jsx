@@ -254,7 +254,20 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             if (currentStage < maxStages) {
               setTimeout(() => setStageModalOpen(true), 1200);
             } else {
-              setTimeout(() => onCleared(), 1500);
+              const allDomainCompounds = domain?.stages
+                ? Object.values(domain.stages).flatMap(s => s.required || [])
+                : (domain?.required || []);
+              const finalMinutes = Math.floor(elapsed / 60);
+              const finalSeconds = elapsed % 60;
+              const formattedTime = `${String(finalMinutes).padStart(2, '0')}:${String(finalSeconds).padStart(2, '0')}`;
+              const finalAccuracy = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 100;
+
+              setTimeout(() => onCleared({
+                accuracy: finalAccuracy,
+                time: formattedTime,
+                compounds: allDomainCompounds,
+                compoundCount: allDomainCompounds.length
+              }), 1500);
             }
           }
 
