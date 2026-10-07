@@ -37,8 +37,13 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [identifiedTarget, setIdentifiedTarget] = useState(null);
   const [wrongChoiceClicked, setWrongChoiceClicked] = useState(null);
 
+  // Show Doctor Atom briefing as soon as the domain is opened/entered
   useEffect(() => {
     setShowTutorialModal(true);
+  }, [domain?.id]);
+
+  // Reset stage selection state on stage transition without re-popping briefing
+  useEffect(() => {
     setIdentifiedTarget(null);
   }, [currentStage]);
 

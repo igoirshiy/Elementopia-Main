@@ -6,20 +6,17 @@ export function ElementTile({ symbol, disabled, onAdd, index = 0 }) {
   const [hover, setHover] = useState(false);
   const e = ELEMENTS[symbol];
 
-  // Align popover intelligently based on tile position
-  // In a 3-column grid (left col: 0, 3; mid col: 1, 4; right col: 2, 5)
-  // Top row: 0, 1, 2 -> popup opens downward or leftwards
-  const colIndex = index % 3;
-  const isTopRow = index < 3;
+  // Since the Element Palette is docked on the right side of the screen,
+  // the tooltip always flies out to the LEFT (towards the center of the screen)
+  // so it is 100% visible and never clipped by the right viewport edge.
+  const isTopRow = index <= 1;
+  const isBottomRow = index >= 4;
 
-  // Position class: fly out to the left for right/middle columns, fly right for first column
-  const posClass = colIndex === 2 
-    ? "right-full mr-2 top-0" 
-    : colIndex === 0 
-    ? "left-full ml-2 top-0" 
-    : isTopRow 
-    ? "top-full mt-2 left-1/2 -translate-x-1/2" 
-    : "bottom-full mb-2 left-1/2 -translate-x-1/2";
+  const posClass = isTopRow 
+    ? "right-full mr-3 top-0" 
+    : isBottomRow 
+    ? "right-full mr-3 bottom-0" 
+    : "right-full mr-3 top-1/2 -translate-y-1/2";
 
   return (
     <div
