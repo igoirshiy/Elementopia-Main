@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Stage, Layer, Circle, Text, Line, Group } from "react-konva";
-import { Modal } from "@mui/material";
-import { Sparkles, Maximize2, Minimize2, Beaker, Trash2 } from "lucide-react";
+import { Sparkles, Maximize2, Minimize2, Beaker, Trash2, Zap, BookOpen, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ElementTable from "./ElementTable";
 import compoundElements from "../data/compound-elements.json";
 import DiscoveryService from '@/features/student-discovery/services/DiscoveryService';
 import UserService from '@/features/auth-user';
 import periodicTableData from "../data/periodic-table-lookup.json";
+import { SynthesisFeedbackModal } from "@/components/SynthesisFeedbackModal";
 
 const initialAtoms = [];
 
@@ -184,19 +184,28 @@ const ChemSim = () => {
 	};
 
 	const saveDiscovery = async (compound) => {
-		const user = await UserService.getCurrentUser();
-		if (!user?.userId) {
-			console.warn("User is not logged in to save discovery.");
-			return;
+		let userId = "guest_id";
+		try {
+			const user = await UserService.getCurrentUser();
+			if (user?.userId) {
+				userId = user.userId;
+			}
+		} catch (e) {
+			console.warn("Could not retrieve user session, defaulting to local guest:", e);
 		}
 
-		const userId = user.userId;
 		const formattedDate = new Date().toISOString().split("T")[0];
 
 		try {
 			await DiscoveryService.createDiscovery(userId, {
 				name: compound.NAME,
+				symbol: compound.Symbol,
+				source: "sandbox",
 				dateDiscovered: formattedDate,
+				description: compound.Description,
+				bondType: compound.BondType,
+				realWorldApplication: compound.RealWorldApplication,
+				submissionString: compound.Symbol
 			});
 		} catch (error) {
 			console.error("Error saving discovery:", error);
@@ -215,28 +224,15 @@ const ChemSim = () => {
 		});
 
 		if (foundCompound) {
-			let description = foundCompound.Description;
-
-			const fetchedDefinition = await fetchDefinition(foundCompound.NAME);
-			if (fetchedDefinition) {
-				description = fetchedDefinition;
-			}
-
 			setMoleculeOutput(
 				`NAME: ${foundCompound.NAME}\n` +
-				`Symbol: ${foundCompound.Symbol}\n` +
-				`Description: ${description}\n` +
-				`Elements: ${foundCompound.Elements.join(", ")}\n` +
-				`Uses: ${foundCompound.Uses.join(", ")}`
+				`Formula: ${foundCompound.Symbol}\n` +
+				`Bonding: ${foundCompound.BondType || "Covalent"}\n\n` +
+				`Description: ${foundCompound.Description}\n\n` +
+				`Application: ${foundCompound.RealWorldApplication || ""}`
 			);
 
-			setDiscoveredCompoundInfo({
-				name: foundCompound.NAME,
-				symbol: foundCompound.Symbol,
-				description: description,
-				uses: foundCompound.Uses.join(", "),
-				elements: foundCompound.Elements.join(", ")
-			});
+			setDiscoveredCompoundInfo(foundCompound);
 
 			if (!discoveredHistory.has(foundCompound.NAME)) {
 				setDiscoveredHistory((prev) => new Set([...prev, foundCompound.NAME]));
@@ -244,7 +240,7 @@ const ChemSim = () => {
 				setShowDiscoveryModal(true);
 			}
 		} else {
-			setMoleculeOutput("No known molecule formed.");
+			setMoleculeOutput("No known molecule formed. Try combining matching valence elements on the workbench!");
 			setDiscoveredCompoundInfo(null);
 		}
 	}, [atoms, discoveredHistory]);
@@ -602,104 +598,73 @@ const ChemSim = () => {
 				{/* Right Sidebar: Synthesis Result */}
 				<div className="w-full flex flex-col gap-4 bg-card/40 rounded-2xl border border-border/40 p-4 h-full">
 					<div className="flex-1 flex flex-col min-h-0 text-left">
-						<h2 className="font-mono text-xs mb-3 text-magenta tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-2 shrink-0">
-							Synthesis Result
+						<h2 className="font-mono text-xs mb-3 text-magenta tracking-[0.2em] uppercase font-bold border-b border-border/40 pb-2 shrink-0 flex items-center justify-between">
+							<span>Synthesis Result</span>
+							{discoveredCompoundInfo && (
+								<span className="text-[10px] text-cyan font-mono lowercase">
+									{discoveredCompoundInfo.BondType || "covalent"}
+								</span>
+							)}
 						</h2>
-						<div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-							{loadingDefinition ? (
-								<div className="font-mono text-xs text-magenta animate-pulse">Scanning database...</div>
+
+						<div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-3">
+							{discoveredCompoundInfo ? (
+								<div className="space-y-3 text-left">
+									<div className="p-3 rounded-xl bg-cyan/10 border border-cyan/30">
+										<span className="font-mono text-[10px] text-cyan uppercase tracking-widest block font-bold">
+											Formed Compound
+										</span>
+										<h3 className="font-pixel text-lg text-white font-bold">
+											{discoveredCompoundInfo.NAME}
+										</h3>
+										<div className="font-mono text-xs text-magenta font-bold">
+											Formula: {discoveredCompoundInfo.Symbol}
+										</div>
+									</div>
+
+									<div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs text-slate-300 leading-relaxed font-sans">
+										{discoveredCompoundInfo.Description}
+									</div>
+
+									{discoveredCompoundInfo.RealWorldApplication && (
+										<div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 leading-relaxed font-sans">
+											<strong className="text-amber-300 block mb-1 uppercase font-mono text-[10px] tracking-wider">
+												💡 Real-World Use
+											</strong>
+											{discoveredCompoundInfo.RealWorldApplication}
+										</div>
+									)}
+								</div>
 							) : (
-								<div className="font-mono text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-									{moleculeOutput || "No molecule formed yet."}
+								<div className="font-mono text-xs text-muted-foreground leading-relaxed">
+									{moleculeOutput || "Drag atoms from the table onto the canvas to begin synthesizing molecules."}
 								</div>
 							)}
 						</div>
 					</div>
 
 					{discoveredCompoundInfo && (
-						<div className="shrink-0 rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 shadow-sm text-left">
+						<div className="shrink-0 rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 shadow-sm text-left">
 							<div className="flex items-center gap-2 text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2 font-bold">
-								<Sparkles size={14} /> Discovery Unlocked
+								<Sparkles size={14} /> Discovery Verified
 							</div>
-							<p className="font-pixel text-sm text-white font-bold mb-1">{discoveredCompoundInfo.name}</p>
-							<p className="font-mono text-xs text-cyan mb-3">Formula: {discoveredCompoundInfo.symbol}</p>
+							<p className="font-pixel text-xs text-white font-bold mb-1">{discoveredCompoundInfo.NAME} ({discoveredCompoundInfo.Symbol})</p>
 							<button
 								onClick={() => setShowDiscoveryModal(true)}
-								className="w-full py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-mono text-xs uppercase tracking-wider transition-colors font-bold"
+								className="w-full mt-2 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-mono text-xs uppercase tracking-wider transition-colors font-bold flex items-center justify-center gap-1.5"
 							>
-								Inspect Record 📖
+								<BookOpen size={14} /> Inspect Full Record
 							</button>
 						</div>
 					)}
 				</div>
 			</div>
 
-			<Modal
+			<SynthesisFeedbackModal
 				open={showDiscoveryModal}
 				onClose={() => setShowDiscoveryModal(false)}
-			>
-				<div
-					className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
-					style={{ minHeight: 'auto', background: 'transparent' }}
-				>
-					<div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
-						<div className="flex-1 pr-2 text-left">
-							<div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
-								Laboratory Record
-							</div>
-
-							<h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
-								{discoveredCompoundInfo?.name}
-							</h2>
-
-							<p className="mt-2 font-mono text-sm text-cyan mb-8">
-								Formula: {discoveredCompoundInfo?.symbol}
-							</p>
-
-							{discoveredCompoundInfo && (
-								<div className="space-y-6">
-									<div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar">
-										{discoveredCompoundInfo.description}
-									</div>
-
-									<div className="border-t border-border pt-6">
-										<div className="grid grid-cols-2 gap-4">
-											<div>
-												<h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-													Primary Applications
-												</h4>
-												<p className="text-sm font-bold text-white/90">
-													{discoveredCompoundInfo.uses}
-												</p>
-											</div>
-											<div>
-												<h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-													Elemental Composition
-												</h4>
-												<p className="text-sm font-bold text-cyan">
-													{discoveredCompoundInfo.elements}
-												</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							)}
-						</div>
-
-						<div className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-6 shrink-0">
-							<div className="font-mono text-xs text-muted-foreground">
-								Synthesized successfully.
-							</div>
-							<button
-								onClick={() => setShowDiscoveryModal(false)}
-								className="rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-6 py-2.5 font-['Montserrat',sans-serif] font-[800] text-[0.85rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap"
-							>
-								Close Record
-							</button>
-						</div>
-					</div>
-				</div>
-			</Modal>
+				compound={discoveredCompoundInfo}
+			/>
 		</div>
 	);
 };

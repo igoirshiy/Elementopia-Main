@@ -46,7 +46,7 @@ export function ObstacleGrid({ total, cleared, shake, glow, justCleared = 0 }) {
   return (
     <div 
       style={{ gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}
-      className={`relative grid grid-cols-6 gap-1 sm:gap-1.5 h-[360px] sm:h-[400px] w-full rounded-2xl border border-purple-500/30 bg-slate-950/80 p-2.5 sm:p-3 shadow-[0_0_20px_rgba(168,85,247,0.15)] ${shake ? "animate-shake" : ""}`}
+      className={`relative grid grid-cols-6 gap-1 sm:gap-1.5 h-[160px] sm:h-[180px] w-full rounded-2xl border border-purple-500/30 bg-slate-950/80 p-2 sm:p-2.5 shadow-[0_0_20px_rgba(168,85,247,0.15)] ${shake ? "animate-shake" : ""}`}
     >
       {Array.from({ length: total }).map((_, i) => {
         const gone = brokenSet.has(i);

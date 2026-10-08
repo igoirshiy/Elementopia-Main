@@ -1,52 +1,136 @@
-import React from 'react';
-import { DoctorAtomAssistant } from './DoctorAtomAssistant';
-import { Sparkles, CheckCircle2, Lightbulb } from 'lucide-react';
+import React, { useState } from 'react';
+import { BohrAtomVisualizer } from './BohrAtomVisualizer';
+import { Sparkles, CheckCircle2, ChevronRight, ChevronLeft, Lightbulb, Zap } from 'lucide-react';
 
 export function DoctorAtomTutorialModal({ domainId, currentStage, onClose }) {
-  if (!["covalent", "salt"].includes(domainId)) return null;
+  const [step, setStep] = useState(1);
 
-  const TUTORIALS = {
-    covalent: {
-      1: {
-        title: "Doctor Atom: Foundational Binary Sharing",
-        briefing: "Welcome, Alchemist! In Stage 1, nonmetal atoms share pairs of valence electrons to complete their outer octets. Single and double covalent bonds form stable binary compounds.",
-        hint: "💡 Try combining 2 Hydrogen + 1 Oxygen to synthesize Water (H₂O)!"
-      },
-      2: {
-        title: "Doctor Atom: Multi-Element Covalent Bonding",
-        briefing: "CRITICAL LESSON: Chemical bonding is NOT limited to 2 elements! Nonmetals like Carbon, Hydrogen, Nitrogen, and Oxygen can share electrons simultaneously across 3 distinct elements at once.",
-        hint: "💡 Try combining 1 Hydrogen + 1 Carbon + 1 Nitrogen to create Hydrogen Cyanide (HCN)!"
-      },
-      3: {
-        title: "Doctor Atom: 4-Element Macromolecular Core",
-        briefing: "Entering the core cavern! Carbon forms complex 4-element organic macromolecule backbones. Balance Carbon, Hydrogen, Nitrogen, and Oxygen so every valence electron finds a home.",
-        hint: "💡 Try combining 1 Carbon + 4 Hydrogens + 2 Nitrogens + 1 Oxygen to synthesize Urea (CH₄N₂O)!"
-      }
+  // Dynamic 3-Step Interactive Bonding Tutorial based on Domain
+  const TUTORIAL_STEPS = domainId === "carbon" ? [
+    {
+      step: 1,
+      tag: "👑 Golden Rule of Carbon",
+      title: "Carbon ALWAYS Makes 4 Bonds!",
+      desc: "Carbon (C) has 4 valence electrons and 4 empty seats. To reach a stable 8-electron octet, Carbon must always form exactly 4 bonds with other atoms!",
+      visual: (
+        <div className="flex items-center justify-center gap-6 py-2">
+          <div className="flex flex-col items-center">
+            <BohrAtomVisualizer symbol="C" size="sm" showEmptySeats={true} />
+            <span className="text-[10px] font-mono text-amber-300 font-bold mt-1">Carbon (4/8 e⁻)</span>
+            <span className="text-[9px] font-mono text-red-400">🔴 4 Empty Seats (Needs 4 bonds)</span>
+          </div>
+        </div>
+      )
     },
-    salt: {
-      1: {
-        title: "Doctor Atom: Binary Ionic Electron Transfer",
-        briefing: "Welcome to the Salt Flats! Metals surrender outer valence electrons to nonmetal acceptors, forming charged ionic crystal lattices.",
-        hint: "💡 Try surrendering 1 Sodium (Na) valence electron to 1 Chlorine (Cl) to form neutral Table Salt (NaCl)!"
-      },
-      2: {
-        title: "Doctor Atom: Multi-Element Divalent Salts",
-        briefing: "IMPORTANT LESSON: Ionic bonding is NOT limited to 2 elements! Divalent metals like Magnesium (Mg) surrender electrons across 3 elements simultaneously.",
-        hint: "💡 Try combining 1 Sodium + 1 Oxygen + 1 Hydrogen to synthesize Sodium Hydroxide (NaOH)!"
-      },
-      3: {
-        title: "Doctor Atom: Polyatomic 4-Element Lattices",
-        briefing: "Entering the core salt cave! Metals bind 3-and-4 element polyatomic groups like bicarbonate and ammonium into complex ionic crystals.",
-        hint: "💡 Try combining 1 Sodium + 1 Hydrogen + 1 Carbon + 3 Oxygens to synthesize Baking Soda (NaHCO₃)!"
-      }
+    {
+      step: 2,
+      tag: "🐙 Filling Carbon's 4 Arms",
+      title: "Balancing the 4 Slots",
+      desc: "• Oxygen (O) fills 2 slots (Double bond)\n• Hydrogen (H) fills 1 slot\n• Nitrogen (N) fills 3 slots (Triple bond)\n• Noble gases (He, Ne) are inert (0 slots)!",
+      visual: (
+        <div className="flex items-center justify-center gap-2 py-2 bg-slate-900/60 rounded-xl border border-slate-800 p-2">
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] font-mono text-pink-300 font-bold">O (2)</span>
+            <span className="text-cyan font-bold text-xs">═</span>
+            <span className="text-[9px] font-mono text-amber-300 font-bold px-1 py-0.5 rounded bg-amber-950/60 border border-amber-500/50">C (4)</span>
+            <span className="text-cyan font-bold text-xs">═</span>
+            <span className="text-[9px] font-mono text-pink-300 font-bold">O (2)</span>
+          </div>
+          <span className="text-[9px] font-mono text-emerald-300 ml-2 font-bold">✓ 4 Bonds (CO₂)</span>
+        </div>
+      )
+    },
+    {
+      step: 3,
+      tag: "Your Mission Gameplay",
+      title: "2-Phase Mission Flow",
+      desc: "1. Read the everyday clue and pick the compound name.\n2. On the Workbench, add the elements to satisfy Carbon's 4 bonds until the Live Shell turns GREEN!",
+      visual: (
+        <div className="space-y-1.5 py-1 text-left">
+          <div className="flex items-center gap-2 p-1.5 rounded-lg bg-cyan/10 border border-cyan/30 text-[11px] font-mono text-cyan-200">
+            <span className="px-1.5 py-0.5 rounded bg-cyan/20 font-bold">Phase 1</span>
+            <span>Identify Target: <strong>Methane</strong></span>
+          </div>
+          <div className="flex items-center gap-2 p-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] font-mono text-emerald-300">
+            <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 font-bold">Phase 2</span>
+            <span>Add <strong>1× C + 4× H</strong> to satisfy 4 bonds!</span>
+          </div>
+        </div>
+      )
     }
-  };
+  ] : [
+    {
+      step: 1,
+      tag: "The 8-Seat Octet Rule",
+      title: "Why Do Atoms Bond?",
+      desc: "Every atom wants a completely full outer shell of 8 electrons (e⁻) to be stable and happy! (Hydrogen only needs 2). If an atom has open seats, it feels unstable and actively looks for partners.",
+      visual: (
+        <div className="flex items-center justify-center gap-6 py-2">
+          <div className="flex flex-col items-center">
+            <BohrAtomVisualizer symbol="O" size="sm" showEmptySeats={true} />
+            <span className="text-[10px] font-mono text-cyan font-bold mt-1">Oxygen (6/8 e⁻)</span>
+            <span className="text-[9px] font-mono text-red-400">🔴 2 Empty Seats</span>
+          </div>
+          <div className="text-xl font-bold text-slate-500">+</div>
+          <div className="flex flex-col items-center">
+            <BohrAtomVisualizer symbol="H" size="sm" showEmptySeats={true} />
+            <span className="text-[10px] font-mono text-pink-400 font-bold mt-1">Hydrogen (1/2 e⁻)</span>
+            <span className="text-[9px] font-mono text-red-400">🔴 1 Empty Seat</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      step: 2,
+      tag: "Holding Hands (Covalent Sharing)",
+      title: "Sharing Outer Electrons",
+      desc: "Since Oxygen needs 2 more electrons, it 'holds hands' (shares electrons) with TWO Hydrogen atoms simultaneously. Now all atoms have full outer shells!",
+      visual: (
+        <div className="flex items-center justify-center gap-2 py-2 bg-slate-900/60 rounded-xl border border-slate-800 p-2">
+          <div className="flex flex-col items-center">
+            <BohrAtomVisualizer symbol="H" size="xs" showEmptySeats={false} />
+            <span className="text-[9px] font-mono text-pink-300">H (1e⁻)</span>
+          </div>
+          <div className="h-0.5 w-3 bg-cyan animate-pulse" />
+          <div className="flex flex-col items-center">
+            <div className="p-1 rounded-full border border-emerald-500/80 bg-emerald-950/40">
+              <BohrAtomVisualizer symbol="O" size="xs" showEmptySeats={false} />
+            </div>
+            <span className="text-[9px] font-mono text-emerald-300 font-bold">O (8/8 e⁻ Full!)</span>
+          </div>
+          <div className="h-0.5 w-3 bg-cyan animate-pulse" />
+          <div className="flex flex-col items-center">
+            <BohrAtomVisualizer symbol="H" size="xs" showEmptySeats={false} />
+            <span className="text-[9px] font-mono text-pink-300">H (1e⁻)</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      step: 3,
+      tag: "Your Mission Gameplay",
+      title: "2-Phase Mission Flow",
+      desc: "1. Read the everyday clue and pick the compound name.\n2. On the Workbench, place the right atom ratio so the Live Shell Assembly turns GREEN (Stable Octet)!",
+      visual: (
+        <div className="space-y-1.5 py-1 text-left">
+          <div className="flex items-center gap-2 p-1.5 rounded-lg bg-cyan/10 border border-cyan/30 text-[11px] font-mono text-cyan-200">
+            <span className="px-1.5 py-0.5 rounded bg-cyan/20 font-bold">Phase 1</span>
+            <span>Identify Target: <strong>Water</strong></span>
+          </div>
+          <div className="flex items-center gap-2 p-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] font-mono text-emerald-300">
+            <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 font-bold">Phase 2</span>
+            <span>Add <strong>2× H + 1× O</strong> to fill all 8 seats!</span>
+          </div>
+        </div>
+      )
+    }
+  ];
 
-  const info = TUTORIALS[domainId]?.[currentStage];
-  if (!info) return null;
+  const currentInfo = TUTORIAL_STEPS[step - 1];
 
   return (
-    <div className="fixed top-20 right-6 z-50 w-80 sm:w-96 rounded-2xl border border-cyan/50 bg-slate-950/95 p-4 shadow-[0_0_30px_rgba(6,182,212,0.35)] animate-fade-down backdrop-blur-md">
+    <div className="fixed top-20 right-6 z-50 w-80 sm:w-96 rounded-2xl border border-cyan/50 bg-slate-950/98 p-4 shadow-[0_0_35px_rgba(6,182,212,0.4)] animate-fade-down backdrop-blur-md">
+      {/* Header with Doctor Atom */}
       <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-full overflow-hidden border border-cyan bg-slate-950 shrink-0">
@@ -59,34 +143,78 @@ export function DoctorAtomTutorialModal({ domainId, currentStage, onClose }) {
           </div>
           <div>
             <span className="font-mono text-xs font-bold text-cyan uppercase tracking-wider block">
-              Doctor Atom Tutorial
+              Doctor Atom Briefing
             </span>
             <span className="font-mono text-[9px] text-slate-400">
-              Stage {currentStage} Briefing
+              Tutorial Step {step} of 3
             </span>
           </div>
         </div>
-      </div>
 
-      <div className="space-y-2.5 my-2">
-        <h4 className="font-pixel text-xs sm:text-sm text-white font-bold">
-          {info.title}
-        </h4>
-        <p className="text-xs text-slate-300 leading-relaxed font-sans">
-          {info.briefing}
-        </p>
-
-        <div className="rounded-xl border border-cyan/30 bg-cyan/10 p-2.5 font-mono text-[11px] text-cyan-200 leading-relaxed">
-          {info.hint}
+        {/* Step Indicators */}
+        <div className="flex items-center gap-1">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={`size-2 rounded-full transition-all ${
+                s === step ? "bg-cyan w-4" : s < step ? "bg-emerald-400" : "bg-slate-700"
+              }`}
+            />
+          ))}
         </div>
       </div>
 
-      <button
-        onClick={onClose}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-2.5 font-mono text-xs font-bold text-white shadow-md transition-all hover:scale-[1.02] hover:shadow-cyan-500/25 uppercase tracking-wider"
-      >
-        <CheckCircle2 className="size-4" /> Got it, Alchemist!
-      </button>
+      {/* Tutorial Content */}
+      <div className="space-y-2 my-2">
+        <div className="flex items-center justify-between">
+          <span className="px-2 py-0.5 rounded bg-cyan/15 border border-cyan/30 text-cyan text-[10px] font-mono font-bold">
+            {currentInfo.tag}
+          </span>
+        </div>
+
+        <h4 className="font-pixel text-xs sm:text-sm text-white font-bold text-left">
+          {currentInfo.title}
+        </h4>
+
+        {currentInfo.visual}
+
+        <p className="text-xs text-slate-300 leading-relaxed font-sans text-left whitespace-pre-line">
+          {currentInfo.desc}
+        </p>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+        {step > 1 && (
+          <button
+            type="button"
+            onClick={() => setStep(step - 1)}
+            className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-300 hover:bg-slate-800 transition"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+        )}
+
+        {step < 3 ? (
+          <button
+            type="button"
+            onClick={() => setStep(step + 1)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-cyan hover:bg-cyan/90 text-slate-950 font-mono text-xs font-bold uppercase tracking-wider transition shadow-md"
+          >
+            <span>Next Step</span>
+            <ChevronRight className="size-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-mono text-xs font-bold uppercase tracking-wider transition shadow-md"
+          >
+            <CheckCircle2 className="size-4" />
+            <span>Start Mission!</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

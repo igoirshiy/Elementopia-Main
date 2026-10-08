@@ -33,6 +33,7 @@ export default function ElementopiaGame() {
   const [completionBanner, setCompletionBanner] = useState(null);
   const [error, setError] = useState(null);
   const [debriefOpen, setDebriefOpen] = useState(false);
+  const [debriefStats, setDebriefStats] = useState(null);
   const refresh = useCallback(async (nick) => {
     try { setRows(await fetchProgress(nick)); }
     catch (e) { setError(e?.message ?? "Failed to load progress"); }
@@ -100,8 +101,9 @@ export default function ElementopiaGame() {
     }
   };
 
-  const onCleared = async () => {
+  const onCleared = async (stats) => {
     if (!activeDomain || !nickname) return;
+    setDebriefStats(stats || null);
     setCompletionBanner(`${activeDomain.name} cleared — next domain unlocked.`);
     await refresh(nickname);
     setDebriefOpen(true);
@@ -110,12 +112,14 @@ export default function ElementopiaGame() {
 
   const handleDebriefContinue = () => {
     setDebriefOpen(false);
+    setDebriefStats(null);
     setView("home");
     setActiveDomain(null);
   };
 
   const handleDebriefRetry = () => {
     setDebriefOpen(false);
+    setDebriefStats(null);
     setStoryOpen(true);
   };
 
@@ -180,6 +184,7 @@ export default function ElementopiaGame() {
               {debriefOpen && (
                 <DebriefingModal
                   domain={activeDomain}
+                  stats={debriefStats}
                   onContinue={handleDebriefContinue}
                   onRetry={handleDebriefRetry}
                 />

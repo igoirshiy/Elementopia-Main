@@ -14,7 +14,14 @@ const ATOMIC_SHELLS = {
   Ne: { total: 10, valence: 8, rings: [2, 8], noble: true },
 };
 
-export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true, showNucleus = true, themeColor = "var(--cyan)" }) {
+export function BohrAtomVisualizer({
+  symbol = "H",
+  size = "md",
+  animated = true,
+  showNucleus = true,
+  showEmptySeats = false,
+  themeColor = "var(--cyan)"
+}) {
   const elem = ELEMENTS[symbol] || { symbol, name: symbol, gradient: "from-cyan-500 to-blue-600" };
   const config = ATOMIC_SHELLS[symbol] || { total: 1, valence: 1, rings: [1] };
 
@@ -29,6 +36,10 @@ export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true,
         {config.rings.map((eCount, ringIdx) => {
           const radius = (dim * 0.22) + ringIdx * (dim * 0.14);
           const isValenceRing = ringIdx === config.rings.length - 1;
+          const capacity = ringIdx === 0 && config.rings.length === 1 ? 2 : 8;
+          const emptySeats = isValenceRing && !config.noble && !["Na", "Mg"].includes(symbol) ? Math.max(0, capacity - eCount) : 0;
+          const totalSlotPositions = showEmptySeats && isValenceRing && emptySeats > 0 ? capacity : eCount;
+
           const strokeColor = config.noble
             ? themeColor
             : isValenceRing
@@ -60,20 +71,38 @@ export function BohrAtomVisualizer({ symbol = "H", size = "md", animated = true,
                     repeatCount="indefinite"
                   />
                 )}
-                {Array.from({ length: eCount }).map((_, eIdx) => {
-                  const angle = (eIdx / eCount) * 2 * Math.PI;
+                {Array.from({ length: totalSlotPositions }).map((_, slotIdx) => {
+                  const angle = (slotIdx / totalSlotPositions) * 2 * Math.PI;
                   const ex = center + radius * Math.cos(angle);
                   const ey = center + radius * Math.sin(angle);
-                  const isValence = isValenceRing;
+                  const isFilled = slotIdx < eCount;
+                  const r = size === "xs" ? 1.8 : size === "sm" ? 2.5 : 3.5;
 
+                  if (isFilled) {
+                    return (
+                      <circle
+                        key={slotIdx}
+                        cx={ex}
+                        cy={ey}
+                        r={r}
+                        fill={config.noble ? themeColor : isValenceRing ? themeColor : "#94a3b8"}
+                        filter={isValenceRing || config.noble ? `drop-shadow(0px 0px 3px ${themeColor})` : "none"}
+                      />
+                    );
+                  }
+
+                  // Render empty valence seat slot
                   return (
                     <circle
-                      key={eIdx}
+                      key={slotIdx}
                       cx={ex}
                       cy={ey}
-                      r={size === "xs" ? 1.8 : size === "sm" ? 2.5 : 3.5}
-                      fill={config.noble ? themeColor : isValence ? themeColor : "#94a3b8"}
-                      filter={isValence || config.noble ? `drop-shadow(0px 0px 3px ${themeColor})` : "none"}
+                      r={r + 0.5}
+                      fill="rgba(239, 68, 68, 0.15)"
+                      stroke="#ef4444"
+                      strokeWidth="1"
+                      strokeDasharray="1.5 1"
+                      className="animate-pulse"
                     />
                   );
                 })}
