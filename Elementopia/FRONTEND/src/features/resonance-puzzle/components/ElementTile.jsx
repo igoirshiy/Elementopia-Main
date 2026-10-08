@@ -44,7 +44,7 @@ export function ElementTile({ symbol, disabled, onAdd, index = 0 }) {
       </button>
 
       {hover && !disabled && (
-        <div className={`pointer-events-none absolute z-[100] ${posClass} w-72 rounded-xl border border-cyan/50 bg-slate-950/98 p-2.5 text-xs shadow-[0_0_30px_rgba(6,182,212,0.45)] backdrop-blur animate-fade-in`}>
+        <div className={`pointer-events-none hidden sm:block absolute z-[100] ${posClass} w-72 rounded-xl border border-cyan/50 bg-slate-950/98 p-2.5 text-xs shadow-[0_0_30px_rgba(6,182,212,0.45)] backdrop-blur animate-fade-in`}>
           <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-800">
             <div>
               <div className="font-display text-sm font-bold text-white flex items-center gap-1.5">
