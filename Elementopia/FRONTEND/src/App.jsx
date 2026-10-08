@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { TourProvider, TourSpotlightOverlay } from "@/features/tutorial-tour";
 
 const LandingPage = lazy(() => import('@/features/public-marketing/pages/LandingPage'));
 const AboutUs = lazy(() => import('@/features/public-marketing/pages/AboutUs'));
@@ -31,7 +32,9 @@ function PageLoader() {
 export default function App() {
   return (
     <Router>
-      <Suspense fallback={<PageLoader />}>
+      <TourProvider>
+        <TourSpotlightOverlay />
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -74,6 +77,7 @@ export default function App() {
           <Route path="/challenge/:code" element={<ChallengeMatch />} />
         </Routes>
       </Suspense>
-    </Router>
+    </TourProvider>
+  </Router>
   );
 }

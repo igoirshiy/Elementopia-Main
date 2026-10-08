@@ -4,6 +4,7 @@ import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { loadProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService, { NicknameGate } from "@/features/auth-user";
 import MasteryService from "../services/MasteryService";
+import { useTour } from "@/features/tutorial-tour";
 
 // Mastery Helper Components
 function BigStat({ icon, label, value, accent, tone }) {
@@ -39,21 +40,32 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   const [rows, setRows] = useState([]);
   const [cloudMetrics, setCloudMetrics] = useState(null);
   const [showNicknameGate, setShowNicknameGate] = useState(() => !localStorage.getItem("elementopia_current_user"));
-  
+  const navigate = useNavigate();
+  const { hasCompleted, startTour } = useTour();
+
+  useEffect(() => {
+    if (!showNicknameGate && !hasCompleted) {
+      const timer = setTimeout(() => {
+        startTour(0);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [showNicknameGate, hasCompleted, startTour]);
+
   useEffect(() => {
     const reloadData = async () => {
       let localUser = null;
       try {
         const userStr = localStorage.getItem("elementopia_current_user");
         if (userStr) localUser = JSON.parse(userStr);
-      } catch(e) {}
+      } catch (e) { }
 
       const nick = localUser?.username || progress.nickname;
       if (nick && nick !== "Guest Alchemist") {
         const pRows = await fetchProgress(nick);
         setRows(pRows);
         setProgress(loadProgress());
-        
+
         MasteryService.getPersonalProficiencyMap(nick).then(data => {
           if (data && data.success && data.metrics) {
             const map = new Map(data.metrics.map(m => [m.domainName, m]));
@@ -73,7 +85,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
     const h = () => void reloadData();
     window.addEventListener("elementopia:progress", h);
-    
+
     return () => window.removeEventListener("elementopia:progress", h);
   }, []);
 
@@ -84,6 +96,54 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     setProgress(loadProgress());
     setShowNicknameGate(false);
   };
+
+  const modules = [
+    {
+      title: "Periodic Matrix",
+      dataTour: "tour-matrix",
+      tag: "Interactive Table",
+      desc: "Explore all 118 authentic elements with family filters, atomic coordinates, and deep structure analysis.",
+      onClick: () => navigate("/student/matrix"),
+      hue: "from-cyan to-indigo-500",
+      glow: "shadow-[0_0_32px_rgba(6,182,212,0.4)]",
+    },
+    {
+      title: "Dr. Atom's Workshop",
+      dataTour: "tour-workshop",
+      tag: "Interactive Academy",
+      desc: "Learn atomic anatomy, Bohr models, periodic trends, and chemical bonding with Dr. Atom.",
+      onClick: () => navigate("/student/workshop"),
+      hue: "from-cyan to-magenta",
+      glow: "shadow-[0_0_32px_rgba(6,182,212,0.4)]",
+    },
+    {
+      title: "Compound Gallery",
+      dataTour: "tour-gallery",
+      tag: "Encyclopedia",
+      desc: "Browse 50 real-world compounds, reveal molecular synthesis recipes, and learn scientific fun facts.",
+      onClick: () => navigate("/student/gallery"),
+      hue: "from-indigo-500 to-magenta",
+      glow: "shadow-[0_0_32px_rgba(99,102,241,0.4)]",
+    },
+    {
+      title: "Chemistry Sandbox",
+      dataTour: "tour-sandbox",
+      tag: "Simulation",
+      desc: "Freely mix elements on the workbench to discover and catalog unique molecular compounds.",
+      onClick: () => navigate("/student/Chem-Simulation"),
+      hue: "from-magenta to-indigo-500",
+      glow: "shadow-[0_0_32px_rgba(236,72,153,0.4)]",
+    },
+    {
+      title: "Opponent Challenge",
+      dataTour: "tour-challenge",
+      tag: "Realtime 1v1",
+      desc: "Generate a 5-digit code, share it, and race a friend to synthesize the target compound first.",
+      onClick: () => navigate("/challenge"),
+      hue: "from-magenta to-cyan",
+      glow: "shadow-[0_0_32px_rgba(236,72,153,0.4)]",
+    },
+  ];
 
   if (showNicknameGate) {
     return (
@@ -97,10 +157,10 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   try {
     const userStr = localStorage.getItem("elementopia_current_user");
     if (userStr) localUser = JSON.parse(userStr);
-  } catch(e) {}
-  
-  const displayName = localUser?.username && localUser.username !== "Guest Alchemist" 
-    ? localUser.username 
+  } catch (e) { }
+
+  const displayName = localUser?.username && localUser.username !== "Guest Alchemist"
+    ? localUser.username
     : (progress.nickname && progress.nickname !== "Guest Alchemist" ? progress.nickname : "Alchemist");
 
   // Mastery computations
@@ -112,7 +172,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
   return (
     <main className="mx-auto max-w-[1400px] w-full px-8 md:px-16 lg:px-24 py-12">
-      <div className="mb-10">
+      <div data-tour="tour-welcome" className="mb-10">
         <p className="font-mono text-xs text-muted-foreground tracking-[0.3em] uppercase">DASHBOARD</p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2 text-white" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
           Welcome back, {displayName}.
@@ -122,7 +182,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         </p>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div data-tour="tour-stats" className="mb-6 grid gap-3 sm:grid-cols-3">
         <BigStat icon={<Trophy className="size-5" />} label="Domains cleared" value={`${completedCount}/${DOMAINS.length}`} accent="magenta" />
         <BigStat icon={<AlertCircle className="size-5" />} label="Overall accuracy" value={`${overallAcc}%`} accent="cyan" tone={overallAcc < 50 && totalAttempts > 0 ? "warn" : "ok"} />
         <BigStat icon={<Clock className="size-5" />} label="Total time" value={fmtTime(rows.reduce((a, r) => a + r.time_seconds, 0))} accent="violet" />
@@ -134,7 +194,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
           const cloud = cloudMetrics?.get(d.id);
           const attempts = r?.attempts ?? 0;
           const correct = r?.correct ?? 0;
-          
+
           let acc = null;
           let time = null;
           let isCloud = false;
@@ -179,7 +239,33 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         })}
       </div>
 
-      <section id="domains-section">
+      <section className="mb-16">
+        <h2 className="font-mono text-xs mb-4 text-white tracking-[0.2em]">INTERACTIVE MODULES</h2>
+        <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+          {modules.map((m) => (
+            <button
+              key={m.title}
+              data-tour={m.dataTour}
+              onClick={m.onClick}
+              className={`text-left flex flex-col h-full rounded-2xl border border-border/40 bg-card p-6 hover:-translate-y-1 transition group ${m.glow} cursor-pointer`}
+            >
+              <div className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${m.hue} mb-5`} />
+              <p className="font-mono text-[10px] text-muted-foreground mb-2 uppercase tracking-wider">
+                {m.tag}
+              </p>
+              <h3 className="font-pixel text-sm sm:text-base font-bold mb-3 group-hover:text-glow-white text-white">
+                {m.title}
+              </h3>
+              <p className="text-sm text-muted-foreground/80 leading-relaxed mb-6">{m.desc}</p>
+              <span className="mt-auto self-end rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-5 py-2 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider">
+                Enter
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section id="domains-section" data-tour="tour-domains">
         <h2 className="font-mono text-xs mb-4 text-white tracking-[0.2em]">DOMAINS</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {DOMAINS.map((d, i) => {
@@ -199,11 +285,10 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
                 className={`group relative overflow-hidden flex flex-col h-full rounded-[24px] border border-border/40 bg-card p-6 text-left transition
                   ${unlocked ? "hover:-translate-y-1 hover:border-magenta/40 hover:shadow-2xl cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
               >
-                <div className={`absolute inset-x-0 top-0 h-[6px] ${
-                  d.accent === "cyan"    ? "bg-gradient-cyan" :
-                  d.accent === "magenta" ? "bg-gradient-magenta" :
-                  d.accent === "violet"  ? "bg-gradient-violet" : "bg-gradient-forge"
-                }`} />
+                <div className={`absolute inset-x-0 top-0 h-[6px] ${d.accent === "cyan" ? "bg-gradient-cyan" :
+                    d.accent === "magenta" ? "bg-gradient-magenta" :
+                      d.accent === "violet" ? "bg-gradient-violet" : "bg-gradient-forge"
+                  }`} />
                 <div className="flex items-start justify-between">
                   <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Domain {i + 1}</div>
                   {!unlocked && <Lock className="size-4 text-muted-foreground" />}
