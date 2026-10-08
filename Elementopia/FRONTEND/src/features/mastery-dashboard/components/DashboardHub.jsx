@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Lock, Trophy, AlertCircle, Clock, Cloud } from "lucide-react";
+import { Lock, Trophy, AlertCircle, Clock } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { loadProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService, { NicknameGate } from "@/features/auth-user";
@@ -31,8 +30,9 @@ function Mini({ label, value, warn }) {
 }
 
 function fmtTime(s) {
+  if (typeof s !== "number" || isNaN(s) || s < 0) return "—";
   const m = Math.floor(s / 60).toString().padStart(2, "0");
-  const ss = (s % 60).toString().padStart(2, "0");
+  const ss = Math.floor(s % 60).toString().padStart(2, "0");
   return `${m}:${ss}`;
 }
 
@@ -41,7 +41,6 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   const [rows, setRows] = useState([]);
   const [cloudMetrics, setCloudMetrics] = useState(null);
   const [showNicknameGate, setShowNicknameGate] = useState(() => !localStorage.getItem("elementopia_current_user"));
-  const navigate = useNavigate();
   const { hasCompleted, startTour } = useTour();
 
   useEffect(() => {
@@ -98,53 +97,6 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     setShowNicknameGate(false);
   };
 
-  const modules = [
-    {
-      title: "Periodic Matrix",
-      dataTour: "tour-matrix",
-      tag: "Interactive Table",
-      desc: "Explore all 118 authentic elements with family filters, atomic coordinates, and deep structure analysis.",
-      onClick: () => navigate("/student/matrix"),
-      hue: "from-cyan to-indigo-500",
-      glow: "shadow-[0_0_32px_rgba(6,182,212,0.4)]",
-    },
-    {
-      title: "Dr. Atom's Workshop",
-      dataTour: "tour-workshop",
-      tag: "Interactive Academy",
-      desc: "Learn atomic anatomy, Bohr models, periodic trends, and chemical bonding with Dr. Atom.",
-      onClick: () => navigate("/student/workshop"),
-      hue: "from-cyan to-magenta",
-      glow: "shadow-[0_0_32px_rgba(6,182,212,0.4)]",
-    },
-    {
-      title: "Compound Gallery",
-      dataTour: "tour-gallery",
-      tag: "Encyclopedia",
-      desc: "Browse 50 real-world compounds, reveal molecular synthesis recipes, and learn scientific fun facts.",
-      onClick: () => navigate("/student/gallery"),
-      hue: "from-indigo-500 to-magenta",
-      glow: "shadow-[0_0_32px_rgba(99,102,241,0.4)]",
-    },
-    {
-      title: "Chemistry Sandbox",
-      dataTour: "tour-sandbox",
-      tag: "Simulation",
-      desc: "Freely mix elements on the workbench to discover and catalog unique molecular compounds.",
-      onClick: () => navigate("/student/Chem-Simulation"),
-      hue: "from-magenta to-indigo-500",
-      glow: "shadow-[0_0_32px_rgba(236,72,153,0.4)]",
-    },
-    {
-      title: "Opponent Challenge",
-      dataTour: "tour-challenge",
-      tag: "Realtime 1v1",
-      desc: "Generate a 5-digit code, share it, and race a friend to synthesize the target compound first.",
-      onClick: () => navigate("/challenge"),
-      hue: "from-magenta to-cyan",
-      glow: "shadow-[0_0_32px_rgba(236,72,153,0.4)]",
-    },
-  ];
 
   if (showNicknameGate) {
     return (
@@ -166,19 +118,35 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
   // Mastery computations
   const byDomain = new Map(rows.map(r => [r.domain, r]));
-  const completedCount = rows.filter(r => r.completed).length;
-  const totalAttempts = rows.reduce((a, r) => a + r.attempts, 0);
-  const totalCorrect = rows.reduce((a, r) => a + r.correct, 0);
-  const overallAcc = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+  const completedCount = DOMAINS.filter(d =>
+    progress?.clearedDomains?.includes(d.id) || byDomain.get(d.id)?.completed
+  ).length;
+  const totalAttempts = rows.reduce((a, r) => a + (r.attempts || 0), 0);
+  const totalCorrect = rows.reduce((a, r) => a + (r.correct || 0), 0);
+
+  let overallAcc = 0;
+  if (totalAttempts > 0) {
+    overallAcc = Math.round((totalCorrect / totalAttempts) * 100);
+  } else if (cloudMetrics && cloudMetrics.size > 0) {
+    const cloudAccs = Array.from(cloudMetrics.values())
+      .map(m => m.averageAccuracyPercentage ?? m.accuracyPercentage)
+      .filter(v => typeof v === "number" && !isNaN(v));
+    if (cloudAccs.length > 0) {
+      overallAcc = Math.round(cloudAccs.reduce((a, b) => a + b, 0) / cloudAccs.length);
+    }
+  }
+
+  const totalTimeSeconds = rows.reduce((a, r) => a + (r.time_seconds || 0), 0) ||
+    (cloudMetrics ? Array.from(cloudMetrics.values()).reduce((a, m) => a + (m.averageSpeedSeconds ?? m.speedSeconds ?? 0), 0) : 0);
 
   return (
-    <main className="mx-auto max-w-[1400px] w-full px-8 md:px-16 lg:px-24 py-12">
-      <div data-tour="tour-welcome" className="mb-10">
-        <p className="font-mono text-xs text-muted-foreground tracking-[0.3em] uppercase">DASHBOARD</p>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2 text-white" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
+    <main className="mx-auto max-w-[1400px] w-full px-4 sm:px-8 md:px-16 lg:px-24 py-6 sm:py-12">
+      <div data-tour="tour-welcome" className="mb-8 sm:mb-10">
+        <p className="font-mono text-[10px] sm:text-xs text-muted-foreground tracking-[0.3em] uppercase">DASHBOARD</p>
+        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold mt-2 text-white" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
           Welcome back, {displayName}.
         </h1>
-        <p className="text-muted-foreground mt-3 max-w-2xl text-[15px]">
+        <p className="text-muted-foreground mt-2 sm:mt-3 max-w-2xl text-xs sm:text-[15px] leading-relaxed">
           Choose a domain to start chemical resonance synthesis. All session data persists to your Mastery Dashboard.
         </p>
       </div>
@@ -186,7 +154,7 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
       <div data-tour="tour-stats" className="mb-6 grid gap-3 sm:grid-cols-3">
         <BigStat icon={<Trophy className="size-5" />} label="Domains cleared" value={`${completedCount}/${DOMAINS.length}`} accent="magenta" />
         <BigStat icon={<AlertCircle className="size-5" />} label="Overall accuracy" value={`${overallAcc}%`} accent="cyan" tone={overallAcc < 50 && totalAttempts > 0 ? "warn" : "ok"} />
-        <BigStat icon={<Clock className="size-5" />} label="Total time" value={fmtTime(rows.reduce((a, r) => a + r.time_seconds, 0))} accent="violet" />
+        <BigStat icon={<Clock className="size-5" />} label="Total time" value={fmtTime(totalTimeSeconds)} accent="violet" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
@@ -196,18 +164,27 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
           const attempts = r?.attempts ?? 0;
           const correct = r?.correct ?? 0;
 
+          const cloudAcc = cloud?.averageAccuracyPercentage ?? cloud?.accuracyPercentage;
+          const cloudSpeed = cloud?.averageSpeedSeconds ?? cloud?.speedSeconds;
+          const hasCloudData = cloudAcc != null && !isNaN(cloudAcc);
+
           let acc = null;
           let time = null;
           let isCloud = false;
 
-          if (cloud) {
-            acc = Math.round(cloud.accuracyPercentage);
-            time = cloud.speedSeconds;
+          if (hasCloudData) {
+            acc = Math.round(cloudAcc);
+            time = (cloudSpeed != null && !isNaN(cloudSpeed)) ? cloudSpeed : (r?.time_seconds ?? null);
             isCloud = true;
-          } else if (attempts) {
+          } else if (attempts > 0) {
             acc = Math.round((correct / attempts) * 100);
             time = r?.time_seconds ?? null;
+            isCloud = false;
           }
+
+          const isCleared = progress?.clearedDomains?.includes(d.id) || r?.completed;
+          const isStarted = isCleared || r || hasCloudData;
+          const displayAttempts = attempts > 0 ? attempts : (hasCloudData ? 1 : 0);
           const lowAcc = acc !== null && acc < 60;
           return (
             <div key={d.id} className="flex flex-col h-full rounded-2xl border border-border bg-card/70 p-6 transition-transform hover:-translate-y-1 hover:shadow-xl">
@@ -217,9 +194,9 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
                   <div className="font-mono text-[11px] text-muted-foreground mt-2 line-clamp-2">{d.tagline}</div>
                 </div>
                 <div className="shrink-0">
-                  {r?.completed ? (
+                  {isCleared ? (
                     <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-success border border-success/30">Cleared</span>
-                  ) : r ? (
+                  ) : isStarted ? (
                     <span className="rounded-md bg-violet/15 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-violet border border-violet/30">In progress</span>
                   ) : (
                     <span className="rounded-md bg-muted px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground border border-border/50">Not started</span>
@@ -228,43 +205,14 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
               </div>
               <div className="mt-auto grid grid-cols-2 gap-2">
                 <Mini label="Accuracy" value={acc === null ? "—" : `${acc}%`} warn={lowAcc} />
-                <Mini label="Attempts" value={`${attempts}`} />
+                <Mini label="Attempts" value={`${displayAttempts}`} />
                 <Mini label="Time" value={time !== null ? fmtTime(time) : "—"} />
                 <Mini label="Hazmat" value={`${r?.hazmat_activations ?? 0}×`} />
-                <div className="col-span-2">
-                  <Mini label="Data Source" value={isCloud ? <><Cloud className="size-3 text-cyan inline mr-1" />Cloud</> : "Local"} />
-                </div>
               </div>
             </div>
           );
         })}
       </div>
-
-      <section className="mb-16">
-        <h2 className="font-mono text-xs mb-4 text-white tracking-[0.2em]">INTERACTIVE MODULES</h2>
-        <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-          {modules.map((m) => (
-            <button
-              key={m.title}
-              data-tour={m.dataTour}
-              onClick={m.onClick}
-              className={`text-left flex flex-col h-full rounded-2xl border border-border/40 bg-card p-6 hover:-translate-y-1 transition group ${m.glow} cursor-pointer`}
-            >
-              <div className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${m.hue} mb-5`} />
-              <p className="font-mono text-[10px] text-muted-foreground mb-2 uppercase tracking-wider">
-                {m.tag}
-              </p>
-              <h3 className="font-pixel text-sm sm:text-base font-bold mb-3 group-hover:text-glow-white text-white">
-                {m.title}
-              </h3>
-              <p className="text-sm text-muted-foreground/80 leading-relaxed mb-6">{m.desc}</p>
-              <span className="mt-auto self-end rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-5 py-2 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider">
-                Enter
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
 
       <section id="domains-section" data-tour="tour-domains">
         <h2 className="font-mono text-xs mb-4 text-white tracking-[0.2em]">DOMAINS</h2>

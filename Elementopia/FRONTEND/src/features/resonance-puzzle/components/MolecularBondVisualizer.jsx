@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { BohrAtomVisualizer } from './BohrAtomVisualizer';
 import { ELEMENTS, calculateValenceStatus } from '../lib/game-data';
 import { X, CheckCircle2, AlertCircle, AlertTriangle, Sparkles, Info, ZoomIn, ZoomOut, RotateCcw, Move } from 'lucide-react';
@@ -130,7 +130,8 @@ function getBondType(symA, symB, valenceInfo) {
     const nonmetal = isMetalA ? symB : symA;
     return {
       type: "ionic",
-      label: `${metal} gives ${ELEMENTS[metal]?.valence || 1} e⁻ → ${nonmetal}`,
+      label: "Ionic (e⁻ →)",
+      fullExplanation: `${metal} gives ${ELEMENTS[metal]?.valence || 1} e⁻ → ${nonmetal}`,
       isDouble: false,
       isTriple: false
     };
@@ -142,7 +143,8 @@ function getBondType(symA, symB, valenceInfo) {
   if (isCO2Bond || isEthylene) {
     return {
       type: "double",
-      label: `${symA} shares 2 e⁻ ═ ${symB} shares 2 e⁻ (4 e⁻ Double Bond)`,
+      label: "Double (═ 4 e⁻)",
+      fullExplanation: `${symA} shares 2 e⁻ ═ ${symB} shares 2 e⁻ (4 e⁻ Double Bond)`,
       isDouble: true,
       isTriple: false
     };
@@ -153,7 +155,8 @@ function getBondType(symA, symB, valenceInfo) {
   if (isTriple) {
     return {
       type: "triple",
-      label: `${symA} shares 3 e⁻ ≡ ${symB} shares 3 e⁻ (6 e⁻ Triple Bond)`,
+      label: "Triple (≡ 6 e⁻)",
+      fullExplanation: `${symA} shares 3 e⁻ ≡ ${symB} shares 3 e⁻ (6 e⁻ Triple Bond)`,
       isDouble: false,
       isTriple: true
     };
@@ -162,7 +165,8 @@ function getBondType(symA, symB, valenceInfo) {
   // Default Single Covalent Bond
   return {
     type: "single",
-    label: `${symA} shares 1 e⁻ ─ ${symB} shares 1 e⁻ (2 e⁻ Shared Pair)`,
+    label: "Single (─ 2 e⁻)",
+    fullExplanation: `${symA} shares 1 e⁻ ─ ${symB} shares 1 e⁻ (2 e⁻ Shared Pair)`,
     isDouble: false,
     isTriple: false
   };
@@ -223,13 +227,31 @@ function getReactionExplanation(workbench = {}, valenceInfo, target = null) {
 }
 
 export function MolecularBondVisualizer({ workbench = {}, target = null, onRemove }) {
+
   const [zoomScale, setZoomScale] = useState(1);
   const [panPos, setPanPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, startPanX: 0, startPanY: 0 });
 
+  // Per-atom draggable position offsets: { [atomKey]: { x: number, y: number } }
+  const [atomOffsets, setAtomOffsets] = useState({});
+  const draggingAtomRef = useRef(null);
+
+  const handleAtomPointerDown = useCallback((atomKey, e) => {
+    e.stopPropagation();
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+    const current = atomOffsets[atomKey] || { x: 0, y: 0 };
+    draggingAtomRef.current = {
+      key: atomKey,
+      startX: clientX,
+      startY: clientY,
+      origX: current.x,
+      origY: current.y
+    };
+  }, [atomOffsets]);
+
   const handleMouseDown = useCallback((e) => {
-    if (e.button !== 0) return;
     if (e.target.closest('button') || e.target.closest('input')) return;
     setIsDragging(true);
     dragStartRef.current = {
@@ -241,6 +263,16 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
   }, [panPos]);
 
   const handleMouseMove = useCallback((e) => {
+    if (draggingAtomRef.current) {
+      const { key, startX, startY, origX, origY } = draggingAtomRef.current;
+      const dx = (e.clientX - startX) / zoomScale;
+      const dy = (e.clientY - startY) / zoomScale;
+      setAtomOffsets(prev => ({
+        ...prev,
+        [key]: { x: origX + dx, y: origY + dy }
+      }));
+      return;
+    }
     if (!isDragging) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dy = e.clientY - dragStartRef.current.y;
@@ -248,9 +280,12 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
       x: dragStartRef.current.startPanX + dx,
       y: dragStartRef.current.startPanY + dy
     });
-  }, [isDragging]);
+  }, [isDragging, zoomScale]);
 
   const handleMouseUp = useCallback(() => {
+    if (draggingAtomRef.current) {
+      draggingAtomRef.current = null;
+    }
     setIsDragging(false);
   }, []);
 
@@ -268,6 +303,17 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
   }, [panPos]);
 
   const handleTouchMove = useCallback((e) => {
+    if (draggingAtomRef.current) {
+      const touch = e.touches[0];
+      const { key, startX, startY, origX, origY } = draggingAtomRef.current;
+      const dx = (touch.clientX - startX) / zoomScale;
+      const dy = (touch.clientY - startY) / zoomScale;
+      setAtomOffsets(prev => ({
+        ...prev,
+        [key]: { x: origX + dx, y: origY + dy }
+      }));
+      return;
+    }
     if (!isDragging || e.touches.length !== 1) return;
     const touch = e.touches[0];
     const dx = touch.clientX - dragStartRef.current.x;
@@ -276,18 +322,27 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
       x: dragStartRef.current.startPanX + dx,
       y: dragStartRef.current.startPanY + dy
     });
-  }, [isDragging]);
+  }, [isDragging, zoomScale]);
 
   const handleTouchEnd = useCallback(() => {
+    if (draggingAtomRef.current) {
+      draggingAtomRef.current = null;
+    }
     setIsDragging(false);
   }, []);
 
   const handleResetView = useCallback(() => {
     setZoomScale(1);
     setPanPos({ x: 0, y: 0 });
+    setAtomOffsets({});
   }, []);
 
+  // Reset atom offsets when composition changes
   const entries = Object.entries(workbench).filter(([, qty]) => (qty ?? 0) > 0);
+  const entriesKey = entries.map(([s, q]) => `${s}:${q}`).sort().join(',');
+  useEffect(() => {
+    setAtomOffsets({});
+  }, [entriesKey]);
   const valenceInfo = calculateValenceStatus(workbench, target);
   const molecularSequence = organizeMolecularSequence(workbench);
 
@@ -318,63 +373,40 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
         ? "border-amber-500/50 bg-amber-950/20"
         : "border-cyan/40 bg-slate-950/90 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
     }`}>
-      {/* Header with status badge */}
-      <div className="flex items-center justify-between w-full mb-2 pb-1.5 border-b border-slate-800/80">
-        <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Active Atoms
+      {/* Compact Active Atoms Bar with Quick Removal Chips */}
+      <div className="flex flex-wrap items-center justify-between gap-2 w-full mb-2 pb-1.5 border-b border-slate-800/80">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+            Atoms:
           </span>
-          <span className="px-1.5 py-0.2 bg-slate-800 rounded font-mono text-[9px] text-slate-300 font-bold">
-            {entries.reduce((a, [, q]) => a + q, 0)} total
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 font-mono text-[10px] font-bold text-slate-300">
-            {totalValenceOffered} e⁻ in pool
-          </span>
-          {valenceInfo.balanced ? (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/50 font-mono text-[10px] font-bold text-emerald-300 animate-pulse">
-              <CheckCircle2 className="size-3 text-emerald-400" /> Stable Octet
-            </span>
-          ) : valenceInfo.isNoble ? (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/50 font-mono text-[10px] font-bold text-amber-300">
-              <AlertTriangle className="size-3 text-amber-400" /> Inert Gas
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan/10 border border-cyan/30 font-mono text-[10px] font-bold text-cyan">
-              <AlertCircle className="size-3 text-cyan" /> Incomplete
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Interactive Atom Cards with Removal */}
-      <div className="grid grid-cols-3 gap-1.5 w-full mb-2">
-        {entries.map(([symbol, qty]) => {
-          const el = ELEMENTS[symbol];
-          const isMet = ["Na", "Mg"].includes(symbol);
-          const empty = el?.noble ? 0 : isMet ? 0 : symbol === "H" ? 2 - el.valence : 8 - el.valence;
-          return (
+          {entries.map(([symbol, qty]) => (
             <button
               key={symbol}
               type="button"
               onClick={() => onRemove && onRemove(symbol)}
-              className="group relative flex items-center justify-between rounded-xl bg-slate-900/90 border border-slate-800 hover:border-red-500/60 p-1.5 transition-all hover:scale-105 shadow-sm"
-              title="Click to remove one atom"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 hover:bg-red-950/40 border border-slate-700/80 hover:border-red-500/70 text-slate-200 hover:text-red-300 font-mono text-xs font-bold transition-all shadow-sm cursor-pointer group"
+              title={`Click to remove 1× ${symbol}`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <BohrAtomVisualizer symbol={symbol} size="xs" animated={true} showEmptySeats={true} />
-                <div className="flex flex-col text-left">
-                  <span className="font-mono text-xs font-bold text-white leading-none">×{qty} {symbol}</span>
-                  <span className="font-mono text-[9px] text-slate-400 mt-0.5 leading-none">
-                    {el?.noble ? "Inert (0)" : isMet ? `give ${el.valence}e⁻` : `${empty} empty`}
-                  </span>
-                </div>
-              </div>
-              <X className="size-3 text-slate-400 group-hover:text-red-400 transition shrink-0" />
+              <span>{qty}× {symbol}</span>
+              <X className="size-3 text-slate-400 group-hover:text-red-400 transition" />
             </button>
-          );
-        })}
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          {valenceInfo.balanced ? (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 font-mono text-[10px] font-bold text-emerald-300 animate-pulse">
+              <CheckCircle2 className="size-3 text-emerald-400" /> Stable Octet
+            </span>
+          ) : valenceInfo.isNoble ? (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/50 font-mono text-[10px] font-bold text-amber-300">
+              <AlertTriangle className="size-3 text-amber-400" /> Inert Gas
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan/10 border border-cyan/30 font-mono text-[10px] font-bold text-cyan">
+              <AlertCircle className="size-3 text-cyan" /> {totalValenceOffered} e⁻ pool
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Live Electron Sharing & Molecular Assembly View */}
@@ -420,13 +452,23 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                 <span>Spatial Molecular Stage</span>
               </span>
               {valenceInfo.balanced ? (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-300 font-mono text-[9.5px] font-bold animate-bounce shadow-[0_0_12px_rgba(16,185,129,0.4)]">
-                  ✨ AUTO-ARRANGED
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setAtomOffsets({})}
+                  className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500 text-emerald-300 font-mono text-[9.5px] font-bold shadow-[0_0_12px_rgba(16,185,129,0.4)] cursor-pointer transition"
+                  title="Click to snap all atoms back to auto-arranged alignment"
+                >
+                  ✨ RESET ALIGNMENT
+                </button>
               ) : (
-                <span className="px-2 py-0.5 rounded-full bg-cyan/15 border border-cyan/40 text-cyan font-mono text-[9px] font-semibold">
-                  ⚡ Auto-arranging
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setAtomOffsets({})}
+                  className="px-2.5 py-0.5 rounded-full bg-cyan/15 hover:bg-cyan/25 border border-cyan/40 text-cyan font-mono text-[9px] font-semibold cursor-pointer transition flex items-center gap-1"
+                  title="Click to snap all atoms back to auto-arranged alignment"
+                >
+                  ⚡ Auto-arrange
+                </button>
               )}
             </div>
 
@@ -476,51 +518,29 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               transformOrigin: 'center center'
             }}
           >
-          {/* Water (H2O) Bent V-Shape Geometry (Exact Match to User Paper Sketch: Compact Nodes & Prominent Glowing Arrows) */}
+          {/* Water (H2O) Bent V-Shape Geometry */}
           {entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'H2_O1' ? (
-            <div className="relative flex flex-col items-center justify-between min-h-[300px] sm:min-h-[340px] py-4 w-full">
+            <div className="relative flex flex-col items-center justify-between min-h-[210px] sm:min-h-[230px] py-2 w-full">
               {/* Top Row: Two Compact Hydrogens at Top-Left and Top-Right */}
-              <div className="flex items-center justify-between w-full px-10 sm:px-24 z-20">
+              <div className="flex items-center justify-between w-full px-12 sm:px-24 z-20">
                 {/* Top-Left Hydrogen Node */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all duration-300 shadow-xl ${
-                    valenceInfo.balanced
-                      ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]"
-                      : "border-cyan/80 bg-slate-900/90 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <div className="flex items-center gap-1">
-                        <span className="font-pixel text-sm font-bold text-white">H</span>
-                        <span className="text-[9px] font-mono text-cyan font-bold">(Left)</span>
-                      </div>
-                      <span className="font-mono text-[10px] font-bold text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[9px] text-emerald-300 font-bold mt-1">
-                    {valenceInfo.balanced ? "2/2 e⁻ (Duet ✅)" : "needs 1 e⁻"}
-                  </span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* Top-Right Hydrogen Node */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all duration-300 shadow-xl ${
-                    valenceInfo.balanced
-                      ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]"
-                      : "border-cyan/80 bg-slate-900/90 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <div className="flex items-center gap-1">
-                        <span className="font-pixel text-sm font-bold text-white">H</span>
-                        <span className="text-[9px] font-mono text-cyan font-bold">(Right)</span>
-                      </div>
-                      <span className="font-mono text-[10px] font-bold text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[9px] text-emerald-300 font-bold mt-1">
-                    {valenceInfo.balanced ? "2/2 e⁻ (Duet ✅)" : "needs 1 e⁻"}
-                  </span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -563,94 +583,57 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               </svg>
 
               {/* Prominent Floating Electron Sharing Badges Along the Arrows */}
-              <div className="absolute top-[42%] left-[18%] sm:left-[26%] z-30 flex items-center gap-2 bg-slate-900 border-2 border-cyan px-3 py-1 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.6)]">
-                <span className="font-mono text-[11px] font-bold text-pink-400">1 e⁻</span>
-                <span className="text-cyan font-bold text-sm animate-pulse">⟷</span>
-                <span className="font-mono text-[11px] font-bold text-cyan">1 e⁻</span>
+              <div className="absolute top-[38%] left-[18%] sm:left-[26%] z-30 flex items-center gap-1.5 bg-slate-900/90 border border-cyan/50 px-2 py-0.5 rounded-full shadow-md font-mono text-[9px] font-bold text-cyan">
+                <span>1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
-              <div className="absolute top-[42%] right-[18%] sm:right-[26%] z-30 flex items-center gap-2 bg-slate-900 border-2 border-cyan px-3 py-1 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.6)]">
-                <span className="font-mono text-[11px] font-bold text-cyan">1 e⁻</span>
-                <span className="text-cyan font-bold text-sm animate-pulse">⟷</span>
-                <span className="font-mono text-[11px] font-bold text-pink-400">1 e⁻</span>
+              <div className="absolute top-[38%] right-[18%] sm:right-[26%] z-30 flex items-center gap-1.5 bg-slate-900/90 border border-cyan/50 px-2 py-0.5 rounded-full shadow-md font-mono text-[9px] font-bold text-cyan">
+                <span>1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
-              {/* Bottom Center: Compact Oxygen Node */}
-              <div className="flex flex-col items-center mt-8 z-20 animate-fade-up">
-                <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl border-2 transition-all duration-300 shadow-2xl ${
-                  valenceInfo.balanced
-                    ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_30px_rgba(52,211,153,0.45)]"
-                    : "border-cyan/80 bg-slate-900/90 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                }`}>
-                  <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-pixel text-base font-bold text-white">O (Oxygen)</span>
-                      <span className="px-1.5 py-0.2 rounded bg-pink-500/20 border border-pink-500/40 font-mono text-[9px] font-bold text-pink-300">
-                        Octet
-                      </span>
-                    </div>
-                    <span className="font-mono text-[11px] font-bold text-cyan mt-0.5">
-                      6 e⁻ base + 2 shared = 8/8 e⁻
-                    </span>
-                  </div>
-                </div>
-                <span className="font-mono text-[10px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "✓ Full Octet (8/8 e⁻) Achieved!" : "needs 2 e⁻"}
-                </span>
+              {/* Bottom Center: Oxygen Node */}
+              <div className="flex flex-col items-center mt-4 z-20 animate-fade-up">
+                <BohrAtomVisualizer symbol="O" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[9px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'H3_N1' ? (
             /* Ammonia (NH3) Tripod Geometry: N in center-bottom, 3 H atoms in upper arc */
-            <div className="relative flex flex-col items-center justify-between min-h-[320px] sm:min-h-[360px] py-4 w-full">
+            <div className="relative flex flex-col items-center justify-between min-h-[220px] sm:min-h-[240px] py-2 w-full">
               {/* Top Row: 3 Hydrogens (Left Upper, Top Center, Right Upper) */}
               <div className="flex items-center justify-between w-full px-6 sm:px-14 z-20">
                 {/* 1st Hydrogen: Left Upper */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 shadow-xl ${
-                    valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-cyan/80 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs font-bold text-white">H (Left)</span>
-                      <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5">
-                    {valenceInfo.balanced ? "2/2 e⁻ ✅" : "needs 1 e⁻"}
-                  </span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* 2nd Hydrogen: Top Center */}
-                <div className="flex flex-col items-center animate-fade-down -mt-3">
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 shadow-xl ${
-                    valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-cyan/80 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs font-bold text-white">H (Top)</span>
-                      <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5">
-                    {valenceInfo.balanced ? "2/2 e⁻ ✅" : "needs 1 e⁻"}
-                  </span>
+                <div className="flex flex-col items-center animate-fade-down -mt-2">
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* 3rd Hydrogen: Right Upper */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 shadow-xl ${
-                    valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-cyan/80 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs font-bold text-white">H (Right)</span>
-                      <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5">
-                    {valenceInfo.balanced ? "2/2 e⁻ ✅" : "needs 1 e⁻"}
-                  </span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -703,408 +686,316 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               </svg>
 
               {/* Floating Handshake Badges with Arrow Icons */}
-              <div className="absolute top-[44%] left-[17%] sm:left-[24%] z-30 flex items-center gap-1.5 bg-slate-900 border-2 border-cyan px-2 py-0.5 rounded-full shadow-lg">
-                <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻</span>
-                <span className="text-cyan font-bold text-xs">⟷</span>
-                <span className="font-mono text-[9px] font-bold text-cyan">1 e⁻</span>
+              <div className="absolute top-[42%] left-[17%] sm:left-[24%] z-30 flex items-center gap-1 bg-slate-900/90 border border-cyan/50 px-2 py-0.5 rounded-full shadow-md font-mono text-[9px] font-bold text-cyan">
+                <span>1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
-              <div className="absolute top-[40%] left-[50%] -translate-x-1/2 z-30 flex items-center gap-1.5 bg-slate-900 border-2 border-cyan px-2 py-0.5 rounded-full shadow-lg">
-                <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻</span>
-                <span className="text-cyan font-bold text-xs">⟷</span>
-                <span className="font-mono text-[9px] font-bold text-cyan">1 e⁻</span>
+              <div className="absolute top-[38%] left-[50%] -translate-x-1/2 z-30 flex items-center gap-1 bg-slate-900/90 border border-cyan/50 px-2 py-0.5 rounded-full shadow-md font-mono text-[9px] font-bold text-cyan">
+                <span>1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
-              <div className="absolute top-[44%] right-[17%] sm:right-[24%] z-30 flex items-center gap-1.5 bg-slate-900 border-2 border-cyan px-2 py-0.5 rounded-full shadow-lg">
-                <span className="font-mono text-[9px] font-bold text-cyan">1 e⁻</span>
-                <span className="text-cyan font-bold text-xs">⟷</span>
-                <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻</span>
+              <div className="absolute top-[42%] right-[17%] sm:right-[24%] z-30 flex items-center gap-1 bg-slate-900/90 border border-cyan/50 px-2 py-0.5 rounded-full shadow-md font-mono text-[9px] font-bold text-cyan">
+                <span>1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
-              {/* Bottom Center: Compact Nitrogen Node */}
-              <div className="flex flex-col items-center mt-6 z-20 animate-fade-up">
-                <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl border-2 transition-all duration-300 shadow-2xl ${
-                  valenceInfo.balanced
-                    ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_30px_rgba(52,211,153,0.45)]"
-                    : "border-purple-400 bg-slate-900/90 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
-                }`}>
-                  <BohrAtomVisualizer symbol="N" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-pixel text-base font-bold text-white">N (Nitrogen)</span>
-                      <span className="px-1.5 py-0.2 rounded bg-purple-500/20 border border-purple-500/40 font-mono text-[9px] font-bold text-purple-300">
-                        Octet
-                      </span>
-                    </div>
-                    <span className="font-mono text-[11px] font-bold text-purple-300 mt-0.5">
-                      5 e⁻ base + 3 shared = 8/8 e⁻
-                    </span>
-                  </div>
-                </div>
-                <span className="font-mono text-[10px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "✓ Full Octet (8/8 e⁻) Achieved!" : "needs 3 e⁻"}
-                </span>
+              {/* Bottom Center: Nitrogen Node */}
+              <div className="flex flex-col items-center mt-4 z-20 animate-fade-up">
+                <BohrAtomVisualizer symbol="N" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[9px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_H4' ? (
-            /* Methane (CH4) Cross Geometry: Perfectly Centered with 4 Glowing Laser Bridges */
-            <div className="relative flex flex-col items-center justify-between min-h-[340px] sm:min-h-[380px] py-3 w-full z-20">
+            /* Methane (CH4) Cross Geometry: Centered with Glowing Laser Bridges */
+            <div className="relative flex flex-col items-center justify-between min-h-[220px] sm:min-h-[240px] py-1.5 w-full z-20">
               {/* Top Hydrogen + Vertical Laser Arrow */}
               <div className="flex flex-col items-center animate-fade-down z-20">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 shadow-lg whitespace-nowrap ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">H (Top)</span>
-                    <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
 
                 {/* Vertical Laser Arrow down to Carbon */}
-                <div className="flex flex-col items-center my-1">
-                  <span className="text-cyan text-xs font-bold leading-none animate-pulse">▲</span>
-                  <div className="w-1.5 h-4 sm:h-5 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,0.9)] my-0.5" />
-                  <span className="text-cyan text-xs font-bold leading-none animate-pulse">▼</span>
-                  <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-2 py-0.2 rounded-full font-bold whitespace-nowrap mt-0.5 shadow-sm">
+                <div className="flex flex-col items-center my-0.5">
+                  <span className="text-cyan text-[10px] font-bold leading-none animate-pulse">▲</span>
+                  <div className="w-1 h-3 sm:h-4 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.9)] my-0.5" />
+                  <span className="text-cyan text-[10px] font-bold leading-none animate-pulse">▼</span>
+                  <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap mt-0.5 shadow-sm">
                     1 e⁻ ⟷ 1 e⁻
                   </span>
                 </div>
               </div>
 
               {/* Middle Horizontal Row: Left H ─ C ─ Right H */}
-              <div className="flex items-center justify-center gap-1 sm:gap-3 w-full px-2 sm:px-4 z-20">
+              <div className="flex items-center justify-center gap-1 sm:gap-2.5 w-full px-2 sm:px-4 z-20">
                 {/* Left Hydrogen */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 shadow-lg whitespace-nowrap ${
-                    valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "border-cyan/80 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-white font-bold">H (Left)</span>
-                      <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* Left Laser Arrow H ─ C */}
                 <div className="flex flex-col items-center gap-0.5">
                   <div className="flex items-center gap-1">
                     <span className="text-cyan font-bold text-xs animate-pulse">◀</span>
-                    <div className="h-1.5 w-6 sm:w-10 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,0.9)]" />
+                    <div className="h-1 w-5 sm:w-8 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.9)]" />
                     <span className="text-cyan font-bold text-xs animate-pulse">▶</span>
                   </div>
-                  <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-2 py-0.2 rounded-full font-bold whitespace-nowrap shadow-sm">
+                  <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap shadow-sm">
                     1 e⁻ ⟷ 1 e⁻
                   </span>
                 </div>
 
                 {/* Central Carbon Node */}
                 <div className="flex flex-col items-center animate-fade-in z-20">
-                  <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border-2 shadow-2xl whitespace-nowrap ${
-                    valenceInfo.balanced ? "border-amber-400 bg-amber-950/40 shadow-[0_0_30px_rgba(251,191,36,0.45)]" : "border-amber-500/60 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-sm font-bold text-amber-300">C (Carbon)</span>
-                      <span className="font-mono text-[10px] text-amber-200 font-bold">4 base + 4 shared = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[9px] text-amber-300 font-bold mt-1">4 Tetrahedral Bonds Full ✅</span>
+                  <BohrAtomVisualizer symbol="C" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Octet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* Right Laser Arrow C ─ H */}
                 <div className="flex flex-col items-center gap-0.5">
                   <div className="flex items-center gap-1">
                     <span className="text-cyan font-bold text-xs animate-pulse">◀</span>
-                    <div className="h-1.5 w-6 sm:w-10 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,0.9)]" />
+                    <div className="h-1 w-5 sm:w-8 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.9)]" />
                     <span className="text-cyan font-bold text-xs animate-pulse">▶</span>
                   </div>
-                  <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-2 py-0.2 rounded-full font-bold whitespace-nowrap shadow-sm">
+                  <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap shadow-sm">
                     1 e⁻ ⟷ 1 e⁻
                   </span>
                 </div>
 
                 {/* Right Hydrogen */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 shadow-lg whitespace-nowrap ${
-                    valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "border-cyan/80 bg-slate-900/90"
-                  }`}>
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-white font-bold">H (Right)</span>
-                      <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Bottom Hydrogen + Vertical Laser Arrow */}
               <div className="flex flex-col items-center animate-fade-up z-20">
                 {/* Vertical Laser Arrow up from Carbon */}
-                <div className="flex flex-col items-center my-1">
-                  <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-2 py-0.2 rounded-full font-bold whitespace-nowrap mb-0.5 shadow-sm">
+                <div className="flex flex-col items-center my-0.5">
+                  <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap mb-0.5 shadow-sm">
                     1 e⁻ ⟷ 1 e⁻
                   </span>
-                  <span className="text-cyan text-xs font-bold leading-none animate-pulse">▲</span>
-                  <div className="w-1.5 h-4 sm:h-5 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,0.9)] my-0.5" />
-                  <span className="text-cyan text-xs font-bold leading-none animate-pulse">▼</span>
+                  <span className="text-cyan text-[10px] font-bold leading-none animate-pulse">▲</span>
+                  <div className="w-1 h-3 sm:h-4 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.9)] my-0.5" />
+                  <span className="text-cyan text-[10px] font-bold leading-none animate-pulse">▼</span>
                 </div>
 
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 shadow-lg whitespace-nowrap ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">H (Bottom)</span>
-                    <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">2/2 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_O2' ? (
             /* CO2 Double Bond Rectangular Sandbox Layout */
-            <div className="flex items-center justify-around py-6 min-h-[220px] w-full z-10">
+            <div className="flex items-center justify-around py-3 min-h-[160px] w-full z-10">
               {/* Left Oxygen Node */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border-2 shadow-xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-slate-700 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">O (Left)</span>
-                    <span className="font-mono text-[10px] font-bold text-pink-400">6 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[9px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "8/8 e⁻ (Octet ✅)" : "needs 2 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Left Double Arrow Connection */}
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-cyan font-bold text-base animate-pulse">◀</span>
-                  <div className="flex flex-col gap-1.5">
-                    <div className="h-2 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,1)]" />
-                    <div className="h-2 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,1)]" />
+                  <span className="text-cyan font-bold text-sm animate-pulse">◀</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="h-1.5 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                    <div className="h-1.5 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
                   </div>
-                  <span className="text-cyan font-bold text-base animate-pulse">▶</span>
+                  <span className="text-cyan font-bold text-sm animate-pulse">▶</span>
                 </div>
-                <span className="font-mono text-[9px] text-cyan bg-slate-900 border border-cyan/60 px-2.5 py-0.5 rounded-full font-bold shadow-md">
+                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/60 px-2 py-0.5 rounded-full font-bold shadow-md">
                   2 e⁻ ⟷ 2 e⁻ (Double Bond)
                 </span>
               </div>
 
               {/* Center Carbon Node */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border-2 shadow-2xl ${
-                  valenceInfo.balanced ? "border-amber-400 bg-amber-950/40 shadow-[0_0_25px_rgba(251,191,36,0.4)]" : "border-amber-500/60 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-sm font-bold text-amber-300">C (Carbon)</span>
-                    <span className="font-mono text-[10px] text-amber-200 font-bold">4 e⁻ base (Tetravalent)</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[9px] text-amber-200 font-bold mt-1">
-                  {valenceInfo.balanced ? "Shares 2 left + 2 right = 8/8 e⁻ ✅" : "shares all 4"}
-                </span>
+                <BohrAtomVisualizer symbol="C" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Right Double Arrow Connection */}
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-cyan font-bold text-base animate-pulse">◀</span>
-                  <div className="flex flex-col gap-1.5">
-                    <div className="h-2 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,1)]" />
-                    <div className="h-2 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,1)]" />
+                  <span className="text-cyan font-bold text-sm animate-pulse">◀</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="h-1.5 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                    <div className="h-1.5 w-10 sm:w-16 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
                   </div>
-                  <span className="text-cyan font-bold text-base animate-pulse">▶</span>
+                  <span className="text-cyan font-bold text-sm animate-pulse">▶</span>
                 </div>
-                <span className="font-mono text-[9px] text-cyan bg-slate-900 border border-cyan/60 px-2.5 py-0.5 rounded-full font-bold shadow-md">
+                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/60 px-2 py-0.5 rounded-full font-bold shadow-md">
                   2 e⁻ ⟷ 2 e⁻ (Double Bond)
                 </span>
               </div>
 
               {/* Right Oxygen Node */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border-2 shadow-xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-slate-700 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">O (Right)</span>
-                    <span className="font-mono text-[10px] font-bold text-pink-400">6 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[9px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "8/8 e⁻ (Octet ✅)" : "needs 2 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'H2_O2' ? (
             /* Hydrogen Peroxide (H2O2) Linear-Bent Chain: H - O - O - H */
-            <div className="relative flex items-center justify-around py-8 min-h-[260px] sm:min-h-[290px] w-full z-20">
+            <div className="relative flex items-center justify-around py-3 min-h-[160px] w-full z-20">
               {/* Left Hydrogen */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 shadow-xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs font-bold text-white">H (Left)</span>
-                    <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "2/2 e⁻ ✅" : "needs 1 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Arrow H - O */}
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1">
-                  <span className="text-cyan font-bold text-sm">◀</span>
+                  <span className="text-cyan font-bold text-xs">◀</span>
                   <div className="h-1.5 w-6 sm:w-10 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-sm">▶</span>
+                  <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/50 px-2 py-0.2 rounded-full font-bold">
+                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/50 px-1.5 py-0.2 rounded-full font-bold">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* Left Oxygen */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl border-2 shadow-2xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs font-bold text-white">O (Left)</span>
-                    <span className="font-mono text-[10px] font-bold text-cyan">6 base + 2 sh = 8 e⁻</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "8/8 e⁻ ✅" : "needs 2 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="O" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Center Oxygen-Oxygen Bridge Arrow */}
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1">
-                  <span className="text-emerald-400 font-bold text-sm animate-pulse">◀</span>
-                  <div className="h-2 w-8 sm:w-12 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)]" />
-                  <span className="text-emerald-400 font-bold text-sm animate-pulse">▶</span>
+                  <span className="text-emerald-400 font-bold text-xs animate-pulse">◀</span>
+                  <div className="h-1.5 w-6 sm:w-10 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,1)]" />
+                  <span className="text-emerald-400 font-bold text-xs animate-pulse">▶</span>
                 </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 bg-slate-900 border border-emerald-500/60 px-2 py-0.5 rounded-full font-bold">
-                  1 e⁻ ⟷ 1 e⁻ (O─O Bridge)
+                <span className="font-mono text-[7.5px] text-emerald-300 bg-slate-900 border border-emerald-500/60 px-1.5 py-0.2 rounded-full font-bold">
+                  1 e⁻ ⟷ 1 e⁻ (O─O)
                 </span>
               </div>
 
               {/* Right Oxygen */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl border-2 shadow-2xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs font-bold text-white">O (Right)</span>
-                    <span className="font-mono text-[10px] font-bold text-cyan">6 base + 2 sh = 8 e⁻</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "8/8 e⁻ ✅" : "needs 2 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="O" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Arrow O - H */}
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1">
-                  <span className="text-cyan font-bold text-sm">◀</span>
+                  <span className="text-cyan font-bold text-xs">◀</span>
                   <div className="h-1.5 w-6 sm:w-10 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-sm">▶</span>
+                  <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/50 px-2 py-0.2 rounded-full font-bold">
+                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/50 px-1.5 py-0.2 rounded-full font-bold">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* Right Hydrogen */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 shadow-xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs font-bold text-white">H (Right)</span>
-                    <span className="font-mono text-[9px] font-bold text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">
-                  {valenceInfo.balanced ? "2/2 e⁻ ✅" : "needs 1 e⁻"}
-                </span>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'H1_Cl1' ? (
             /* Hydrogen Chloride (HCl): H ─ Cl Single Covalent Bond */
-            <div className="relative flex items-center justify-around py-8 min-h-[240px] sm:min-h-[270px] w-full z-20">
+            <div className="relative flex items-center justify-around py-3 min-h-[160px] w-full z-20">
               {/* Hydrogen Node */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border-2 shadow-2xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]" : "border-cyan/80 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-sm font-bold text-white">H (Hydrogen)</span>
-                    <span className="font-mono text-[11px] font-bold text-pink-400">1 e⁻ base</span>
-                    <span className="font-mono text-[9.5px] text-emerald-300 font-bold mt-0.5">
-                      {valenceInfo.balanced ? "Shares 1 with Cl = 2/2 e⁻ (Duet ✅)" : "needs 1 e⁻"}
-                    </span>
-                  </div>
-                </div>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Bold Glowing Laser Bridge */}
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-cyan font-bold text-lg animate-pulse">◀</span>
-                  <div className="h-2 w-16 sm:w-28 rounded-full bg-cyan shadow-[0_0_12px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-lg animate-pulse">▶</span>
+                  <span className="text-cyan font-bold text-base animate-pulse">◀</span>
+                  <div className="h-1.5 w-16 sm:w-28 rounded-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,1)]" />
+                  <span className="text-cyan font-bold text-base animate-pulse">▶</span>
                 </div>
-                <span className="font-mono text-[10px] sm:text-xs text-cyan bg-slate-900 border-2 border-cyan px-3.5 py-1 rounded-full font-bold shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-                  1 e⁻ ⟷ 1 e⁻ (Single Covalent Pair)
+                <span className="font-mono text-[8px] sm:text-[9px] text-cyan bg-slate-900 border border-cyan px-2.5 py-0.5 rounded-full font-bold shadow-md">
+                  1 e⁻ ⟷ 1 e⁻ (Single Bond)
                 </span>
               </div>
 
               {/* Chlorine Node */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border-2 shadow-2xl ${
-                  valenceInfo.balanced ? "border-emerald-400 bg-slate-900/95 shadow-[0_0_20px_rgba(52,211,153,0.4)]" : "border-lime-400 bg-slate-900/90"
-                }`}>
-                  <BohrAtomVisualizer symbol="Cl" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-sm font-bold text-white">Cl (Chlorine)</span>
-                    <span className="font-mono text-[11px] font-bold text-lime-400">7 e⁻ base</span>
-                    <span className="font-mono text-[9.5px] text-emerald-300 font-bold mt-0.5">
-                      {valenceInfo.balanced ? "Shares 1 with H = 8/8 e⁻ (Octet ✅)" : "needs 1 e⁻"}
-                    </span>
-                  </div>
-                </div>
+                <BohrAtomVisualizer symbol="Cl" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_H1_N1' ? (
             /* Hydrogen Cyanide (HCN): Linear H ─ C ≡ N */
-            <div className="relative flex items-center justify-around py-8 min-h-[250px] w-full z-20">
+            <div className="relative flex items-center justify-around py-3 min-h-[160px] w-full z-20">
               {/* Hydrogen */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-cyan/80 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-white">H (1 e⁻)</span>
-                </div>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Single Bond H-C */}
@@ -1114,16 +1005,17 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                   <div className="h-1.5 w-8 rounded-full bg-cyan" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan font-bold">1 e⁻ ⟷ 1 e⁻</span>
+                <span className="font-mono text-[7.5px] text-cyan font-bold">1 e⁻ ⟷ 1 e⁻</span>
               </div>
 
               {/* Carbon */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border-2 border-amber-400 bg-amber-950/30 shadow-xl">
-                  <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-amber-300 font-bold">C (4 e⁻ base)</span>
-                </div>
-                <span className="font-mono text-[8.5px] text-amber-200 mt-1">1 bond left + 3 right = 4 total ✅</span>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="C" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Triple Bond C≡N */}
@@ -1137,29 +1029,32 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                   </div>
                   <span className="text-purple-400 font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-purple-300 font-bold bg-slate-900 px-2 py-0.2 rounded-full border border-purple-500/40">
+                <span className="font-mono text-[7.5px] text-purple-300 font-bold bg-slate-900 px-2 py-0.2 rounded-full border border-purple-500/40">
                   3 e⁻ ⟷ 3 e⁻ (Triple Bond)
                 </span>
               </div>
 
               {/* Nitrogen */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-purple-400 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="N" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-purple-300">N (5 e⁻ base)</span>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 mt-1">8/8 e⁻ (Octet ✅)</span>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="N" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_H2_O1' ? (
             /* Formaldehyde (CH2O): Trigonal Planar C=O with 2 H */
-            <div className="relative flex flex-col items-center justify-between min-h-[300px] py-4 w-full z-20">
+            <div className="relative flex flex-col items-center justify-between min-h-[190px] py-2 w-full z-20">
               {/* Top: Oxygen Double Bond */}
               <div className="flex flex-col items-center animate-fade-down">
-                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-pink-300 font-bold">O (Oxygen) 6 e⁻ base</span>
-                </div>
+                <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Double Arrow O ═ C */}
@@ -1167,57 +1062,67 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                 <div className="flex items-center gap-1 rotate-90">
                   <span className="text-pink-400 font-bold text-xs">◀</span>
                   <div className="flex flex-col gap-0.5">
-                    <div className="h-1 w-8 rounded-full bg-pink-400" />
-                    <div className="h-1 w-8 rounded-full bg-pink-400" />
+                    <div className="h-1 w-6 rounded-full bg-pink-400" />
+                    <div className="h-1 w-6 rounded-full bg-pink-400" />
                   </div>
                   <span className="text-pink-400 font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-pink-300 font-bold bg-slate-900 px-2 py-0.2 rounded-full border border-pink-500/40">
+                <span className="font-mono text-[7.5px] text-pink-300 font-bold bg-slate-900 px-2 py-0.2 rounded-full border border-pink-500/40">
                   2 e⁻ ⟷ 2 e⁻ (Double Bond)
                 </span>
               </div>
 
               {/* Center: Carbon */}
-              <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl z-20">
-                <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                <span className="font-pixel text-xs text-amber-300 font-bold">C (Carbon) 4 e⁻ base</span>
+              <div className="flex flex-col items-center animate-fade-in z-20">
+                <BohrAtomVisualizer symbol="C" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Bottom Row: Two Hydrogens */}
-              <div className="flex items-center justify-between w-full px-12 z-20 mt-3">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border-2 border-cyan/80 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-white">H (Left) 1e⁻</span>
+              <div className="flex items-center justify-between w-full px-12 z-20 mt-2">
+                <div className="flex flex-col items-center animate-fade-up">
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border-2 border-cyan/80 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-white">H (Right) 1e⁻</span>
+                <div className="flex flex-col items-center animate-fade-up">
+                  <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Duet Full ✓
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_H2_O2' ? (
-            /* Formic Acid (CH2O2): Perfect 2D Alignment with =O directly above Carbon */
-            <div className="relative flex items-end justify-center gap-1 sm:gap-2.5 py-4 min-h-[300px] sm:min-h-[320px] w-full z-20">
+            /* Formic Acid (CH2O2): 2D Alignment with =O directly above Carbon */
+            <div className="relative flex items-end justify-center gap-1 sm:gap-2 py-3 min-h-[190px] sm:min-h-[210px] w-full z-20">
               {/* 1. Left Hydrogen */}
               <div className="flex flex-col items-center mb-1 animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-cyan/80 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">H</span>
-                    <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">2/2 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Arrow H ─ C */}
-              <div className="flex flex-col items-center gap-0.5 mb-6">
+              <div className="flex flex-col items-center gap-0.5 mb-4">
                 <div className="flex items-center gap-1">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-8 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                  <div className="h-1 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
@@ -1225,98 +1130,91 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               {/* 2. Central Column: Carbonyl Oxygen (=O) directly above Carbon (C) */}
               <div className="flex flex-col items-center z-20">
                 {/* Top Carbonyl Oxygen */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap animate-fade-down">
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-pink-300 font-bold">=O (Carbonyl)</span>
-                    <span className="font-mono text-[9.5px] text-pink-400">6 base + 2 sh = 8 e⁻</span>
-                  </div>
+                <div className="flex flex-col items-center animate-fade-down">
+                  <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Octet Full ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* Vertical Double Laser Arrow straight down into Carbon */}
-                <div className="flex flex-col items-center my-1.5">
-                  <span className="text-pink-400 text-xs font-bold leading-none animate-pulse">▲</span>
-                  <div className="flex gap-1 my-0.5">
-                    <div className="w-1.5 h-5 rounded-full bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.8)]" />
-                    <div className="w-1.5 h-5 rounded-full bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.8)]" />
+                <div className="flex flex-col items-center my-0.5">
+                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▲</span>
+                  <div className="flex gap-0.5 my-0.5">
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
                   </div>
-                  <span className="text-pink-400 text-xs font-bold leading-none animate-pulse">▼</span>
-                  <span className="font-mono text-[8px] text-pink-300 bg-slate-900 px-2 py-0.2 rounded-full border border-pink-500/40 font-bold whitespace-nowrap mt-0.5 shadow-sm">
-                    2 e⁻ ⟷ 2 e⁻ (Double Bond)
-                  </span>
+                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▼</span>
                 </div>
 
                 {/* Central Carbon Node */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs sm:text-sm text-amber-300 font-bold">C (Carbon)</span>
-                      <span className="font-mono text-[9.5px] text-amber-200">4 base + 4 shared = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8.5px] text-amber-300 font-bold mt-1">4/4 Bonds Full ✅</span>
+                  <BohrAtomVisualizer symbol="C" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && (
+                    <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                      Octet Full ✓
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Arrow C ─ O */}
-              <div className="flex flex-col items-center gap-0.5 mb-6">
+              <div className="flex flex-col items-center gap-0.5 mb-4">
                 <div className="flex items-center gap-1">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-8 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                  <div className="h-1 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 3. Hydroxyl Oxygen (-O-) */}
               <div className="flex flex-col items-center mb-1 animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-pink-300 font-bold">O (Hydroxyl)</span>
-                    <span className="font-mono text-[9.5px] text-cyan">6 base + 2 sh = 8 e⁻</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">8/8 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Arrow O ─ H */}
-              <div className="flex flex-col items-center gap-0.5 mb-6">
+              <div className="flex flex-col items-center gap-0.5 mb-4">
                 <div className="flex items-center gap-1">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-8 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                  <div className="h-1 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-cyan bg-slate-900 border border-cyan/40 px-1.5 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 4. Right Hydrogen */}
               <div className="flex flex-col items-center mb-1 animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-cyan/80 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-white font-bold">H</span>
-                    <span className="font-mono text-[9px] text-pink-400">1 e⁻ base</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-1">2/2 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="H" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Duet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'N2_O1' ? (
             /* Nitrous Oxide (N2O): N ═ N ═ O */
-            <div className="relative flex items-center justify-around py-8 min-h-[240px] w-full z-20">
+            <div className="relative flex items-center justify-around py-3 min-h-[160px] w-full z-20">
               {/* Terminal Nitrogen */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-purple-400 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="N" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-purple-300 font-bold">N (Left) 5 e⁻</span>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 mt-1">8/8 e⁻ ✅</span>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="N" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Double Arrow */}
@@ -1324,21 +1222,22 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                 <div className="flex items-center gap-1">
                   <span className="text-purple-400 font-bold text-sm">◀</span>
                   <div className="flex flex-col gap-0.5">
-                    <div className="h-1 w-10 bg-purple-400" />
-                    <div className="h-1 w-10 bg-purple-400" />
+                    <div className="h-1 w-8 sm:w-12 bg-purple-400" />
+                    <div className="h-1 w-8 sm:w-12 bg-purple-400" />
                   </div>
                   <span className="text-purple-400 font-bold text-sm">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-purple-300 font-bold">2 e⁻ ⟷ 2 e⁻</span>
+                <span className="font-mono text-[7.5px] text-purple-300 font-bold">2 e⁻ ⟷ 2 e⁻</span>
               </div>
 
               {/* Central Nitrogen */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-purple-400 bg-purple-950/40 shadow-xl">
-                  <BohrAtomVisualizer symbol="N" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-purple-200 font-bold">N (Center)</span>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 mt-1">8/8 e⁻ ✅</span>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="N" size="md" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
 
               {/* Double Arrow */}
@@ -1346,197 +1245,153 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                 <div className="flex items-center gap-1">
                   <span className="text-pink-400 font-bold text-sm">◀</span>
                   <div className="flex flex-col gap-0.5">
-                    <div className="h-1 w-10 bg-pink-400" />
-                    <div className="h-1 w-10 bg-pink-400" />
+                    <div className="h-1 w-8 sm:w-12 bg-pink-400" />
+                    <div className="h-1 w-8 sm:w-12 bg-pink-400" />
                   </div>
                   <span className="text-pink-400 font-bold text-sm">▶</span>
                 </div>
-                <span className="font-mono text-[8px] text-pink-300 font-bold">2 e⁻ ⟷ 2 e⁻</span>
+                <span className="font-mono text-[7.5px] text-pink-300 font-bold">2 e⁻ ⟷ 2 e⁻</span>
               </div>
 
               {/* Terminal Oxygen */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 border-pink-400 bg-slate-900/95 shadow-lg">
-                  <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-xs text-pink-300 font-bold">O (Right) 6 e⁻</span>
-                </div>
-                <span className="font-mono text-[8.5px] text-emerald-300 mt-1">8/8 e⁻ ✅</span>
+              <div className="flex flex-col items-center animate-fade-in">
+                <BohrAtomVisualizer symbol="O" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && (
+                  <span className="font-mono text-[8.5px] text-emerald-300 font-bold mt-0.5 animate-fade-in">
+                    Octet Full ✓
+                  </span>
+                )}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C2_H4_O2' ? (
             /* Acetic Acid (C2H4O2): CH3-C(=O)-OH 2D Spatial Layout */
-            <div className="relative flex items-center justify-center gap-1 sm:gap-2.5 py-4 min-h-[300px] sm:min-h-[330px] w-full z-20">
+            <div className="relative flex items-center justify-center gap-1 sm:gap-2 py-2 min-h-[170px] sm:min-h-[190px] w-full z-20">
               {/* 1. Left Methyl Group (CH3) */}
-              <div className="flex flex-col items-center justify-between gap-1.5 min-h-[220px]">
+              <div className="flex flex-col items-center justify-between gap-1 min-h-[150px]">
                 {/* Top H of C1 */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Top)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Duet ✓</span>}
                 </div>
 
                 {/* Middle Row of C1: Left H <-> C1 */}
                 <div className="flex items-center gap-1">
                   {/* Left H */}
                   <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                      <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                      <span className="font-pixel text-[11px] text-white">H (Left)</span>
-                    </div>
-                    <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                    {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Duet ✓</span>}
                   </div>
 
                   {/* Bridge Left H <-> C1 */}
                   <div className="flex items-center gap-0.5">
-                    <span className="text-cyan text-xs">◀</span>
+                    <span className="text-cyan text-[10px]">◀</span>
                     <div className="h-1 w-3 sm:w-4 bg-cyan rounded-full shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
-                    <span className="text-cyan text-xs">▶</span>
+                    <span className="text-cyan text-[10px]">▶</span>
                   </div>
 
                   {/* C1 (Methyl Carbon) */}
                   <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                      <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                      <div className="flex flex-col text-left">
-                        <span className="font-pixel text-xs text-amber-300 font-bold">C₁ (Methyl)</span>
-                        <span className="font-mono text-[8.5px] text-amber-200">4 e⁻ base</span>
-                      </div>
-                    </div>
-                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">4/4 Bonds Full ✅</span>
+                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                    {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                   </div>
                 </div>
 
                 {/* Bottom H of C1 */}
                 <div className="flex flex-col items-center animate-fade-up">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Bottom)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Duet ✓</span>}
                 </div>
               </div>
 
               {/* Bridge C1 <-> C2 */}
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
-                  <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-xs">▶</span>
+                  <span className="text-cyan font-bold text-[10px]">◀</span>
+                  <div className="h-1 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <span className="text-cyan font-bold text-[10px]">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
-                  1 e⁻ ⟷ 1 e⁻ (C-C)
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                  1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 2. Central Carbonyl Column: =O directly above C2 */}
-              <div className="flex flex-col items-center z-20 min-h-[220px] justify-between">
+              <div className="flex flex-col items-center z-20 min-h-[150px] justify-between">
                 {/* Top Carbonyl Oxygen (=O) */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-pink-300 font-bold">=O (Carbonyl)</span>
-                      <span className="font-mono text-[8.5px] text-pink-400">6 base + 2 sh = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
 
                 {/* Vertical Double Arrow down into C2 */}
                 <div className="flex flex-col items-center my-0.5">
-                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▲</span>
+                  <span className="text-pink-400 text-[9px] font-bold leading-none animate-pulse">▲</span>
                   <div className="flex gap-0.5 my-0.5">
-                    <div className="w-1 h-4 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
-                    <div className="w-1 h-4 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
                   </div>
-                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▼</span>
-                  <span className="font-mono text-[7px] text-pink-300 bg-slate-900 px-1.5 py-0.2 rounded-full border border-pink-500/40 font-bold whitespace-nowrap mt-0.5">
-                    2 e⁻ ⟷ 2 e⁻ (═)
-                  </span>
+                  <span className="text-pink-400 text-[9px] font-bold leading-none animate-pulse">▼</span>
                 </div>
 
                 {/* Central C2 Carbon */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-amber-300 font-bold">C₂ (Carbonyl)</span>
-                      <span className="font-mono text-[8.5px] text-amber-200">4 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">4/4 Bonds Full ✅</span>
+                  <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
               </div>
 
               {/* Bridge C2 <-> O(hydroxyl) */}
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
-                  <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-xs">▶</span>
+                  <span className="text-cyan font-bold text-[10px]">◀</span>
+                  <div className="h-1 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <span className="text-cyan font-bold text-[10px]">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
-                  1 e⁻ ⟷ 1 e⁻ (C-O)
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                  1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 3. Hydroxyl Oxygen (-O-) */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-pink-300 font-bold">-O- (Hydroxyl)</span>
-                    <span className="font-mono text-[8.5px] text-cyan">6 base + 2 sh = 8 e⁻</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
               </div>
 
               {/* Bridge O <-> H */}
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
-                  <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
-                  <span className="text-cyan font-bold text-xs">▶</span>
+                  <span className="text-cyan font-bold text-[10px]">◀</span>
+                  <div className="h-1 w-3 sm:w-5 rounded-full bg-cyan shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                  <span className="text-cyan font-bold text-[10px]">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 4. Terminal Hydroxyl Hydrogen (H) */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-[11px] text-white">H (Acidic)</span>
-                </div>
-                <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">2/2 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Duet ✓</span>}
               </div>
             </div>
           ) : (entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C2_H6_O1' || entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C2_H6_O') ? (
             /* Ethanol (C2H6O): CH3-CH2-OH 2D Spatial Layout */
-            <div className="relative flex items-center justify-center gap-1 sm:gap-2.5 py-4 min-h-[300px] sm:min-h-[330px] w-full z-20">
+            <div className="relative flex items-center justify-center gap-1 sm:gap-2.5 py-2 min-h-[180px] sm:min-h-[200px] w-full z-20">
               {/* 1. Left Methyl Group (CH3) */}
-              <div className="flex flex-col items-center justify-between gap-1.5 min-h-[220px]">
+              <div className="flex flex-col items-center justify-between gap-1 min-h-[170px]">
                 {/* Top H on C1 */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Top)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
 
                 {/* Middle Row of C1: Left H <-> C1 */}
                 <div className="flex items-center gap-1">
                   <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                      <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                      <span className="font-pixel text-[11px] text-white">H (Left)</span>
-                    </div>
-                    <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                    {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                   </div>
 
                   <div className="flex items-center gap-0.5">
@@ -1546,24 +1401,15 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                      <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                      <div className="flex flex-col text-left">
-                        <span className="font-pixel text-xs text-amber-300 font-bold">C₁ (Methyl)</span>
-                        <span className="font-mono text-[8.5px] text-amber-200">4 e⁻ base</span>
-                      </div>
-                    </div>
-                    <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">4/4 Bonds Full ✅</span>
+                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                    {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                   </div>
                 </div>
 
                 {/* Bottom H on C1 */}
                 <div className="flex flex-col items-center animate-fade-up">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Bottom)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
               </div>
 
@@ -1571,44 +1417,32 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻ (C-C)
                 </span>
               </div>
 
               {/* 2. Middle Methylene Group (CH2) */}
-              <div className="flex flex-col items-center justify-between gap-1.5 min-h-[220px]">
+              <div className="flex flex-col items-center justify-between gap-1 min-h-[170px]">
                 {/* Top H on C2 */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Top)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
 
                 {/* Central C2 Carbon */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-amber-300 font-bold">C₂ (Methylene)</span>
-                      <span className="font-mono text-[8.5px] text-amber-200">4 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">4/4 Bonds Full ✅</span>
+                  <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
 
                 {/* Bottom H on C2 */}
                 <div className="flex flex-col items-center animate-fade-up">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Bottom)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
               </div>
 
@@ -1616,80 +1450,59 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻ (C-O)
                 </span>
               </div>
 
               {/* 3. Hydroxyl Oxygen (-O-) */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <div className="flex flex-col text-left">
-                    <span className="font-pixel text-xs text-pink-300 font-bold">-O- (Hydroxyl)</span>
-                    <span className="font-mono text-[8.5px] text-cyan">6 base + 2 sh = 8 e⁻</span>
-                  </div>
-                </div>
-                <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
               </div>
 
               {/* Bridge O <-> H */}
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
                   <span className="text-cyan font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
+                  <div className="h-1.5 w-3 sm:w-5 rounded-full bg-cyan shadow-[0_0_8px_rgba(6,182,212,1)]" />
                   <span className="text-cyan font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-cyan bg-slate-900 border border-cyan/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻
                 </span>
               </div>
 
               {/* 4. Terminal Hydroxyl Hydrogen (H) */}
               <div className="flex flex-col items-center animate-fade-in">
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                  <span className="font-pixel text-[11px] text-white">H (Alcohol)</span>
-                </div>
-                <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">2/2 e⁻ ✅</span>
+                <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Duet ✓</span>}
               </div>
             </div>
           ) : entries.map(([s, q]) => `${s}${q}`).sort().join('_') === 'C1_H4_N2_O1' ? (
             /* Urea (CH4N2O): (NH2)2C=O 2D Spatial Layout */
-            <div className="relative flex items-center justify-center gap-1 sm:gap-3 py-4 min-h-[300px] sm:min-h-[330px] w-full z-20">
+            <div className="relative flex items-center justify-center gap-1 sm:gap-2.5 py-2 min-h-[190px] sm:min-h-[210px] w-full z-20">
               {/* 1. Left Amino Group (NH2) */}
-              <div className="flex flex-col items-center justify-between gap-1.5 min-h-[220px]">
+              <div className="flex flex-col items-center justify-between gap-1 min-h-[170px]">
                 {/* Top H of N1 */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Top-Left)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
 
                 {/* Left Nitrogen N1 */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-purple-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="N" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-purple-300 font-bold">N₁ (Amino)</span>
-                      <span className="font-mono text-[8.5px] text-purple-200">5 base + 3 sh = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="N" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
 
                 {/* Bottom H of N1 */}
                 <div className="flex flex-col items-center animate-fade-up">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Bottom-Left)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
               </div>
 
@@ -1697,51 +1510,39 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
                   <span className="text-purple-400 font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,1)]" />
+                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,1)]" />
                   <span className="text-purple-400 font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-purple-300 bg-slate-900 border border-purple-500/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-purple-300 bg-slate-900 border border-purple-500/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻ (N-C)
                 </span>
               </div>
 
               {/* 2. Central Carbonyl Column: =O directly above C */}
-              <div className="flex flex-col items-center z-20 min-h-[220px] justify-between">
+              <div className="flex flex-col items-center z-20 min-h-[170px] justify-between">
                 {/* Top Carbonyl Oxygen (=O) */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border-2 border-pink-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-pink-300 font-bold">=O (Carbonyl)</span>
-                      <span className="font-mono text-[8.5px] text-pink-400">6 base + 2 sh = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="O" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
 
                 {/* Vertical Double Arrow down into C */}
                 <div className="flex flex-col items-center my-0.5">
-                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▲</span>
+                  <span className="text-pink-400 text-[9px] font-bold leading-none animate-pulse">▲</span>
                   <div className="flex gap-0.5 my-0.5">
-                    <div className="w-1 h-4 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
-                    <div className="w-1 h-4 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                    <div className="w-1 h-3 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
                   </div>
-                  <span className="text-pink-400 text-[10px] font-bold leading-none animate-pulse">▼</span>
-                  <span className="font-mono text-[7px] text-pink-300 bg-slate-900 px-1.5 py-0.2 rounded-full border border-pink-500/40 font-bold whitespace-nowrap mt-0.5">
+                  <span className="text-pink-400 text-[9px] font-bold leading-none animate-pulse">▼</span>
+                  <span className="font-mono text-[6.5px] text-pink-300 bg-slate-900 px-1 py-0.2 rounded-full border border-pink-500/40 font-bold whitespace-nowrap">
                     2 e⁻ ⟷ 2 e⁻ (═)
                   </span>
                 </div>
 
                 {/* Central Carbon */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border-2 border-amber-400 bg-amber-950/40 shadow-xl whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-amber-300 font-bold">C (Central)</span>
-                      <span className="font-mono text-[8.5px] text-amber-200">4 e⁻ base</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">4/4 Bonds Full ✅</span>
+                  <BohrAtomVisualizer symbol="C" size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
               </div>
 
@@ -1749,172 +1550,195 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               <div className="flex flex-col items-center gap-0.5 px-0.5">
                 <div className="flex items-center gap-0.5">
                   <span className="text-purple-400 font-bold text-xs">◀</span>
-                  <div className="h-1.5 w-5 sm:w-7 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,1)]" />
+                  <div className="h-1.5 w-4 sm:w-6 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,1)]" />
                   <span className="text-purple-400 font-bold text-xs">▶</span>
                 </div>
-                <span className="font-mono text-[7.5px] text-purple-300 bg-slate-900 border border-purple-500/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
+                <span className="font-mono text-[7px] text-purple-300 bg-slate-900 border border-purple-500/40 px-1 py-0.2 rounded-full font-bold whitespace-nowrap">
                   1 e⁻ ⟷ 1 e⁻ (C-N)
                 </span>
               </div>
 
               {/* 3. Right Amino Group (NH2) */}
-              <div className="flex flex-col items-center justify-between gap-1.5 min-h-[220px]">
+              <div className="flex flex-col items-center justify-between gap-1 min-h-[170px]">
                 {/* Top H of N2 */}
                 <div className="flex flex-col items-center animate-fade-down">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Top-Right)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
 
                 {/* Right Nitrogen N2 */}
                 <div className="flex flex-col items-center animate-fade-in">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-purple-400 bg-slate-900/95 shadow-lg whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="N" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <div className="flex flex-col text-left">
-                      <span className="font-pixel text-xs text-purple-300 font-bold">N₂ (Amino)</span>
-                      <span className="font-mono text-[8.5px] text-purple-200">5 base + 3 sh = 8 e⁻</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold mt-0.5">8/8 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="N" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold mt-0.5">Octet ✓</span>}
                 </div>
 
                 {/* Bottom H of N2 */}
                 <div className="flex flex-col items-center animate-fade-up">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border border-cyan/80 bg-slate-900/95 shadow-md whitespace-nowrap">
-                    <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                    <span className="font-pixel text-[11px] text-white">H (Bottom-Right)</span>
-                  </div>
-                  <span className="font-mono text-[8px] text-emerald-300 font-bold">2/2 e⁻ ✅</span>
+                  <BohrAtomVisualizer symbol="H" size="xs" animated={true} showEmptySeats={!valenceInfo.balanced} />
+                  {valenceInfo.balanced && <span className="font-mono text-[7px] text-emerald-300 font-bold">Duet ✓</span>}
                 </div>
               </div>
             </div>
           ) : (
-            /* Universal Rectangular Sandbox Layout for all other molecules */
-            <div className="flex flex-nowrap items-center justify-center gap-2 sm:gap-3.5 py-4 min-h-[160px] w-full">
-              {molecularSequence.map((symbol, idx) => {
-                const isFirst = idx === 0;
-                const prevSymbol = isFirst ? null : molecularSequence[idx - 1];
+            /* Universal Dynamic Node-Link Molecular Stage (Individually Draggable Atoms with Vector SVG Bonds) */
+            (() => {
+              const N = molecularSequence.length;
+              const spacing = Math.min(130, Math.max(90, Math.floor(460 / Math.max(1, N))));
+              
+              // Calculate 2D position for each atom
+              const atomNodes = molecularSequence.map((symbol, idx) => {
+                const key = `atom_${idx}_${symbol}`;
+                const baseX = (idx - (N - 1) / 2) * spacing;
+                const baseY = 0;
+                const offset = atomOffsets[key] || { x: 0, y: 0 };
+                const x = baseX + offset.x;
+                const y = baseY + offset.y;
                 const detail = getAtomDetail(symbol, valenceInfo);
-                const bond = isFirst ? null : getBondType(prevSymbol, symbol, valenceInfo);
-                const el = ELEMENTS[symbol];
+                return { key, symbol, idx, x, y, detail };
+              });
 
-                return (
-                  <React.Fragment key={`${symbol}-${idx}`}>
-                    {!isFirst && bond && (
-                      <div className="flex flex-col items-center gap-1 px-1 sm:px-2 animate-fade-in">
-                        {/* Prominent Bidirectional Laser Arrow with Labels */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-cyan font-bold text-base animate-pulse">◀</span>
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className={`h-1.5 w-8 sm:w-12 rounded-full transition-all duration-500 ${
-                              valenceInfo.balanced
-                                ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,1)]"
-                                : "bg-cyan shadow-[0_0_10px_rgba(6,182,212,0.8)]"
-                            }`} />
-                            {(bond.isDouble || bond.isTriple) && (
-                              <div className={`h-1.5 w-8 sm:w-12 rounded-full ${valenceInfo.balanced ? "bg-emerald-400" : "bg-cyan"}`} />
-                            )}
-                          </div>
-                          <span className="text-cyan font-bold text-base animate-pulse">▶</span>
-                        </div>
+              // Calculate bond connections between adjacent atoms
+              const bonds = [];
+              for (let i = 1; i < N; i++) {
+                const prev = atomNodes[i - 1];
+                const curr = atomNodes[i];
+                const bondType = getBondType(prev.symbol, curr.symbol, valenceInfo);
+                const dx = curr.x - prev.x;
+                const dy = curr.y - prev.y;
+                const dist = Math.hypot(dx, dy);
+                const angle = Math.atan2(dy, dx);
+                // Atom Bohr nucleus radius
+                const r = 32;
+                const x1 = prev.x + Math.cos(angle) * r;
+                const y1 = prev.y + Math.sin(angle) * r;
+                const x2 = curr.x - Math.cos(angle) * r;
+                const y2 = curr.y - Math.sin(angle) * r;
+                const mx = (prev.x + curr.x) / 2;
+                const my = (prev.y + curr.y) / 2;
+                // Perpendicular normal vector for double/triple bonds
+                const nx = -Math.sin(angle) * 3.5;
+                const ny = Math.cos(angle) * 3.5;
 
-                        <span className="font-mono text-[8px] sm:text-[9px] text-cyan-200 font-bold whitespace-nowrap bg-slate-900 border border-cyan/40 px-2 py-0.5 rounded-full shadow-md">
-                          {bond.label}
-                        </span>
-                      </div>
-                    )}
+                bonds.push({
+                  id: `bond_${prev.key}_${curr.key}`,
+                  type: bondType,
+                  x1, y1, x2, y2, mx, my, nx, ny, dist, angle
+                });
+              }
 
-                    {/* Rectangular Atom Pod with Live Bohr Rings, Base Valence Number, and Detailed Breakdown */}
-                    <div className="flex flex-col items-center animate-fade-in group">
-                      <div className={`flex flex-col items-center p-2.5 sm:p-3 rounded-2xl border-2 transition-all duration-300 relative shadow-xl ${
-                        valenceInfo.balanced
-                          ? "border-emerald-500 bg-emerald-950/40 shadow-[0_0_25px_rgba(16,185,129,0.4)]"
-                          : "border-slate-700 bg-slate-900 shadow-lg"
-                      }`}>
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="font-pixel text-xs text-white font-bold">{symbol}</span>
-                          <span className="px-1.5 py-0.2 rounded bg-slate-950 border border-slate-600 font-mono text-[8px] font-bold text-slate-300">
-                            {detail.role}
-                          </span>
-                        </div>
+              return (
+                <div className="relative w-full min-h-[190px] flex items-center justify-center overflow-visible select-none py-2">
+                  {/* SVG Dynamic Vector Bond Layer */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-10">
+                    <defs>
+                      <filter id="laser-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor={valenceInfo.balanced ? "#34d399" : "#06b6d4"} />
+                      </filter>
+                    </defs>
+                    {bonds.map(b => {
+                      if (b.dist < 50) return null;
+                      const strokeColor = valenceInfo.balanced ? "#34d399" : "#06b6d4";
+                      const isDouble = b.type.isDouble;
+                      const isTriple = b.type.isTriple;
 
-                        <BohrAtomVisualizer symbol={symbol} size="sm" animated={true} showEmptySeats={!valenceInfo.balanced} />
-                        
-                        <span className="font-mono text-[10px] font-bold text-amber-300 bg-amber-950/70 px-2 py-0.5 rounded border border-amber-500/40 mt-1.5 shadow">
-                          {el?.valence || 1} e⁻ base
-                        </span>
-                        <span className={`font-mono text-[9px] font-bold mt-0.5 ${
-                          detail.isFull ? "text-emerald-300" : "text-cyan"
-                        }`}>
-                          {detail.statusText}
-                        </span>
-                        <span className="font-mono text-[8px] text-slate-400 leading-tight mt-0.5 max-w-[100px] text-center">
-                          {detail.breakdown}
-                        </span>
-                      </div>
+                      if (isTriple) {
+                        return (
+                          <g key={b.id} filter="url(#laser-glow)">
+                            <line x1={`calc(50% + ${b.x1 + b.nx * 1.5}px)`} y1={`calc(50% + ${b.y1 + b.ny * 1.5}px)`} x2={`calc(50% + ${b.x2 + b.nx * 1.5}px)`} y2={`calc(50% + ${b.y2 + b.ny * 1.5}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1={`calc(50% + ${b.x1}px)`} y1={`calc(50% + ${b.y1}px)`} x2={`calc(50% + ${b.x2}px)`} y2={`calc(50% + ${b.y2}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1={`calc(50% + ${b.x1 - b.nx * 1.5}px)`} y1={`calc(50% + ${b.y1 - b.ny * 1.5}px)`} x2={`calc(50% + ${b.x2 - b.nx * 1.5}px)`} y2={`calc(50% + ${b.y2 - b.ny * 1.5}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                          </g>
+                        );
+                      }
+
+                      if (isDouble) {
+                        return (
+                          <g key={b.id} filter="url(#laser-glow)">
+                            <line x1={`calc(50% + ${b.x1 + b.nx}px)`} y1={`calc(50% + ${b.y1 + b.ny}px)`} x2={`calc(50% + ${b.x2 + b.nx}px)`} y2={`calc(50% + ${b.y2 + b.ny}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1={`calc(50% + ${b.x1 - b.nx}px)`} y1={`calc(50% + ${b.y1 - b.ny}px)`} x2={`calc(50% + ${b.x2 - b.nx}px)`} y2={`calc(50% + ${b.y2 - b.ny}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                          </g>
+                        );
+                      }
+
+                      return (
+                        <g key={b.id} filter="url(#laser-glow)">
+                          <line x1={`calc(50% + ${b.x1}px)`} y1={`calc(50% + ${b.y1}px)`} x2={`calc(50% + ${b.x2}px)`} y2={`calc(50% + ${b.y2}px)`} stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Floating Bond Labels at Dynamic Vector Midpoints */}
+                  {bonds.map(b => (
+                    <div
+                      key={`lbl_${b.id}`}
+                      style={{
+                        left: `calc(50% + ${b.mx}px)`,
+                        top: `calc(50% + ${b.my}px)`
+                      }}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto select-none transition-all duration-75"
+                      title={b.type.fullExplanation || b.type.label}
+                    >
+                      <span className="font-mono text-[7px] sm:text-[7.5px] text-cyan-200 font-bold whitespace-nowrap bg-slate-950/95 border border-cyan/40 px-1.5 py-0.2 rounded-full shadow-md">
+                        {b.type.label}
+                      </span>
                     </div>
-                  </React.Fragment>
-                );
-              })}
-            </div>
+                  ))}
+
+                  {/* Individually Draggable Bohr Atom Nodes */}
+                  {atomNodes.map(node => (
+                    <div
+                      key={node.key}
+                      style={{
+                        left: `calc(50% + ${node.x}px)`,
+                        top: `calc(50% + ${node.y}px)`
+                      }}
+                      onMouseDown={(e) => handleAtomPointerDown(node.key, e)}
+                      onTouchStart={(e) => handleAtomPointerDown(node.key, e)}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center cursor-grab active:cursor-grabbing select-none p-1 group hover:scale-105 transition-transform"
+                      title={`Drag ${node.symbol} atom anywhere on stage`}
+                    >
+                      <BohrAtomVisualizer
+                        symbol={node.symbol}
+                        size="sm"
+                        animated={true}
+                        showEmptySeats={!valenceInfo.balanced}
+                      />
+                      {node.detail.isFull ? (
+                        <span className="font-mono text-[8px] font-bold text-emerald-300 mt-0.5 pointer-events-none whitespace-nowrap">
+                          {node.symbol === "H" ? "Duet Full ✓" : "Octet Full ✓"}
+                        </span>
+                      ) : node.detail.role ? (
+                        <span className="font-mono text-[7.5px] text-slate-400 mt-0.5 pointer-events-none whitespace-nowrap">
+                          {node.detail.role}
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()
           )}
           </div>
         </div>
 
         {/* Dynamic Educational Commentary on the Molecular Structure */}
-        <div className={`mt-2 p-2.5 rounded-lg border text-left font-mono text-[10.5px] leading-relaxed transition-all ${
+        <div className={`mt-2 px-3 py-1.5 rounded-lg border text-left font-mono text-[10.5px] flex items-center gap-2 transition-all ${
           valenceInfo.balanced
-            ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-200"
+            ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-200"
             : "bg-slate-900/80 border-slate-800 text-slate-300"
         }`}>
-          <div className="flex items-start gap-2">
-            {valenceInfo.balanced ? (
-              <CheckCircle2 className="size-4 text-emerald-400 shrink-0 mt-0.5" />
-            ) : (
-              <Info className="size-4 text-cyan shrink-0 mt-0.5" />
-            )}
-            <div className="flex-1">
-              <span className="font-bold text-white block mb-0.5">
-                {valenceInfo.balanced ? "Chemical Bonding Breakdown:" : "Orbital Sharing in Progress:"}
-              </span>
-              <p className="text-slate-300">{explanation}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Visual Valence & Octet Progress Meter */}
-      <div className="rounded-lg bg-slate-900/80 border border-slate-800 p-2 text-left">
-        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-          <span>Overall Reaction Balance</span>
-          <span className={valenceInfo.balanced ? "text-emerald-400 font-bold" : "text-cyan"}>
-            {valenceInfo.slotsFilled} / {Math.max(valenceInfo.slotsNeeded, valenceInfo.slotsFilled, 1)} Slots Filled
-          </span>
-        </div>
-
-        {/* Progress bar representing bond slot completion */}
-        <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
-          <div
-            className={`h-full transition-all duration-500 rounded-full ${
-              valenceInfo.balanced
-                ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-                : valenceInfo.isNoble
-                ? "bg-amber-500"
-                : "bg-gradient-to-r from-cyan-500 to-indigo-500"
-            }`}
-            style={{
-              width: `${Math.min(
-                100,
-                valenceInfo.slotsNeeded > 0
-                  ? (valenceInfo.slotsFilled / valenceInfo.slotsNeeded) * 100
-                  : valenceInfo.balanced
-                  ? 100
-                  : 30
-              )}%`
-            }}
-          />
+          {valenceInfo.balanced ? (
+            <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+          ) : (
+            <Info className="size-3.5 text-cyan shrink-0" />
+          )}
+          <p className="line-clamp-1 truncate text-xs">
+            <span className="font-bold text-white mr-1.5">
+              {valenceInfo.balanced ? "Bonding Analysis:" : "Orbital Status:"}
+            </span>
+            <span className="text-slate-300">{explanation}</span>
+          </p>
         </div>
       </div>
     </div>

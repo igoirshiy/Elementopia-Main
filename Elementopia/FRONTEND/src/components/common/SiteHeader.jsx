@@ -151,7 +151,7 @@ export function SiteHeader({ view, setView }) {
 
       {/* Sidebar Content */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-slate-950 border-r border-slate-800 z-50 p-6 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 left-0 h-full w-[82vw] max-w-[300px] sm:w-72 bg-slate-950 border-r border-slate-800 z-50 p-6 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex justify-between items-center mb-8">

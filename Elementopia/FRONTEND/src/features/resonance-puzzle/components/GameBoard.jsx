@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ELEMENTS, shuffle, liveCommentary, matchCompound, isCompoundInDomain, isCompoundInCurrentStage, explainFailure } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
-import { upsertProgress } from "@/features/mastery-dashboard/lib/progress";
+import { upsertProgress, loadProgress } from "@/features/mastery-dashboard/lib/progress";
 import DiscoveryService from "@/features/student-discovery/services/DiscoveryService";
 import UserService from "@/features/auth-user";
-import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw, Target, CheckCircle2, Lightbulb, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
+import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw, Target, CheckCircle2, Lightbulb, ChevronDown, ChevronUp, BookOpen, Lock } from "lucide-react";
 import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
 import { StageTransitionModal } from "./StageTransitionModal";
 import { DoctorAtomTutorialModal } from "./DoctorAtomTutorialModal";
@@ -53,6 +53,51 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const paletteOrder = activeStageData.palette || domain.palette;
   const requiredOrder = useMemo(() => shuffle(activeStageData.required || domain.required), [activeStageData, domain]);
   const validInDomain = activeStageData.validInDomain || domain.validInDomain;
+
+  const userProgress = useMemo(() => {
+    try {
+      return loadProgress();
+    } catch {
+      return null;
+    }
+  }, [domain?.id]);
+
+  const isDomainCompleted = useMemo(() => {
+    if (userProgress?.clearedDomains?.includes(domain?.id)) return true;
+    try {
+      const rowsStr = localStorage.getItem("elementopia_mastery_rows");
+      if (rowsStr) {
+        const rows = JSON.parse(rowsStr);
+        if (rows.find(r => r.domain === domain?.id)?.completed) return true;
+      }
+    } catch {}
+    return false;
+  }, [userProgress, domain?.id]);
+
+  const highestReachedStage = useMemo(() => {
+    if (isDomainCompleted) return maxStages;
+    try {
+      const rowsStr = localStorage.getItem("elementopia_mastery_rows");
+      if (rowsStr) {
+        const rows = JSON.parse(rowsStr);
+        const r = rows.find(x => x.domain === domain?.id);
+        if (r?.stage) return Math.max(r.stage, initialStage);
+      }
+    } catch {}
+    return initialStage;
+  }, [isDomainCompleted, maxStages, domain?.id, initialStage]);
+
+  const handleSelectStage = (stageNum) => {
+    if (stageNum === currentStage) return;
+    setSolved([]);
+    setWorkbench({});
+    setJustCleared(0);
+    setSynthLog([]);
+    setIdentifiedTarget(null);
+    setByproduct(null);
+    setCurrentStage(stageNum);
+    persist({ stage: stageNum });
+  };
 
   const TOTAL_BLOCKS = useMemo(() => {
     const reqCount = requiredOrder.length || 3;
@@ -420,10 +465,38 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             </div>
             <h2 className="font-pixel text-lg sm:text-xl font-bold text-glow-magenta">{domain.name}</h2>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-slate-900 border border-slate-700 font-mono text-xs text-slate-300 font-bold">
-              Stage {currentStage} / {maxStages}
-            </span>
+          <div className="flex items-center gap-1.5 bg-slate-950/90 px-2 py-1 rounded-full border border-slate-800 shadow-inner">
+            <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400 px-1 hidden sm:inline">Stages:</span>
+            {Array.from({ length: maxStages }, (_, idx) => idx + 1).map((stageNum) => {
+              const isCurrent = stageNum === currentStage;
+              const isUnlocked = isDomainCompleted || stageNum <= highestReachedStage;
+              return (
+                <button
+                  key={stageNum}
+                  type="button"
+                  disabled={!isUnlocked}
+                  onClick={() => handleSelectStage(stageNum)}
+                  className={`px-2.5 py-0.5 rounded-full font-mono text-[11px] font-bold transition-all duration-200 flex items-center gap-1 ${
+                    isCurrent
+                      ? "bg-cyan text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.8)] scale-105"
+                      : isUnlocked
+                      ? "text-slate-300 hover:text-white hover:bg-slate-800/80 cursor-pointer"
+                      : "text-slate-600 opacity-40 cursor-not-allowed"
+                  }`}
+                  title={
+                    isCurrent
+                      ? `Stage ${stageNum} (Active)`
+                      : isUnlocked
+                      ? `Switch to Stage ${stageNum}`
+                      : `Stage ${stageNum} Locked`
+                  }
+                >
+                  <span>Stage {stageNum}</span>
+                  {!isUnlocked && <Lock className="size-2.5" />}
+                  {isUnlocked && !isCurrent && isDomainCompleted && <span className="text-emerald-400 text-[9px]">✓</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -707,19 +780,12 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
               Hazmat Protocol active — irrelevant elements neutralized.
             </div>
           )}
-
-          <button
-            onClick={synthesize}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#a855f7] via-[#ec4899] to-[#f43f5e] py-3 font-['Montserrat',sans-serif] font-[800] text-sm sm:text-base text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(236,72,153,0.7)] uppercase tracking-wider active:translate-y-0"
-          >
-            <Sparkles className="size-4" /> Synthesize Reaction
-          </button>
         </div>
       </div>
     )}
   </div>
 
-      {/* Right Column: Element Palette */}
+      {/* Right Column: Element Palette & Synthesize CTA */}
       <div className="space-y-2.5 order-3 lg:order-3 lg:sticky lg:top-16 lg:self-start">
         <div className="rounded-2xl border border-border bg-card/70 p-2.5 shadow-md">
           <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -741,6 +807,15 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             💡 Click tiles to add atoms. Hover for outer orbital details!
           </div>
         </div>
+
+        {/* Primary Synthesize Reaction Button directly under the Palette */}
+        <button
+          type="button"
+          onClick={synthesize}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#a855f7] via-[#ec4899] to-[#f43f5e] py-3 font-['Montserrat',sans-serif] font-[800] text-sm sm:text-base text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(236,72,153,0.7)] uppercase tracking-wider active:translate-y-0 cursor-pointer"
+        >
+          <Sparkles className="size-4" /> Synthesize Reaction
+        </button>
       </div>
 
       {showTutorialModal && (
