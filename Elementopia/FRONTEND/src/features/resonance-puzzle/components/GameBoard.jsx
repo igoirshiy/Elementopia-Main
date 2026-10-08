@@ -376,7 +376,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   return (
     <div className="mx-auto grid max-w-[1600px] gap-3 px-2 sm:px-4 py-2.5 lg:grid-cols-[260px_1fr_270px] items-start">
       {/* Left Column: Exit, Telemetry, Obstacle Grid, Synthesized Log, Rules */}
-      <aside className="space-y-2.5 lg:sticky lg:top-16 lg:self-start order-2 lg:order-1">
+      <aside className="space-y-2.5 lg:sticky lg:top-16 lg:self-start order-3 lg:order-1">
         <button
           onClick={handleExitGame}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 font-mono text-xs font-bold text-red-400 hover:bg-red-500/20 transition-all shadow-[0_0_10px_rgba(239,68,68,0.15)]"
@@ -786,13 +786,13 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   </div>
 
       {/* Right Column: Element Palette & Synthesize CTA */}
-      <div className="space-y-2.5 order-3 lg:order-3 lg:sticky lg:top-16 lg:self-start">
+      <div className="space-y-2.5 order-2 lg:order-3 lg:sticky lg:top-16 lg:self-start">
         <div className="rounded-2xl border border-border bg-card/70 p-2.5 shadow-md">
           <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
             <span>Element Palette</span>
             <span className="text-[9px] text-cyan">Click to Place</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-1.5 items-center justify-items-center">
+          <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-2 gap-1.5 items-center justify-items-center">
             {paletteOrder.map((s, idx) => (
               <ElementTile
                 key={s}

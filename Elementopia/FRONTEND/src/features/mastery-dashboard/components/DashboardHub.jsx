@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Lock, Trophy, AlertCircle, Clock } from "lucide-react";
+import { Lock, Trophy, AlertCircle, Clock, FlaskConical } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { loadProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService, { NicknameGate } from "@/features/auth-user";
 import MasteryService from "../services/MasteryService";
 import { useTour } from "@/features/tutorial-tour";
+import { PreTestModal } from "@/features/resonance-puzzle/components/PreTestModal";
 
 // Mastery Helper Components
 function BigStat({ icon, label, value, accent, tone }) {
@@ -42,15 +43,28 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   const [cloudMetrics, setCloudMetrics] = useState(null);
   const [showNicknameGate, setShowNicknameGate] = useState(() => !localStorage.getItem("elementopia_current_user"));
   const { hasCompleted, startTour } = useTour();
+  const [showPreTest, setShowPreTest] = useState(false);
+  const [pretestData, setPretestData] = useState(() => {
+    try {
+      let localUser = null;
+      const userStr = localStorage.getItem("elementopia_current_user");
+      if (userStr) localUser = JSON.parse(userStr);
+      const nick = localUser?.username || "Alchemist";
+      const stored = localStorage.getItem(`elementopia_pretest_${nick}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
-    if (!showNicknameGate && !hasCompleted) {
+    if (!showNicknameGate && !hasCompleted && !showPreTest) {
       const timer = setTimeout(() => {
         startTour(0);
       }, 700);
       return () => clearTimeout(timer);
     }
-  }, [showNicknameGate, hasCompleted, startTour]);
+  }, [showNicknameGate, hasCompleted, showPreTest, startTour]);
 
   useEffect(() => {
     const reloadData = async () => {
@@ -95,7 +109,36 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     setRows(freshRows);
     setProgress(loadProgress());
     setShowNicknameGate(false);
+    try {
+      const stored = localStorage.getItem(`elementopia_pretest_${nickname}`);
+      if (stored) {
+        setPretestData(JSON.parse(stored));
+      } else {
+        setShowPreTest(true);
+      }
+    } catch { }
   };
+
+  useEffect(() => {
+    if (!showNicknameGate) {
+      let localUser = null;
+      try {
+        const userStr = localStorage.getItem("elementopia_current_user");
+        if (userStr) localUser = JSON.parse(userStr);
+      } catch { }
+      const nick = localUser?.username || progress.nickname;
+      if (nick && nick !== "Guest Alchemist") {
+        try {
+          const stored = localStorage.getItem(`elementopia_pretest_${nick}`);
+          if (stored) {
+            setPretestData(JSON.parse(stored));
+          } else {
+            setShowPreTest(true);
+          }
+        } catch { }
+      }
+    }
+  }, [showNicknameGate, progress.nickname]);
 
 
   if (showNicknameGate) {
@@ -149,6 +192,32 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         <p className="text-muted-foreground mt-2 sm:mt-3 max-w-2xl text-xs sm:text-[15px] leading-relaxed">
           Choose a domain to start chemical resonance synthesis. All session data persists to your Mastery Dashboard.
         </p>
+
+        {/* Pre-Test Baseline Indicator */}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {pretestData ? (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-cyan/15 border border-cyan/40 text-cyan font-mono text-xs shadow-sm">
+              <FlaskConical className="size-4 text-cyan" />
+              <span>Pre-Test Diagnostic: <strong>{pretestData.score}/{pretestData.total} ({pretestData.percentage}%)</strong></span>
+              <button
+                type="button"
+                onClick={() => setShowPreTest(true)}
+                className="ml-2 text-[10px] text-slate-300 hover:text-white underline underline-offset-2 cursor-pointer font-bold"
+              >
+                Review
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPreTest(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan/20 to-indigo-500/20 border border-cyan/40 hover:border-cyan text-cyan text-xs font-mono font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer"
+            >
+              <FlaskConical className="size-4 animate-pulse text-cyan" />
+              <span>Take Pre-Game Diagnostic (Pre-Test)</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div data-tour="tour-stats" className="mb-6 grid gap-3 sm:grid-cols-3">
@@ -252,6 +321,17 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
           })}
         </div>
       </section>
+
+      {showPreTest && (
+        <PreTestModal
+          nickname={displayName}
+          onComplete={(res) => {
+            setPretestData(res);
+            setShowPreTest(false);
+          }}
+          onCancel={() => setShowPreTest(false)}
+        />
+      )}
 
     </main>
   );
