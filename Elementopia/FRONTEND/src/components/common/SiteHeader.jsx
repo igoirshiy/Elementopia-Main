@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, LayoutDashboard, Grid, Wrench, Image as ImageIcon, Search, Swords, FlaskConical, AlertTriangle, RotateCcw } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Grid, Wrench, Image as ImageIcon, Search, Swords, FlaskConical, AlertTriangle, RotateCcw, Sparkles } from "lucide-react";
 import { loadProgress, resetProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import { useTour } from "@/features/tutorial-tour";
 
