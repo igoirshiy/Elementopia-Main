@@ -11,7 +11,6 @@ const DEFAULT = {
 let memoryCache = null;
 
 export function loadProgress() {
-  if (memoryCache) return memoryCache;
   if (typeof window === "undefined") return DEFAULT;
   try {
     const raw = localStorage.getItem(KEY);
@@ -115,19 +114,46 @@ export async function fetchProgress(nickname) {
       if (response.ok) {
         const cloudData = await response.json();
 
+        // Merge cleared domains
+        const cloudCleared = cloudData.clearedDomains || [];
+        const mergedCleared = Array.from(new Set([...(p.clearedDomains || []), ...cloudCleared]));
+
+        // Merge sessions so cloud doesn't wipe local sessions
+        const localSessions = p.sessions || [];
+        const cloudSessions = cloudData.sessions || [];
+        const sessionMap = new Map();
+        localSessions.forEach(s => sessionMap.set(s.domainId, s));
+        cloudSessions.forEach(cs => {
+          const existing = sessionMap.get(cs.domainId);
+          if (!existing) {
+            sessionMap.set(cs.domainId, cs);
+          } else {
+            sessionMap.set(cs.domainId, {
+              ...cs,
+              ...existing,
+              stage: Math.max(existing.stage || 1, cs.stage || 1),
+              cleared: existing.cleared || cs.cleared || false,
+              attempts: Math.max(existing.attempts || 0, cs.attempts || 0),
+              correct: Math.max(existing.correct || 0, cs.correct || 0),
+              durationMs: (existing.durationMs && existing.durationMs > 0) ? existing.durationMs : (cs.durationMs || 0),
+              hazmatCount: Math.max(existing.hazmatCount || 0, cs.hazmatCount || (cs.hazmat ? 1 : 0)),
+              hazmat: existing.hazmat || cs.hazmat || false
+            });
+          }
+        });
+
         p = {
           ...p,
           nickname: cloudData.nickname || nickname,
           rating: cloudData.rating !== undefined ? cloudData.rating : p.rating,
           wins: cloudData.wins !== undefined ? cloudData.wins : p.wins,
           losses: cloudData.losses !== undefined ? cloudData.losses : p.losses,
-          clearedDomains: cloudData.clearedDomains || [],
-          sessions: cloudData.sessions || []
+          clearedDomains: mergedCleared,
+          sessions: Array.from(sessionMap.values())
         };
 
         memoryCache = p;
         localStorage.setItem(KEY, JSON.stringify(p));
-        window.dispatchEvent(new Event("elementopia:progress"));
       }
     } catch (e) {
       console.warn("Backend down. Operating purely with cached local progress:", e.message);
@@ -139,15 +165,22 @@ export async function fetchProgress(nickname) {
     saveProgress(p);
   }
 
-  return p.sessions.map(s => ({
-    domain: s.domainId,
-    stage: s.stage || 1,
-    attempts: s.incorrect + (s.cleared ? 1 : 0),
-    correct: s.correct,
-    completed: s.cleared,
-    time_seconds: Math.floor(s.durationMs / 1000),
-    hazmat_activations: s.hazmat ? 1 : 0,
-  }));
+  return (p.sessions || []).map(s => {
+    const correct = s.correct || 0;
+    const attempts = s.attempts !== undefined
+      ? s.attempts
+      : (s.incorrect !== undefined ? s.incorrect + correct : (s.cleared ? Math.max(1, correct) : correct));
+    const hazmatActivations = s.hazmatCount !== undefined ? s.hazmatCount : (s.hazmat ? 1 : 0);
+    return {
+      domain: s.domainId,
+      stage: s.stage || 1,
+      attempts: attempts,
+      correct: correct,
+      completed: Boolean(s.cleared),
+      time_seconds: Math.floor((s.durationMs || 0) / 1000),
+      hazmat_activations: hazmatActivations,
+    };
+  });
 }
 
 export async function upsertProgress(row) {
@@ -162,25 +195,35 @@ export async function upsertProgress(row) {
   }
 
   const lastSessionIdx = p.sessions.findIndex(s => s.domainId === row.domain);
+  const totalAttempts = row.attempts || 0;
+  const correctCount = row.correct || 0;
+  const incorrectCount = Math.max(0, totalAttempts - correctCount);
+  const hazmatCount = row.hazmat_activations !== undefined ? row.hazmat_activations : (row.hazmat ? 1 : 0);
+  const durationMs = (row.time_seconds || 0) * 1000;
+
   if (lastSessionIdx >= 0) {
     const s = p.sessions[lastSessionIdx];
     s.stage = row.stage || s.stage || 1;
-    s.cleared = s.cleared || row.completed;
-    s.correct = Math.max(s.correct || 0, row.correct || 0);
-    s.incorrect = Math.max(s.incorrect || 0, (row.attempts || 0) - (row.completed ? 1 : 0));
-    s.durationMs = Math.max(s.durationMs || 0, (row.time_seconds || 0) * 1000);
-    if (row.hazmat_activations > 0) s.hazmat = true;
+    s.cleared = s.cleared || Boolean(row.completed);
+    s.attempts = totalAttempts;
+    s.correct = correctCount;
+    s.incorrect = incorrectCount;
+    if (durationMs > 0) s.durationMs = durationMs;
+    s.hazmatCount = hazmatCount;
+    s.hazmat = hazmatCount > 0;
   } else {
     p.sessions.push({
       domainId: row.domain,
       domainName: row.domain,
       stage: row.stage || 1,
       startedAt: Date.now(),
-      durationMs: (row.time_seconds || 0) * 1000,
-      correct: row.correct || 0,
-      incorrect: (row.attempts || 0) - (row.completed ? 1 : 0),
-      hazmat: row.hazmat_activations > 0,
-      cleared: row.completed || false,
+      durationMs: durationMs,
+      attempts: totalAttempts,
+      correct: correctCount,
+      incorrect: incorrectCount,
+      hazmatCount: hazmatCount,
+      hazmat: hazmatCount > 0,
+      cleared: Boolean(row.completed),
       mode: "puzzle",
     });
   }

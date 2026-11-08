@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Lock, Trophy, AlertCircle, Clock, FlaskConical } from "lucide-react";
+import { Lock, Trophy, AlertCircle, Clock, FlaskConical, RotateCcw, BarChart3 } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { loadProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService, { NicknameGate } from "@/features/auth-user";
@@ -37,10 +37,11 @@ function fmtTime(s) {
   return `${m}:${ss}`;
 }
 
-export function DashboardHub({ onPlayDomain, onOpenMastery }) {
+export function DashboardHub({ onPlayDomain, onOpenMastery, nickname: propNickname, rows: propRows, onRefresh }) {
   const [progress, setProgress] = useState(loadProgress());
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState(propRows || []);
   const [cloudMetrics, setCloudMetrics] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showNicknameGate, setShowNicknameGate] = useState(() => !localStorage.getItem("elementopia_current_user"));
   const { hasCompleted, startTour } = useTour();
   const [showPreTest, setShowPreTest] = useState(false);
@@ -66,42 +67,60 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     }
   }, [showNicknameGate, hasCompleted, showPreTest, startTour]);
 
+  // Sync rows from prop if parent updates
   useEffect(() => {
-    const reloadData = async () => {
-      let localUser = null;
-      try {
-        const userStr = localStorage.getItem("elementopia_current_user");
-        if (userStr) localUser = JSON.parse(userStr);
-      } catch (e) { }
+    if (propRows && propRows.length > 0) {
+      setRows(propRows);
+    }
+  }, [propRows]);
 
-      const nick = localUser?.username || progress.nickname;
-      if (nick && nick !== "Guest Alchemist") {
+  const reloadData = async () => {
+    setIsRefreshing(true);
+    let localUser = null;
+    try {
+      const userStr = localStorage.getItem("elementopia_current_user");
+      if (userStr) localUser = JSON.parse(userStr);
+    } catch (e) { }
+
+    const nick = propNickname || localUser?.username || progress.nickname;
+    if (nick && nick !== "Guest Alchemist") {
+      try {
         const pRows = await fetchProgress(nick);
         setRows(pRows);
         setProgress(loadProgress());
 
-        MasteryService.getPersonalProficiencyMap(nick).then(data => {
-          if (data && data.success && data.metrics) {
-            const map = new Map(data.metrics.map(m => [m.domainName, m]));
-            setCloudMetrics(map);
-          } else {
-            setCloudMetrics(null);
-          }
-        }).catch(() => setCloudMetrics(null));
-      } else {
-        setRows([]);
-        setCloudMetrics(null);
-        setProgress(loadProgress());
+        const data = await MasteryService.getPersonalProficiencyMap(nick);
+        if (data && data.success && data.metrics) {
+          const map = new Map(data.metrics.map(m => [m.domainName, m]));
+          setCloudMetrics(map);
+        } else {
+          setCloudMetrics(null);
+        }
+      } catch (err) {
+        console.warn("Could not reload dashboard metrics:", err);
       }
-    };
+    } else {
+      setRows(propRows || []);
+      setCloudMetrics(null);
+      setProgress(loadProgress());
+    }
+    setIsRefreshing(false);
+  };
 
+  useEffect(() => {
     void reloadData();
 
     const h = () => void reloadData();
     window.addEventListener("elementopia:progress", h);
+    window.addEventListener("elementopia:user-changed", h);
+    window.addEventListener("focus", h);
 
-    return () => window.removeEventListener("elementopia:progress", h);
-  }, []);
+    return () => {
+      window.removeEventListener("elementopia:progress", h);
+      window.removeEventListener("elementopia:user-changed", h);
+      window.removeEventListener("focus", h);
+    };
+  }, [propNickname]);
 
   const handleNicknameSubmit = async (nickname) => {
     await UserService.loginUser(nickname, "guest");
@@ -109,6 +128,18 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     setRows(freshRows);
     setProgress(loadProgress());
     setShowNicknameGate(false);
+
+    MasteryService.getPersonalProficiencyMap(nickname).then(data => {
+      if (data && data.success && data.metrics) {
+        const map = new Map(data.metrics.map(m => [m.domainName, m]));
+        setCloudMetrics(map);
+      }
+    }).catch(() => {});
+
+    if (onRefresh) onRefresh();
+    window.dispatchEvent(new CustomEvent("elementopia:user-changed", { detail: { username: nickname } }));
+    window.dispatchEvent(new Event("elementopia:progress"));
+
     try {
       const stored = localStorage.getItem(`elementopia_pretest_${nickname}`);
       if (stored) {
@@ -159,23 +190,24 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
     ? localUser.username
     : (progress.nickname && progress.nickname !== "Guest Alchemist" ? progress.nickname : "Alchemist");
 
-  // Mastery computations
+  // Mastery computations with truthful reconciliation
   const byDomain = new Map(rows.map(r => [r.domain, r]));
   const completedCount = DOMAINS.filter(d =>
-    progress?.clearedDomains?.includes(d.id) || byDomain.get(d.id)?.completed
+    progress?.clearedDomains?.includes(d.id) || byDomain.get(d.id)?.completed || cloudMetrics?.has(d.id)
   ).length;
+
   const totalAttempts = rows.reduce((a, r) => a + (r.attempts || 0), 0);
   const totalCorrect = rows.reduce((a, r) => a + (r.correct || 0), 0);
 
   let overallAcc = 0;
   if (totalAttempts > 0) {
-    overallAcc = Math.round((totalCorrect / totalAttempts) * 100);
+    overallAcc = Math.min(100, Math.round((totalCorrect / totalAttempts) * 100));
   } else if (cloudMetrics && cloudMetrics.size > 0) {
     const cloudAccs = Array.from(cloudMetrics.values())
       .map(m => m.averageAccuracyPercentage ?? m.accuracyPercentage)
       .filter(v => typeof v === "number" && !isNaN(v));
     if (cloudAccs.length > 0) {
-      overallAcc = Math.round(cloudAccs.reduce((a, b) => a + b, 0) / cloudAccs.length);
+      overallAcc = Math.min(100, Math.round(cloudAccs.reduce((a, b) => a + b, 0) / cloudAccs.length));
     }
   }
 
@@ -185,7 +217,32 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
   return (
     <main className="mx-auto max-w-[1400px] w-full px-4 sm:px-8 md:px-16 lg:px-24 py-6 sm:py-12">
       <div data-tour="tour-welcome" className="mb-8 sm:mb-10">
-        <p className="font-mono text-[10px] sm:text-xs text-muted-foreground tracking-[0.3em] uppercase">DASHBOARD</p>
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-[10px] sm:text-xs text-muted-foreground tracking-[0.3em] uppercase">DASHBOARD</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => { void reloadData(); if (onRefresh) onRefresh(); }}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-mono transition-all cursor-pointer disabled:opacity-50"
+              title="Refresh stats from cloud"
+            >
+              <RotateCcw className={`size-3.5 ${isRefreshing ? "animate-spin text-cyan" : ""}`} />
+              <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Sync"}</span>
+            </button>
+            {onOpenMastery && (
+              <button
+                type="button"
+                onClick={onOpenMastery}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-magenta/15 hover:bg-magenta/25 border border-magenta/40 text-magenta hover:text-white text-xs font-mono transition-all cursor-pointer font-bold"
+              >
+                <BarChart3 className="size-3.5" />
+                <span>Mastery Deep-Dive</span>
+              </button>
+            )}
+          </div>
+        </div>
+
         <h1 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold mt-2 text-white" style={{ textShadow: '0 0 20px rgba(236,72,153,0.3)' }}>
           Welcome back, {displayName}.
         </h1>
@@ -239,20 +296,17 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
 
           let acc = null;
           let time = null;
-          let isCloud = false;
 
-          if (hasCloudData) {
-            acc = Math.round(cloudAcc);
-            time = (cloudSpeed != null && !isNaN(cloudSpeed)) ? cloudSpeed : (r?.time_seconds ?? null);
-            isCloud = true;
-          } else if (attempts > 0) {
-            acc = Math.round((correct / attempts) * 100);
-            time = r?.time_seconds ?? null;
-            isCloud = false;
+          if (attempts > 0) {
+            acc = Math.min(100, Math.round((correct / attempts) * 100));
+            time = r?.time_seconds ?? (hasCloudData && cloudSpeed ? Math.round(cloudSpeed) : null);
+          } else if (hasCloudData) {
+            acc = Math.min(100, Math.round(cloudAcc));
+            time = (cloudSpeed != null && !isNaN(cloudSpeed)) ? Math.round(cloudSpeed) : (r?.time_seconds ?? null);
           }
 
           const isCleared = progress?.clearedDomains?.includes(d.id) || r?.completed;
-          const isStarted = isCleared || r || hasCloudData;
+          const isStarted = isCleared || attempts > 0 || hasCloudData;
           const displayAttempts = attempts > 0 ? attempts : (hasCloudData ? 1 : 0);
           const lowAcc = acc !== null && acc < 60;
           return (
@@ -288,12 +342,10 @@ export function DashboardHub({ onPlayDomain, onOpenMastery }) {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {DOMAINS.map((d, i) => {
             const clearedDomains = progress?.clearedDomains || [];
-            const sessions = progress?.sessions || [];
-            const cleared = clearedDomains.includes(d.id);
+            const cleared = clearedDomains.includes(d.id) || byDomain.get(d.id)?.completed;
             const prevId = DOMAINS[i - 1]?.id;
-            const prevSession = sessions.find(s => s.domainId === prevId);
-            const prevFullyCleared = clearedDomains.includes(prevId) && (prevSession?.stage >= 3 || prevSession?.cleared);
-            const unlocked = i === 0 || prevFullyCleared;
+            const prevCleared = i === 0 || clearedDomains.includes(prevId) || byDomain.get(prevId)?.completed;
+            const unlocked = i === 0 || prevCleared;
 
             return (
               <button

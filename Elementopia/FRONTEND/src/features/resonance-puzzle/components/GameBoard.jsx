@@ -33,6 +33,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [showTutorialModal, setShowTutorialModal] = useState(true);
   const [discoveryVideo, setDiscoveryVideo] = useState(null);
+  const [pendingClear, setPendingClear] = useState(null);
   const [inspectedElement, setInspectedElement] = useState(null);
   const [identifiedTarget, setIdentifiedTarget] = useState(null);
   const [wrongChoiceClicked, setWrongChoiceClicked] = useState(null);
@@ -110,8 +111,18 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const cleared = Math.min(TOTAL_BLOCKS, solved.length * blocksPerReaction);
 
-  const currentTargetIndex = Math.min(solved.length, Math.max(0, requiredOrder.length - 1));
-  const currentTarget = requiredOrder[currentTargetIndex] || requiredOrder[0];
+  const remainingTargets = useMemo(() => {
+    return requiredOrder.filter(req => {
+      const reqKey = Object.entries(req.recipe).flatMap(([s, c]) => Array(c).fill(s)).sort().join("-");
+      return !solved.includes(reqKey);
+    });
+  }, [requiredOrder, solved]);
+
+  const currentTarget = remainingTargets[0] || requiredOrder[requiredOrder.length - 1] || requiredOrder[0];
+  const currentTargetIndex = useMemo(() => {
+    const idx = requiredOrder.findIndex(r => r.name === currentTarget?.name);
+    return idx >= 0 ? idx : Math.min(solved.length, Math.max(0, requiredOrder.length - 1));
+  }, [requiredOrder, currentTarget, solved.length]);
   const isStageComplete = solved.length >= requiredOrder.length;
 
   // Reset identifiedTarget when advancing to a new target
@@ -307,12 +318,18 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
               const formattedTime = `${String(finalMinutes).padStart(2, '0')}:${String(finalSeconds).padStart(2, '0')}`;
               const finalAccuracy = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 100;
 
-              setTimeout(() => onCleared({
+              const clearPayload = {
                 accuracy: finalAccuracy,
                 time: formattedTime,
                 compounds: allDomainCompounds,
                 compoundCount: allDomainCompounds.length
-              }), 1500);
+              };
+
+              if (matchedCompound?.localVideo) {
+                setPendingClear(clearPayload);
+              } else {
+                setTimeout(() => onCleared(clearPayload), 1500);
+              }
             }
           }
 
@@ -372,6 +389,14 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const accuracy = attempts === 0 ? 0 : Math.round((correct / attempts) * 100);
   const progressPct = (solved.length / requiredOrder.length) * 100;
+
+  const handleCloseDiscoveryVideo = () => {
+    setDiscoveryVideo(null);
+    if (pendingClear) {
+      onCleared(pendingClear);
+      setPendingClear(null);
+    }
+  };
 
   return (
     <div className="mx-auto grid max-w-[1600px] gap-3 px-2 sm:px-4 py-2.5 lg:grid-cols-[260px_1fr_270px] items-start">
@@ -880,7 +905,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                 <Sparkles className="w-6 h-6 text-cyan animate-pulse" />
                 <h3 className="font-pixel text-2xl text-white tracking-wider">{discoveryVideo.name} Synthesized!</h3>
               </div>
-              <button onClick={() => setDiscoveryVideo(null)} className="text-slate-400 hover:text-white transition bg-slate-800/50 hover:bg-slate-700 p-2 rounded-xl">
+              <button onClick={handleCloseDiscoveryVideo} className="text-slate-400 hover:text-white transition bg-slate-800/50 hover:bg-slate-700 p-2 rounded-xl">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -899,7 +924,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                 Educational Broadcast • {discoveryVideo.formula}
               </div>
               <button
-                onClick={() => setDiscoveryVideo(null)}
+                onClick={handleCloseDiscoveryVideo}
                 className="px-8 py-3 bg-gradient-to-r from-cyan to-blue-500 text-white font-bold font-mono text-sm rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(6,182,212,0.5)] uppercase tracking-wider"
               >
                 Got It

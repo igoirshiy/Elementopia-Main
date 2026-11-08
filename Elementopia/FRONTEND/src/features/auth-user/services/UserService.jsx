@@ -31,6 +31,10 @@ const UserService = {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.role);
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(data.user));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("elementopia:user-changed", { detail: data.user }));
+          window.dispatchEvent(new Event("elementopia:progress"));
+        }
         return data;
       }
     } catch (e) {
@@ -54,6 +58,10 @@ const UserService = {
     localStorage.setItem("token", "mock_local_token_" + user.userId);
     localStorage.setItem("role", user.role);
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("elementopia:user-changed", { detail: user }));
+      window.dispatchEvent(new Event("elementopia:progress"));
+    }
 
     return { token: "mock_local_token_" + user.userId, role: user.role, user };
   },
@@ -193,6 +201,10 @@ const UserService = {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem(CURRENT_USER_KEY);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("elementopia:user-changed", { detail: null }));
+      window.dispatchEvent(new Event("elementopia:progress"));
+    }
   },
 
   // Delete User (Attempts cloud, fallbacks locally)
