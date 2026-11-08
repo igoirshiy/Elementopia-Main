@@ -51,8 +51,8 @@ export async function resetProgress(nickname) {
 
   memoryCache = fresh;
   if (typeof window !== "undefined") {
-    localStorage.setItem(KEY, JSON.stringify(fresh));
-    window.dispatchEvent(new Event("elementopia:progress"));
+    localStorage.removeItem(`elementopia_pretest_${nickname}`);
+    localStorage.removeItem("elementopia.sessions.v1");
   }
 
   return fresh;

@@ -6,7 +6,7 @@ import { fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService from "@/features/auth-user";
 import { StoryCard } from "@/features/resonance-puzzle/components/StoryCard";
 import { GameBoard } from "../components/GameBoard";
-import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
+import { DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { useLocation } from "react-router-dom";
 import { API_BASE_URL } from "@/config/apiConfig";
@@ -186,13 +186,12 @@ export default function ElementopiaGame() {
             </div>
           )}
 
-          {view === "home" && (
+          {(view === "home" || view === "dashboard") && (
             <DashboardHub
               nickname={nickname}
               rows={rows}
               onRefresh={() => { if (nickname) void refresh(nickname); }}
               onPlayDomain={(d) => enterDomain(d, DOMAINS.findIndex(x => x.id === d.id))}
-              onOpenMastery={() => { setView("dashboard"); if (nickname) void refresh(nickname); }}
             />
           )}
 
@@ -227,15 +226,6 @@ export default function ElementopiaGame() {
                 />
               )}
             </>
-          )}
-
-          {view === "dashboard" && (
-            <Dashboard 
-              nickname={nickname} 
-              rows={rows} 
-              onRefresh={() => { if (nickname) void refresh(nickname); }}
-              onBack={() => setView("home")}
-            />
           )}
 
           <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">

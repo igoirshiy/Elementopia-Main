@@ -25,8 +25,7 @@ export function SiteHeader({ view, setView }) {
   const { startTour } = useTour();
   const pathname = location.pathname;
   const isMainPage = pathname === "/student-home-page" || pathname === "/student/elementopia";
-  const isDashboardActive = isMainPage && (view === "home" || !view);
-  const isMasteryActive = isMainPage && view === "dashboard";
+  const isDashboardActive = isMainPage && (view === "home" || view === "dashboard" || !view);
   const isDiscoveryActive = pathname === "/student/discovery";
   const isGalleryActive = pathname === "/student/gallery" || pathname === "/gallery" || pathname === "/student/compound-gallery";
   const isWorkshopActive = pathname === "/student/workshop" || pathname === "/workshop" || pathname === "/student/dr-atom-workshop";
@@ -197,32 +196,6 @@ export function SiteHeader({ view, setView }) {
             >
               <LayoutDashboard className={`size-5 ${isDashboardActive ? "text-cyan-400" : ""}`} />
               Dashboard
-            </Link>
-          )}
-
-          {setView && isMainPage ? (
-            <button
-              type="button"
-              onClick={() => {
-                setView("dashboard");
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isMasteryActive
-                  ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-magenta-500/20"
-                  : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
-                }`}
-            >
-              <BarChart3 className={`size-5 ${isMasteryActive ? "text-magenta" : ""}`} />
-              Mastery Analytics
-            </button>
-          ) : (
-            <Link
-              to="/student-home-page?view=dashboard"
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
-            >
-              <BarChart3 className="size-5 text-magenta" />
-              Mastery Analytics
             </Link>
           )}
 

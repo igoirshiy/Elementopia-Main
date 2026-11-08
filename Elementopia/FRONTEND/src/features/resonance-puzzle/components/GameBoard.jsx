@@ -867,7 +867,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
           <DoctorAtomAssistant
             title="Doctor Atom"
-            message={`${consecutiveFailures} attempts made without a match! Tip for ${domain.name}: Check your valence electrons. Pair elements so offered electrons equal needed electrons!`}
+            message={`${consecutiveFailures} attempts made without a match!\n\n💡 Tip for ${domain.name}: Check your valence electrons. Pair elements so offered electrons equal needed electrons!`}
             isTalking={true}
           />
 

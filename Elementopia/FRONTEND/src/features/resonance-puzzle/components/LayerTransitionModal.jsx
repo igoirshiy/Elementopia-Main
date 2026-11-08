@@ -6,11 +6,11 @@ const DOMAIN_LAYER_BRIEFINGS = {
   water: {
     1: {
       title: "Surface Barrier Shattered!",
-      message: "Great work synthesizing Water (H₂O)! Now descend deeper into the cavern where Hydrogen & Oxygen bond in higher ratios to form Hydrogen Peroxide (H₂O₂).",
+      message: "Great work synthesizing Water (H₂O)!\n\n💡 Next Mission: Descend deeper into the cavern where Hydrogen & Oxygen bond in higher ratios to form Hydrogen Peroxide (H₂O₂).",
     },
     2: {
       title: "Deep Water Barrier Dissolved!",
-      message: "You've mastered peroxide covalent bonds! Now enter the Cavern Core where Nitrogen & Hydrogen combine to form Ammonia (NH₃).",
+      message: "You've mastered peroxide covalent bonds!\n\n💡 Next Mission: Enter the Cavern Core where Nitrogen & Hydrogen combine to form Ammonia (NH₃).",
     },
     3: {
       title: "Water Cavern Core Cleared!",
@@ -20,11 +20,11 @@ const DOMAIN_LAYER_BRIEFINGS = {
   salt: {
     1: {
       title: "Salt Crust Cracked!",
-      message: "Table Salt (NaCl) formed! Now descend into the alkali depths to bond Sodium, Oxygen, and Hydrogen into Sodium Hydroxide (NaOH).",
+      message: "Table Salt (NaCl) formed!\n\n💡 Next Mission: Descend into the alkali depths to bond Sodium, Oxygen, and Hydrogen into Sodium Hydroxide (NaOH).",
     },
     2: {
       title: "Alkali Barrier Dissolved!",
-      message: "Sodium Hydroxide mastered! Descend to the Crystal Core to bond Magnesium with Chlorine (MgCl₂).",
+      message: "Sodium Hydroxide mastered!\n\n💡 Next Mission: Descend to the Crystal Core to bond Magnesium with Chlorine (MgCl₂).",
     },
     3: {
       title: "Salt Flats Core Cleared!",
@@ -34,11 +34,11 @@ const DOMAIN_LAYER_BRIEFINGS = {
   carbon: {
     1: {
       title: "Forge Entrance Melted!",
-      message: "Carbon Dioxide (CO₂) synthesized! Descend into the Deep Forge to bond Carbon with Hydrogen to form Methane (CH₄).",
+      message: "Carbon Dioxide (CO₂) synthesized!\n\n💡 Next Mission: Descend into the Deep Forge to bond Carbon with Hydrogen to form Methane (CH₄).",
     },
     2: {
       title: "Hydrocarbon Gate Unlocked!",
-      message: "Methane synthesized! Enter the Molten Core to synthesize complex Glucose (C₆H₁₂O₆).",
+      message: "Methane synthesized!\n\n💡 Next Mission: Enter the Molten Core to synthesize complex Glucose (C₆H₁₂O₆).",
     },
     3: {
       title: "Carbon Forge Core Mastered!",

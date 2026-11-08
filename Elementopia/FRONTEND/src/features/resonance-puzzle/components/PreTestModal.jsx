@@ -61,13 +61,22 @@ export const PRETEST_QUESTIONS = [
   }
 ];
 
-export function PreTestModal({ nickname, onComplete, onCancel }) {
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [result, setResult] = useState(null);
+export function PreTestModal({ nickname, onComplete, onCancel, existingData }) {
+  const initialData = existingData || (() => {
+    try {
+      const stored = localStorage.getItem(`elementopia_pretest_${nickname || 'guest'}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const [answers, setAnswers] = useState(initialData?.answers || {});
+  const [submitted, setSubmitted] = useState(Boolean(initialData));
+  const [result, setResult] = useState(initialData || null);
+  const isReadOnly = Boolean(initialData);
 
   const handleSelect = (questionId, optionId) => {
-    if (submitted) return;
+    if (submitted || isReadOnly) return;
     setAnswers(prev => ({ ...prev, [questionId]: optionId }));
   };
 
