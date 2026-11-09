@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlaskConical, CheckCircle2, Sparkles, ArrowRight, Award, HelpCircle, X } from 'lucide-react';
 import { API_BASE_URL } from '@/config/apiConfig';
 import { supabase } from '@/integrations/supabase/client';
-
+import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/OfflineSyncManager";
 export const PRETEST_QUESTIONS = [
   {
     id: 'q1',
@@ -104,17 +104,12 @@ export function PreTestModal({ nickname, onComplete, onCancel, existingData }) {
       console.warn('Failed to save pretest locally:', e);
     }
 
-    try {
-      fetch(`${API_BASE_URL}/api/telemetry/pretest`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }).catch(err => {
-        console.warn('Backend pretest telemetry sync failed, trying direct Supabase fallback:', err);
-      });
-    } catch (e) {
-      console.warn('Error during pretest backend dispatch:', e);
-    }
+    await syncOrEnqueue({
+      type: "PRETEST_TELEMETRY",
+      url: `${API_BASE_URL}/api/telemetry/pretest`,
+      method: "POST",
+      payload
+    });
 
     try {
       if (supabase && typeof supabase.from === 'function') {

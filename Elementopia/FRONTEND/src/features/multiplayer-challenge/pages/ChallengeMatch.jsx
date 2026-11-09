@@ -13,6 +13,7 @@ import {
   submitSolved,
   switchTeam,
   updateRoomSettings,
+  forfeitMatch,
 } from "@/features/multiplayer-challenge/lib/room";
 import { elementInfo } from "@/features/resonance-puzzle/lib/puzzles";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } 
 import Confetti from "react-confetti";
 import { API_BASE_URL } from "@/config/apiConfig";
 import { BohrAtomVisualizer } from "@/features/resonance-puzzle/components/BohrAtomVisualizer";
+import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/OfflineSyncManager";
 
 export default function ChallengeMatch() {
   const { code } = useParams();
@@ -31,8 +33,11 @@ export default function ChallengeMatch() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
+  const channelRef = useRef(null);
+  const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  const [disconnectCountdown, setDisconnectCountdown] = useState(15);
+  const lastOpponentPingRef = useRef({});
 
-  // Load + subscribe
   useEffect(() => {
     let active = true;
     (async () => {
@@ -62,17 +67,77 @@ export default function ChallengeMatch() {
           const next = payload.new;
           if (next) {
             setPlayers(prev => {
-               if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at));
-               return prev.map(p => p.id === next.id ? next : p);
+              if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a, b) => new Date(a.joined_at) - new Date(b.joined_at));
+              return prev.map(p => p.id === next.id ? next : p);
             });
           }
         })
+      .on("broadcast", { event: "presence_heartbeat" }, ({ payload }) => {
+        if (payload && payload.sessionId !== sessionId) {
+          lastOpponentPingRef.current[payload.sessionId] = Date.now();
+        }
+      })
       .subscribe();
+    channelRef.current = channel;
     return () => { active = false; supabase.removeChannel(channel); };
-  }, [code]);
+  }, [code, sessionId]);
 
   const me = useMemo(() => players.find((p) => p.session_id === sessionId) ?? null, [players, sessionId]);
   const isHost = !!me?.is_host;
+
+  // 3-Second Heartbeat Broadcast (Active Match)
+  useEffect(() => {
+    if (room?.status !== "active" || !channelRef.current || !me) return;
+
+    const pingInterval = setInterval(() => {
+      channelRef.current.send({
+        type: "broadcast",
+        event: "presence_heartbeat",
+        payload: { sessionId, team: me.team, timestamp: Date.now() }
+      }).catch(() => { });
+    }, 3000);
+
+    return () => clearInterval(pingInterval);
+  }, [room?.status, me, sessionId]);
+
+  // 8-Second Silence Detector & 15-Second Forfeit Watchdog
+  useEffect(() => {
+    if (room?.status !== "active" || !me) return;
+
+    const opponents = players.filter((p) => p.team !== me.team);
+    if (opponents.length === 0) return;
+
+    opponents.forEach((opp) => {
+      if (!lastOpponentPingRef.current[opp.session_id]) {
+        lastOpponentPingRef.current[opp.session_id] = Date.now();
+      }
+    });
+
+    const watchdog = setInterval(() => {
+      const now = Date.now();
+      const anyOpponentSilent = opponents.some((opp) => {
+        const lastPing = lastOpponentPingRef.current[opp.session_id] || now;
+        return (now - lastPing) > 8000;
+      });
+
+      if (anyOpponentSilent) {
+        setOpponentDisconnected(true);
+        setDisconnectCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(watchdog);
+            forfeitMatch(room.id, me.team).catch(console.error);
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else {
+        setOpponentDisconnected(false);
+        setDisconnectCountdown(15);
+      }
+    }, 1000);
+
+    return () => clearInterval(watchdog);
+  }, [room?.status, room?.id, players, me]);
 
   if (loading) {
     return <FullCenter><p className="text-white/50">Connecting to room…</p></FullCenter>;
@@ -98,6 +163,34 @@ export default function ChallengeMatch() {
         {(room.status === "countdown" || room.status === "active" || (room.status === "finished" && showDiscoveryModal)) && <Match room={room} players={players} me={me} showDiscoveryModal={showDiscoveryModal} setShowDiscoveryModal={setShowDiscoveryModal} />}
         {room.status === "finished" && !showDiscoveryModal && <Result room={room} players={players} me={me} isHost={isHost} />}
       </div>
+
+      {/* Disconnect Reconnection & Forfeit Modal Overlay (FR-3.4 / REQ-403) */}
+      {opponentDisconnected && room.status === "active" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in">
+          <div className="max-w-md w-full rounded-3xl border border-destructive/50 bg-slate-950 p-6 sm:p-8 text-center shadow-[0_0_50px_rgba(239,68,68,0.25)]">
+            <div className="w-16 h-16 rounded-full bg-destructive/20 border-2 border-destructive flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Zap className="w-8 h-8 text-destructive" />
+            </div>
+            <h3 className="font-pixel text-xl sm:text-2xl text-destructive font-bold mb-2">
+              Opponent Reconnecting
+            </h3>
+            <p className="text-sm text-slate-300 font-sans leading-relaxed mb-6">
+              Network silence detected from the opposing team. Match paused awaiting reconnection.
+            </p>
+            <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/30 mb-6 font-mono">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
+                Forfeit Victory In
+              </div>
+              <div className="text-4xl font-bold text-destructive">
+                {disconnectCountdown}s
+              </div>
+            </div>
+            <p className="text-[11px] font-mono text-slate-400">
+              If the opponent fails to reconnect within the countdown, victory is automatically awarded to your team.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -232,10 +325,10 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
 
   useEffect(() => {
     if (me && progress.length === 0 && me.steps?.length > 0) {
-       setProgress(me.steps);
+      setProgress(me.steps);
     }
     if (me && errors === 0 && (me.errors || 0) > 0) {
-       setErrors(me.errors);
+      setErrors(me.errors);
     }
   }, [me]);
   const [solved, setSolved] = useState(false);
@@ -334,7 +427,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
       setTimeout(() => setFlash(null), 200);
 
       // Sync step progress live to other players
-      bumpSteps(room.id, me.session_id, np.length).catch(() => {});
+      bumpSteps(room.id, me.session_id, np.length).catch(() => { });
 
       if (np.length === targetSeq.length) {
         setSolved(true);
@@ -438,7 +531,7 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
                     }`}
                 >
                   <span className="relative z-10 block font-mono text-[10px] text-white/40">#{i + 1}</span>
-                  
+
                   <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 grid place-items-center pointer-events-none transition-opacity ${isUsed ? "opacity-10" : "opacity-40 group-hover:opacity-100"}`}>
                     <div className="scale-[0.8] origin-center flex items-center justify-center">
                       <BohrAtomVisualizer symbol={sym} size="md" showNucleus={false} animated={!isUsed} themeColor={themeColor} />
@@ -541,7 +634,6 @@ function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal })
   );
 }
 
-/* ----------------------- RESULT ----------------------- */
 function Result({ room, players, me, isHost }) {
   const winning = room.winning_team;
   const youWon = !!me && winning === me.team;
@@ -568,15 +660,16 @@ function Result({ room, players, me, isHost }) {
     const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
     const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
 
-    fetch(`${API_BASE_URL}/api/features/match-consolidation/record-result`, {
+    syncOrEnqueue({
+      type: "MATCH_RESULT",
+      url: `${API_BASE_URL}/api/features/match-consolidation/record-result`,
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      payload: {
         sessionNickname: me.nickname,
         matchResult,
         reactionPathEfficiency: efficiency
-      })
-    }).catch(console.error);
+      }
+    });
   }, [me, winning, draw, youWon]);
 
   return (

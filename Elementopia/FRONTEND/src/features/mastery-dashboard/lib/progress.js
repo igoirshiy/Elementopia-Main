@@ -1,5 +1,6 @@
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { API_BASE_URL } from "@/config/apiConfig";
+import { syncOrEnqueue } from "./OfflineSyncManager";
 const KEY = "elementopia.progress.v1";
 const BASE_URL = `${API_BASE_URL}/api/progress`;
 
@@ -258,4 +259,14 @@ export async function upsertProgress(row) {
       console.warn("Telemetry/Progression sync failed", e);
     }
   }
+}
+
+export async function syncProgressToCloud(p) {
+  if (!p.nickname || p.nickname === "Guest Alchemist") return;
+  await syncOrEnqueue({
+    type: "PROGRESS_SYNC",
+    url: BASE_URL,
+    method: "POST",
+    payload: p
+  });
 }

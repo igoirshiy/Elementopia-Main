@@ -99,7 +99,7 @@ export async function joinRoom(code, nickname) {
     .eq("room_id", room.id)
     .eq("nickname", nick)
     .maybeSingle();
-    
+
   if (dropped) {
     await supabase.from("room_players").update({ session_id: sessionId }).eq("id", dropped.id);
     return room;
@@ -352,4 +352,23 @@ export async function advanceToNextRound(roomId) {
       })
       .eq("id", roomId);
   }
+}
+
+export async function forfeitMatch(roomId, winningTeam) {
+  const { data, error } = await supabase
+    .from("rooms")
+    .update({
+      winning_team: winningTeam,
+      status: "finished",
+      finished_at: new Date().toISOString()
+    })
+    .eq("id", roomId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to execute forfeit:", error);
+    throw error;
+  }
+  return data;
 }

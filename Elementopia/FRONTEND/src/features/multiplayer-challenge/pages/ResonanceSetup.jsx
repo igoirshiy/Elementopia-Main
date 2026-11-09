@@ -74,17 +74,16 @@ export default function ResonanceSetup() {
                       <>
                         <div className="space-y-2">
                           <label className="text-xs uppercase tracking-wider text-white/50">Format</label>
-                          <div className="grid grid-cols-5 gap-2">
-                            {[1, 2, 3, 4, 5].map((n) => (
+                          <div className="grid grid-cols-3 gap-2">
+                            {[1, 2, 3].map((n) => (
                               <button
                                 key={n}
                                 type="button"
                                 onClick={() => setTeamSize(n)}
-                                className={`rounded-xl border py-3 font-mono text-sm transition ${
-                                  teamSize === n
-                                    ? "border-magenta bg-magenta/20 text-white shadow-glow"
-                                    : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50"
-                                }`}
+                                className={`rounded-xl border py-3 font-mono text-sm transition cursor-pointer ${teamSize === n
+                                    ? "border-magenta bg-magenta/20 text-white shadow-glow font-bold"
+                                    : "border-white/10 bg-white/5 text-white/50 hover:border-magenta/50 hover:text-white"
+                                  }`}
                               >
                                 {n}v{n}
                               </button>
@@ -105,9 +104,8 @@ export default function ResonanceSetup() {
                                 key={d.key}
                                 type="button"
                                 onClick={() => setDifficulty(d.key)}
-                                className={`rounded-xl border py-2.5 font-mono text-sm font-bold transition duration-300 ${
-                                  difficulty === d.key ? d.activeColor : `border-white/10 bg-white/5 text-white/50 ${d.color}`
-                                }`}
+                                className={`rounded-xl border py-2.5 font-mono text-sm font-bold transition duration-300 ${difficulty === d.key ? d.activeColor : `border-white/10 bg-white/5 text-white/50 ${d.color}`
+                                  }`}
                               >
                                 {d.label}
                               </button>

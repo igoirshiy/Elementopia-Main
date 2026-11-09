@@ -6,6 +6,7 @@ import UserService, { NicknameGate } from "@/features/auth-user";
 import MasteryService from "../services/MasteryService";
 import { useTour } from "@/features/tutorial-tour";
 import { PreTestModal } from "@/features/resonance-puzzle/components/PreTestModal";
+import { flushSyncQueue } from "../lib/OfflineSyncManager";
 
 function BigStat({ icon, label, value, accent, tone }) {
   const c = tone === "warn" ? "text-destructive" : accent === "magenta" ? "text-magenta" : accent === "cyan" ? "text-cyan" : "text-violet";
@@ -253,7 +254,11 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
           </p>
           <button
             type="button"
-            onClick={() => { void reloadData(); if (onRefresh) onRefresh(); }}
+            onClick={async () => {
+              await flushSyncQueue();
+              void reloadData();
+              if (onRefresh) onRefresh();
+            }}
             disabled={isRefreshing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-mono transition cursor-pointer disabled:opacity-50"
             title="Sync with cloud"
