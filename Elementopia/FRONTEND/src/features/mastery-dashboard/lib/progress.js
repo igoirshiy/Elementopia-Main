@@ -68,19 +68,6 @@ export function saveProgress(p) {
   syncProgressToCloud(p);
 }
 
-export async function syncProgressToCloud(p) {
-  if (!p.nickname || p.nickname === "Guest Alchemist") return;
-  try {
-    await fetch(BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(p)
-    });
-  } catch (e) {
-    console.warn("Backend down. Saved locally, cloud sync deferred:", e.message);
-  }
-}
-
 export function recordMatch(opponent, result, ms, fails) {
   const p = loadProgress();
   if (!p.matches) p.matches = [];
