@@ -1,6 +1,6 @@
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { API_BASE_URL } from "@/config/apiConfig";
-import { syncOrEnqueue } from "./OfflineSyncManager";
+import { syncOrEnqueue } from "./offlineSyncManager";
 const KEY = "elementopia.progress.v1";
 const BASE_URL = `${API_BASE_URL}/api/progress`;
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlaskConical, CheckCircle2, Sparkles, ArrowRight, Award, HelpCircle, X } from 'lucide-react';
 import { API_BASE_URL } from '@/config/apiConfig';
 import { supabase } from '@/integrations/supabase/client';
-import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/OfflineSyncManager";
+import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/offlineSyncManager";
 export const PRETEST_QUESTIONS = [
   {
     id: 'q1',

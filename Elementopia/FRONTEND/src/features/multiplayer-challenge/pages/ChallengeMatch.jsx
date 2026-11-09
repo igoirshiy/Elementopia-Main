@@ -23,7 +23,7 @@ import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } 
 import Confetti from "react-confetti";
 import { API_BASE_URL } from "@/config/apiConfig";
 import { BohrAtomVisualizer } from "@/features/resonance-puzzle/components/BohrAtomVisualizer";
-import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/OfflineSyncManager";
+import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/offlineSyncManager";
 
 export default function ChallengeMatch() {
   const { code } = useParams();

@@ -3,7 +3,7 @@ import { Box, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Navbar from '@/components/common/NavBar';
 import Sidebar from '@/components/common/Sidebar';
-import "./StudentElementMatcher.css"; // Import the CSS file
+// import "./StudentElementMatcher.css"; // Obsolete CSS file removed in cleanup
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,

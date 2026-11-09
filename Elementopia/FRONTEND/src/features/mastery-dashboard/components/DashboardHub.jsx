@@ -6,7 +6,7 @@ import UserService, { NicknameGate } from "@/features/auth-user";
 import MasteryService from "../services/MasteryService";
 import { useTour } from "@/features/tutorial-tour";
 import { PreTestModal } from "@/features/resonance-puzzle/components/PreTestModal";
-import { flushSyncQueue } from "../lib/OfflineSyncManager";
+import { flushSyncQueue } from "../lib/offlineSyncManager";
 
 function BigStat({ icon, label, value, accent, tone }) {
   const c = tone === "warn" ? "text-destructive" : accent === "magenta" ? "text-magenta" : accent === "cyan" ? "text-cyan" : "text-violet";

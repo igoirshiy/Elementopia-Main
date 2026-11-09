@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { TourProvider, TourSpotlightOverlay } from "@/features/tutorial-tour";
 import { useEffect } from "react";
-import { initOfflineSync } from "@/features/mastery-dashboard/lib/OfflineSyncManager";
+import { initOfflineSync } from "@/features/mastery-dashboard/lib/offlineSyncManager";
 
 const LandingPage = lazy(() => import('@/features/public-marketing/pages/LandingPage'));
 const AboutUs = lazy(() => import('@/features/public-marketing/pages/AboutUs'));
