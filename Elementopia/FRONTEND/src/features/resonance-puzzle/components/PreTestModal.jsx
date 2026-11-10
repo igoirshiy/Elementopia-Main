@@ -1,54 +1,88 @@
 import React, { useState } from 'react';
 import { FlaskConical, CheckCircle2, Sparkles, ArrowRight, Award, HelpCircle, X } from 'lucide-react';
-
+import { API_BASE_URL } from '@/config/apiConfig';
+import { supabase } from '@/integrations/supabase/client';
+import { syncOrEnqueue } from "@/features/mastery-dashboard/lib/offlineSyncManager";
 export const PRETEST_QUESTIONS = [
   {
     id: 'q1',
-    question: 'Which of the following compounds is formed through a Covalent Bond (sharing electrons)?',
+    question: 'Which of the following compounds is formed through a Covalent Bond (sharing electrons between nonmetals)?',
     options: [
-      { id: 'a', text: 'NaCl (Sodium Chloride / Salt)' },
+      { id: 'a', text: 'NaCl (Sodium Chloride / Table Salt)' },
       { id: 'b', text: 'H₂O (Water)', isCorrect: true },
       { id: 'c', text: 'MgO (Magnesium Oxide)' },
       { id: 'd', text: 'LiF (Lithium Fluoride)' },
     ],
-    hint: 'Covalent bonds occur between non-metal atoms sharing valence electron pairs.'
+    hint: 'Covalent bonds occur between non-metal atoms that share valence electron pairs.'
   },
   {
     id: 'q2',
-    question: 'Carbon C has 4 valence electrons. How many Hydrogen H atoms did you need to combine with one Carbon atom to form a stable Methane (CH₄) compound?',
+    question: 'Carbon (C) has 4 valence electrons. How many Hydrogen (H) atoms are required to form a stable Methane (CH₄) molecule satisfying the octet rule?',
     options: [
-      { id: 'a', text: '2' },
-      { id: 'b', text: '3' },
-      { id: 'c', text: '4', isCorrect: true },
-      { id: 'd', text: '6' },
+      { id: 'a', text: '2 Hydrogen atoms' },
+      { id: 'b', text: '3 Hydrogen atoms' },
+      { id: 'c', text: '4 Hydrogen atoms', isCorrect: true },
+      { id: 'd', text: '8 Hydrogen atoms' },
     ],
-    hint: 'Carbon needs 4 more electrons to satisfy the stable octet of 8 electrons.'
+    hint: 'Carbon shares one electron with each of four Hydrogen atoms to complete its outer shell of 8.'
   },
   {
     id: 'q3',
-    question: 'When an invalid reaction occurred, what did the "Meaningful Byproduct" alert help you realize?',
+    question: 'What occurs during the formation of an Ionic Bond between a metal and a nonmetal (such as Na and Cl)?',
     options: [
-      { id: 'a', text: 'That the elements chosen did not satisfy the octet rule or had the wrong stoichiometric ratio.', isCorrect: true },
-      { id: 'b', text: 'It only told me the attempt failed without explaining why.' },
-      { id: 'c', text: 'It gave me the direct answer immediately.' },
+      { id: 'a', text: 'Valence electrons are completely transferred from metal to nonmetal, creating opposing ions.', isCorrect: true },
+      { id: 'b', text: 'Electrons are equally shared between both atoms.' },
+      { id: 'c', text: 'Protons leave the atomic nucleus to form a neutral lattice.' },
+      { id: 'd', text: 'Atoms fuse together without exchanging any electrons.' },
     ],
-    hint: 'Meaningful Byproducts provide educational feedback on valence ratios and octet stability.'
+    hint: 'Metals surrender electrons to become positive cations, while nonmetals gain electrons to become negative anions.'
+  },
+  {
+    id: 'q4',
+    question: 'According to the Octet Rule, main group chemical elements combine to achieve how many valence electrons in their outermost shell?',
+    options: [
+      { id: 'a', text: '2 electrons (except for noble gases)' },
+      { id: 'b', text: '6 electrons' },
+      { id: 'c', text: '8 electrons (stable noble gas configuration)', isCorrect: true },
+      { id: 'd', text: '10 electrons' },
+    ],
+    hint: 'Atoms react to reach the stable configuration of noble gases, which is 8 outer electrons.'
+  },
+  {
+    id: 'q5',
+    question: 'When an invalid reaction combination occurs in synthesis, what does a "Meaningful Byproduct" indicate?',
+    options: [
+      { id: 'a', text: 'The elements chosen did not balance valence requirements or violated the stable octet ratio.', isCorrect: true },
+      { id: 'b', text: 'The laboratory equipment suffered a random software glitch.' },
+      { id: 'c', text: 'The reaction was completely correct, but the system ran out of time.' },
+      { id: 'd', text: 'The atomic nuclei dissolved into pure energy.' },
+    ],
+    hint: 'Meaningful byproducts teach you about stoichiometric ratios and valence deficits instead of just giving a generic error.'
   }
 ];
 
-export function PreTestModal({ nickname, onComplete, onCancel }) {
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [result, setResult] = useState(null);
+export function PreTestModal({ nickname, onComplete, onCancel, existingData }) {
+  const initialData = existingData || (() => {
+    try {
+      const stored = localStorage.getItem(`elementopia_pretest_${nickname || 'guest'}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const [answers, setAnswers] = useState(initialData?.answers || {});
+  const [submitted, setSubmitted] = useState(Boolean(initialData));
+  const [result, setResult] = useState(initialData || null);
+  const isReadOnly = Boolean(initialData);
 
   const handleSelect = (questionId, optionId) => {
-    if (submitted) return;
+    if (submitted || isReadOnly) return;
     setAnswers(prev => ({ ...prev, [questionId]: optionId }));
   };
 
   const allAnswered = PRETEST_QUESTIONS.every(q => answers[q.id]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let score = 0;
     PRETEST_QUESTIONS.forEach(q => {
       const selected = q.options.find(opt => opt.id === answers[q.id]);
@@ -64,11 +98,36 @@ export function PreTestModal({ nickname, onComplete, onCancel }) {
       timestamp: new Date().toISOString()
     };
 
-    // Save to local storage for persistent linkage with post-test
     try {
       localStorage.setItem(`elementopia_pretest_${nickname || 'guest'}`, JSON.stringify(payload));
     } catch (e) {
       console.warn('Failed to save pretest locally:', e);
+    }
+
+    await syncOrEnqueue({
+      type: "PRETEST_TELEMETRY",
+      url: `${API_BASE_URL}/api/telemetry/pretest`,
+      method: "POST",
+      payload
+    });
+
+    try {
+      if (supabase && typeof supabase.from === 'function') {
+        supabase.from('pretest_diagnostic').insert([
+          {
+            session_nickname: payload.nickname,
+            score: payload.score,
+            total: payload.total,
+            percentage: payload.percentage,
+            answers_json: payload.answers,
+            created_at: payload.timestamp
+          }
+        ]).then(({ error }) => {
+          if (error) console.warn('Supabase direct pretest insert:', error.message);
+        });
+      }
+    } catch (err) {
+      // Ignored if table does not exist or user is offline
     }
 
     setResult(payload);
@@ -139,8 +198,8 @@ export function PreTestModal({ nickname, onComplete, onCancel }) {
                           type="button"
                           onClick={() => handleSelect(q.id, opt.id)}
                           className={`w-full text-left px-3.5 py-2.5 rounded-lg border font-mono text-xs transition-all flex items-center gap-2.5 cursor-pointer ${isSelected
-                              ? 'border-cyan bg-cyan/15 text-cyan-200 font-bold shadow-[0_0_12px_rgba(6,182,212,0.3)]'
-                              : 'border-slate-800/80 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:bg-slate-850'
+                            ? 'border-cyan bg-cyan/15 text-cyan-200 font-bold shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                            : 'border-slate-800/80 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:bg-slate-850'
                             }`}
                         >
                           <span className={`size-4 rounded-full border flex items-center justify-center text-[9px] shrink-0 ${isSelected ? 'border-cyan bg-cyan text-slate-950 font-bold' : 'border-slate-600'
@@ -166,8 +225,8 @@ export function PreTestModal({ nickname, onComplete, onCancel }) {
                 disabled={!allAnswered}
                 onClick={handleSubmit}
                 className={`px-5 py-2 rounded-xl font-mono text-xs font-bold transition flex items-center gap-2 ${allAnswered
-                    ? 'bg-gradient-to-r from-cyan to-indigo-500 text-slate-950 hover:brightness-110 shadow-[0_0_20px_rgba(6,182,212,0.5)] cursor-pointer'
-                    : 'bg-slate-800 text-slate-500 border border-slate-700/60 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-cyan to-indigo-500 text-slate-950 hover:brightness-110 shadow-[0_0_20px_rgba(6,182,212,0.5)] cursor-pointer'
+                  : 'bg-slate-800 text-slate-500 border border-slate-700/60 cursor-not-allowed'
                   }`}
               >
                 <span>Submit Baseline Diagnostic</span>

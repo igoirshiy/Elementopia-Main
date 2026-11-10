@@ -6,7 +6,7 @@ import { fetchProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService from "@/features/auth-user";
 import { StoryCard } from "@/features/resonance-puzzle/components/StoryCard";
 import { GameBoard } from "../components/GameBoard";
-import { Dashboard, DashboardHub } from "@/features/mastery-dashboard";
+import { DashboardHub } from "@/features/mastery-dashboard";
 import { SiteHeader } from "@/components/common/SiteHeader";
 import { useLocation } from "react-router-dom";
 import { API_BASE_URL } from "@/config/apiConfig";
@@ -35,31 +35,59 @@ export default function ElementopiaGame() {
   const [debriefOpen, setDebriefOpen] = useState(false);
   const [debriefStats, setDebriefStats] = useState(null);
   const refresh = useCallback(async (nick) => {
+    if (!nick || nick === "Guest Alchemist") return;
     try { setRows(await fetchProgress(nick)); }
     catch (e) { setError(e?.message ?? "Failed to load progress"); }
   }, []);
 
   useEffect(() => {
-    const initNickname = async () => {
+    const syncUser = async () => {
+      let localUser = null;
+      try {
+        const userStr = localStorage.getItem("elementopia_current_user");
+        if (userStr) localUser = JSON.parse(userStr);
+      } catch (e) { }
+
+      const nick = localUser?.username;
+      if (nick && nick !== "Guest" && nick !== "Guest Alchemist") {
+        setNickname(nick);
+        void refresh(nick);
+        return;
+      }
+
       const user = await UserService.getCurrentUser();
-      if (user && user.username && user.username !== "Guest") {
-        setNickname(user.username);
-        void refresh(user.username);
+      const finalNick = user?.username || "Guest Alchemist";
+      setNickname(finalNick);
+      if (finalNick && finalNick !== "Guest" && finalNick !== "Guest Alchemist") {
+        void refresh(finalNick);
       }
     };
-    initNickname();
 
-    const handleProgressChange = async () => {
-      const user = await UserService.getCurrentUser();
-      if (user && user.username && user.username !== "Guest") {
-        setNickname(user.username);
-        void refresh(user.username);
-      }
+    void syncUser();
+
+    const handleProgressChange = () => {
+      void syncUser();
     };
 
     window.addEventListener("elementopia:progress", handleProgressChange);
-    return () => window.removeEventListener("elementopia:progress", handleProgressChange);
+    window.addEventListener("elementopia:user-changed", handleProgressChange);
+    window.addEventListener("focus", handleProgressChange);
+    window.addEventListener("storage", handleProgressChange);
+
+    return () => {
+      window.removeEventListener("elementopia:progress", handleProgressChange);
+      window.removeEventListener("elementopia:user-changed", handleProgressChange);
+      window.removeEventListener("focus", handleProgressChange);
+      window.removeEventListener("storage", handleProgressChange);
+    };
   }, [refresh]);
+
+  // Auto-refresh data whenever view switches back to home or dashboard
+  useEffect(() => {
+    if (nickname && nickname !== "Guest Alchemist") {
+      void refresh(nickname);
+    }
+  }, [view, nickname, refresh]);
 
   useEffect(() => {
     const handlePopState = (event) => {
@@ -110,17 +138,23 @@ export default function ElementopiaGame() {
     setTimeout(() => setCompletionBanner(null), 5000);
   };
 
-  const handleDebriefContinue = () => {
+  const handleDebriefContinue = async () => {
     setDebriefOpen(false);
     setDebriefStats(null);
     setView("home");
     setActiveDomain(null);
+    if (nickname) {
+      await refresh(nickname);
+    }
   };
 
-  const handleDebriefRetry = () => {
+  const handleDebriefRetry = async () => {
     setDebriefOpen(false);
     setDebriefStats(null);
     setStoryOpen(true);
+    if (nickname) {
+      await refresh(nickname);
+    }
   };
 
   if (!nickname) {
@@ -152,10 +186,12 @@ export default function ElementopiaGame() {
             </div>
           )}
 
-          {view === "home" && (
+          {(view === "home" || view === "dashboard") && (
             <DashboardHub
+              nickname={nickname}
+              rows={rows}
+              onRefresh={() => { if (nickname) void refresh(nickname); }}
               onPlayDomain={(d) => enterDomain(d, DOMAINS.findIndex(x => x.id === d.id))}
-              onOpenMastery={() => { setView("dashboard"); if (nickname) void refresh(nickname); }}
             />
           )}
 
@@ -191,8 +227,6 @@ export default function ElementopiaGame() {
               )}
             </>
           )}
-
-          {view === "dashboard" && <Dashboard nickname={nickname} rows={rows} />}
 
           <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">
             Elementopia · prototype · elemental resonance module

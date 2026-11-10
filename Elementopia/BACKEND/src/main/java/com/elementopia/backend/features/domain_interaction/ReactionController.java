@@ -52,6 +52,7 @@ public class ReactionController {
 
         if (isValid) {
             telemetryService.writePerformanceTelemetry(nickname, elapsedSeconds);
+            slidingWindowService.clearFailedAttempts(nickname);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Elemental Resonance triggered! The obstacle dissolves.",

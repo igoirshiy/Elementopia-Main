@@ -1,6 +1,8 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { TourProvider, TourSpotlightOverlay } from "@/features/tutorial-tour";
+import { useEffect } from "react";
+import { initOfflineSync } from "@/features/mastery-dashboard/lib/offlineSyncManager";
 
 const LandingPage = lazy(() => import('@/features/public-marketing/pages/LandingPage'));
 const AboutUs = lazy(() => import('@/features/public-marketing/pages/AboutUs'));
@@ -30,54 +32,57 @@ function PageLoader() {
 }
 
 export default function App() {
+  useEffect(() => {
+    initOfflineSync();
+  }, []);
   return (
     <Router>
       <TourProvider>
         <TourSpotlightOverlay />
         <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/about-us" element={<AboutUs />} />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/about-us" element={<AboutUs />} />
 
-          {/* Student Routes */}
-          <Route path="/student-home-page" element={<ElementopiaGame />} />
-          <Route path="/student/sandbox" element={<StudentSandboxPage />} />
-          <Route path="/student/Chem-Simulation" element={<StudentSandboxPage />} />
+            {/* Student Routes */}
+            <Route path="/student-home-page" element={<ElementopiaGame />} />
+            <Route path="/student/sandbox" element={<StudentSandboxPage />} />
+            <Route path="/student/Chem-Simulation" element={<StudentSandboxPage />} />
 
-          <Route path="/student/game1" element={<StudentElementMatcher />} />
-          <Route path="/student/game2" element={<StudentStateChanges />} />
-          <Route path="/student/game3" element={<StudentCardMinigame />} />
+            <Route path="/student/game1" element={<StudentElementMatcher />} />
+            <Route path="/student/game2" element={<StudentStateChanges />} />
+            <Route path="/student/game3" element={<StudentCardMinigame />} />
 
-          {/* Periodic Matrix Route */}
-          <Route path="/student/matrix" element={<PeriodicMatrixPage />} />
-          <Route path="/student/periodic-matrix" element={<PeriodicMatrixPage />} />
-          <Route path="/matrix" element={<PeriodicMatrixPage />} />
-          <Route path="/periodic-matrix" element={<PeriodicMatrixPage />} />
+            {/* Periodic Matrix Route */}
+            <Route path="/student/matrix" element={<PeriodicMatrixPage />} />
+            <Route path="/student/periodic-matrix" element={<PeriodicMatrixPage />} />
+            <Route path="/matrix" element={<PeriodicMatrixPage />} />
+            <Route path="/periodic-matrix" element={<PeriodicMatrixPage />} />
 
-          {/* Dr. Atom's Workshop Route */}
-          <Route path="/student/workshop" element={<DrAtomWorkshopPage />} />
-          <Route path="/student/dr-atom-workshop" element={<DrAtomWorkshopPage />} />
-          <Route path="/workshop" element={<DrAtomWorkshopPage />} />
+            {/* Dr. Atom's Workshop Route */}
+            <Route path="/student/workshop" element={<DrAtomWorkshopPage />} />
+            <Route path="/student/dr-atom-workshop" element={<DrAtomWorkshopPage />} />
+            <Route path="/workshop" element={<DrAtomWorkshopPage />} />
 
-          {/* New Discovery Route */}
-          <Route path="/student/discovery" element={<StudentDiscoveryPage />} />
+            {/* New Discovery Route */}
+            <Route path="/student/discovery" element={<StudentDiscoveryPage />} />
 
-          {/* Compound Gallery Route */}
-          <Route path="/student/gallery" element={<CompoundGalleryPage />} />
-          <Route path="/student/compound-gallery" element={<CompoundGalleryPage />} />
-          <Route path="/gallery" element={<CompoundGalleryPage />} />
+            {/* Compound Gallery Route */}
+            <Route path="/student/gallery" element={<CompoundGalleryPage />} />
+            <Route path="/student/compound-gallery" element={<CompoundGalleryPage />} />
+            <Route path="/gallery" element={<CompoundGalleryPage />} />
 
-          {/* Elementopia Game */}
-          <Route path="/student/elementopia" element={<ElementopiaGame />} />
+            {/* Elementopia Game */}
+            <Route path="/student/elementopia" element={<ElementopiaGame />} />
 
-          {/* Challenge Routes */}
-          <Route path="/challenge" element={<ChallengeLobby />} />
-          <Route path="/challenge/setup" element={<ResonanceSetup />} />
-          <Route path="/challenge/:code" element={<ChallengeMatch />} />
-        </Routes>
-      </Suspense>
-    </TourProvider>
-  </Router>
+            {/* Challenge Routes */}
+            <Route path="/challenge" element={<ChallengeLobby />} />
+            <Route path="/challenge/setup" element={<ResonanceSetup />} />
+            <Route path="/challenge/:code" element={<ChallengeMatch />} />
+          </Routes>
+        </Suspense>
+      </TourProvider>
+    </Router>
   );
 }
