@@ -2,7 +2,7 @@ import '@/assets/styles/global/elementopia.css';
 import { useCallback, useEffect, useState } from "react";
 import { Beaker, Lock, BarChart3, Gamepad2, X } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
-import { fetchProgress } from "@/features/mastery-dashboard/lib/progress";
+import { fetchProgress, loadProgress } from "@/features/mastery-dashboard/lib/progress";
 import UserService from "@/features/auth-user";
 import { StoryCard } from "@/features/resonance-puzzle/components/StoryCard";
 import { GameBoard } from "../components/GameBoard";
@@ -112,6 +112,15 @@ export default function ElementopiaGame() {
   const enterDomain = async (d, idx) => {
     const roomId = idx + 1;
 
+    if (nickname) {
+      try {
+        const fresh = await fetchProgress(nickname);
+        setRows(fresh);
+      } catch (e) {
+        console.warn("Failed to refresh rows on domain entry:", e);
+      }
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/features/progression/verify-access?nicknameWithTag=${encodeURIComponent(nickname)}&roomId=${roomId}`);
       const data = await response.json();
@@ -125,7 +134,11 @@ export default function ElementopiaGame() {
         setError(data.message);
       }
     } catch (err) {
-      setError("Network error: Could not verify domain access with the server.", err);
+      console.warn("Could not verify domain access with server; allowing local progression:", err);
+      setActiveDomain(d);
+      setStoryOpen(true);
+      setView("playing");
+      setError(null);
     }
   };
 
@@ -195,38 +208,44 @@ export default function ElementopiaGame() {
             />
           )}
 
-          {view === "playing" && activeDomain && (
-            <>
-              {storyOpen && (
-                <StoryCard
-                  domain={activeDomain}
-                  currentStage={rows.find(r => r.domain === activeDomain?.id)?.stage || 1}
-                  onEnter={() => setStoryOpen(false)}
-                  onCancel={() => { setView("home"); setActiveDomain(null); setStoryOpen(false); }}
-                />
-              )}
+          {view === "playing" && activeDomain && (() => {
+            const activeDomainStage = rows.find(r => r.domain === activeDomain?.id)?.stage 
+              || loadProgress()?.sessions?.find(s => s.domainId === activeDomain?.id)?.stage 
+              || 1;
 
-              {!storyOpen && !debriefOpen && (
-                <GameBoard
-                  nickname={nickname}
-                  domain={activeDomain}
-                  initialStage={rows.find(r => r.domain === activeDomain?.id)?.stage || 1}
-                  onCleared={onCleared}
-                  onExit={() => { setView("home"); setActiveDomain(null); if (nickname) void refresh(nickname); }}
-                  onError={(m) => setError(m)}
-                />
-              )}
+            return (
+              <>
+                {storyOpen && (
+                  <StoryCard
+                    domain={activeDomain}
+                    currentStage={activeDomainStage}
+                    onEnter={() => setStoryOpen(false)}
+                    onCancel={() => { setView("home"); setActiveDomain(null); setStoryOpen(false); }}
+                  />
+                )}
 
-              {debriefOpen && (
-                <DebriefingModal
-                  domain={activeDomain}
-                  stats={debriefStats}
-                  onContinue={handleDebriefContinue}
-                  onRetry={handleDebriefRetry}
-                />
-              )}
-            </>
-          )}
+                {!storyOpen && !debriefOpen && (
+                  <GameBoard
+                    nickname={nickname}
+                    domain={activeDomain}
+                    initialStage={activeDomainStage}
+                    onCleared={onCleared}
+                    onExit={() => { setView("home"); setActiveDomain(null); if (nickname) void refresh(nickname); }}
+                    onError={(m) => setError(m)}
+                  />
+                )}
+
+                {debriefOpen && (
+                  <DebriefingModal
+                    domain={activeDomain}
+                    stats={debriefStats}
+                    onContinue={handleDebriefContinue}
+                    onRetry={handleDebriefRetry}
+                  />
+                )}
+              </>
+            );
+          })()}
 
           <footer className="border-t border-border py-6 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-auto shrink-0">
             Elementopia · prototype · elemental resonance module

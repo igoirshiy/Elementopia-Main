@@ -65,28 +65,17 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const isDomainCompleted = useMemo(() => {
     if (userProgress?.clearedDomains?.includes(domain?.id)) return true;
-    try {
-      const rowsStr = localStorage.getItem("elementopia_mastery_rows");
-      if (rowsStr) {
-        const rows = JSON.parse(rowsStr);
-        if (rows.find(r => r.domain === domain?.id)?.completed) return true;
-      }
-    } catch {}
+    const session = userProgress?.sessions?.find(s => s.domainId === domain?.id);
+    if (session?.cleared) return true;
     return false;
   }, [userProgress, domain?.id]);
 
   const highestReachedStage = useMemo(() => {
     if (isDomainCompleted) return maxStages;
-    try {
-      const rowsStr = localStorage.getItem("elementopia_mastery_rows");
-      if (rowsStr) {
-        const rows = JSON.parse(rowsStr);
-        const r = rows.find(x => x.domain === domain?.id);
-        if (r?.stage) return Math.max(r.stage, initialStage);
-      }
-    } catch {}
+    const session = userProgress?.sessions?.find(s => s.domainId === domain?.id);
+    if (session?.stage) return Math.max(session.stage, initialStage);
     return initialStage;
-  }, [isDomainCompleted, maxStages, domain?.id, initialStage]);
+  }, [isDomainCompleted, maxStages, domain?.id, initialStage, userProgress]);
 
   const handleSelectStage = (stageNum) => {
     if (stageNum === currentStage) return;
@@ -97,7 +86,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
     setIdentifiedTarget(null);
     setByproduct(null);
     setCurrentStage(stageNum);
-    persist({ stage: stageNum });
+    persist({ stage: Math.max(highestReachedStage, stageNum) });
   };
 
   const TOTAL_BLOCKS = useMemo(() => {
@@ -177,7 +166,8 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const clearBench = () => setWorkbench({});
 
   const handleExitGame = async () => {
-    persist({ stage: currentStage });
+    const stageToSave = isStageComplete ? Math.min(maxStages, currentStage + 1) : currentStage;
+    persist({ stage: Math.max(highestReachedStage, stageToSave) });
     try {
       await fetch(`${API_BASE_URL}/api/features/domain-interaction/reset-session`, {
         method: "POST",
@@ -304,7 +294,8 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           if (hazmat) setHazmat(false);
           const doneStage = newSolved.length >= requiredOrder.length;
           const doneAll = doneStage && (currentStage >= maxStages);
-          persist({ attempts: newAttempts, correct: newCorrect, completed: doneAll });
+          const nextStageNum = doneStage && currentStage < maxStages ? currentStage + 1 : currentStage;
+          persist({ stage: nextStageNum, attempts: newAttempts, correct: newCorrect, completed: doneAll });
 
           if (doneStage) {
             if (currentStage < maxStages) {
@@ -891,7 +882,11 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           domain={domain}
           nextStageData={domain.stages?.[currentStage + 1]}
           onAdvanceStage={handleAdvanceStage}
-          onReturnHome={onExit}
+          onReturnHome={() => {
+            const nextStageNum = Math.min(maxStages, currentStage + 1);
+            persist({ stage: nextStageNum });
+            onExit();
+          }}
         />
       )}
 

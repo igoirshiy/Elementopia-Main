@@ -5,34 +5,35 @@ import { X, CheckCircle2, AlertCircle, AlertTriangle, Sparkles, Info, ZoomIn, Zo
 
 /**
  * Arranges atoms into a chemically intuitive order for visual bonding display.
- * e.g., CO2 -> [O, C, O], H2O -> [H, O, H], H2O2 -> [H, O, O, H], MgCl2 -> [Cl, Mg, Cl]
+ * Guarantees that every atom present in the workbench is included (no omissions).
  */
 function organizeMolecularSequence(workbench = {}) {
   const entries = Object.entries(workbench).filter(([, qty]) => (qty ?? 0) > 0);
   const key = entries.map(([s, q]) => `${s}${q}`).sort().join('_');
   
   // Specific known molecular topologies for high educational fidelity
-  if (key === 'C1_O2') return ['O', 'C', 'O'];
-  if (key === 'H2_O1') return ['H', 'O', 'H'];
-  if (key === 'H2_O2') return ['H', 'O', 'O', 'H'];
-  if (key === 'C1_H4') return ['H', 'H', 'C', 'H', 'H'];
-  if (key === 'H3_N1') return ['H', 'N', 'H', 'H'];
-  if (key === 'C1_H2_O1') return ['H', 'C', 'O', 'H'];
-  if (key === 'C1_H2_O2') return ['H', 'C', 'O', 'O', 'H'];
-  if (key === 'C2_H4_O2') return ['H', 'C', 'C', 'O', 'O', 'H'];
-  if (key === 'C2_H6_O1' || key === 'C2_H6_O') return ['H', 'C', 'C', 'O', 'H'];
-  if (key === 'C1_H4_N2_O1') return ['H', 'N', 'C', 'O', 'N', 'H'];
-  if (key === 'C2_H2') return ['H', 'C', 'C', 'H'];
-  if (key === 'Cl2_Mg1') return ['Cl', 'Mg', 'Cl'];
-  if (key === 'Cl1_Na1') return ['Na', 'Cl'];
-  if (key === 'Mg1_O1') return ['Mg', 'O'];
-  if (key === 'Na2_O1') return ['Na', 'O', 'Na'];
-  if (key === 'H1_Na1_O1') return ['Na', 'O', 'H'];
-  if (key === 'C1_H1_N1') return ['H', 'C', 'N'];
-  if (key === 'H1_Cl1') return ['H', 'Cl'];
+  // All array lengths strictly match total atom count in formula!
+  if (key === 'C1_O2') return ['O', 'C', 'O']; // 3 atoms
+  if (key === 'H2_O1') return ['O', 'H', 'H']; // 3 atoms: O center, 2 H
+  if (key === 'H2_O2') return ['H', 'O', 'O', 'H']; // 4 atoms
+  if (key === 'C1_H4') return ['C', 'H', 'H', 'H', 'H']; // 5 atoms: C center, 4 H
+  if (key === 'H3_N1') return ['N', 'H', 'H', 'H']; // 4 atoms: N center, 3 H
+  if (key === 'C1_H2_O1') return ['C', 'O', 'H', 'H']; // 4 atoms: Formaldehyde
+  if (key === 'C1_H2_O2') return ['C', 'O', 'H', 'O', 'H']; // 5 atoms: Formic Acid
+  if (key === 'C2_H4_O2') return ['C', 'H', 'H', 'H', 'C', 'O', 'O', 'H']; // 8 atoms: Acetic Acid
+  if (key === 'C2_H6_O1' || key === 'C2_H6_O') return ['C', 'H', 'H', 'H', 'C', 'H', 'H', 'O', 'H']; // 9 atoms: Ethanol
+  if (key === 'C1_H4_N2_O1') return ['C', 'O', 'N', 'H', 'H', 'N', 'H', 'H']; // 8 atoms: Urea (ALL 8 atoms preserved!)
+  if (key === 'C2_H2') return ['H', 'C', 'C', 'H']; // 4 atoms: Acetylene
+  if (key === 'Cl2_Mg1') return ['Cl', 'Mg', 'Cl']; // 3 atoms
+  if (key === 'Cl1_Na1') return ['Na', 'Cl']; // 2 atoms
+  if (key === 'Mg1_O1') return ['Mg', 'O']; // 2 atoms
+  if (key === 'Na2_O1') return ['Na', 'O', 'Na']; // 3 atoms
+  if (key === 'H1_Na1_O1') return ['Na', 'O', 'H']; // 3 atoms
+  if (key === 'C1_H1_N1') return ['H', 'C', 'N']; // 3 atoms
+  if (key === 'H1_Cl1') return ['H', 'Cl']; // 2 atoms
 
   // Generic intelligent layout:
-  // Put multi-valent central non-metals (C, N, O) in the middle, and perimeter atoms (H, Cl, Na) at edges
+  // Put multi-valent central non-metals (C, N, O) at the core, and perimeter atoms (H, Cl, Na) at edges
   const atomList = [];
   entries.forEach(([symbol, qty]) => {
     for (let i = 0; i < qty; i++) {
@@ -121,7 +122,7 @@ function getAtomDetail(symbol, valenceInfo) {
 /**
  * Determines the bond visual type between two adjacent atoms in the sequence.
  */
-function getBondType(symA, symB, valenceInfo) {
+function getBondType(symA, symB, valenceInfo, overrideOrder = null) {
   const isMetalA = ['Na', 'Mg', 'K', 'Ca', 'Fe'].includes(symA);
   const isMetalB = ['Na', 'Mg', 'K', 'Ca', 'Fe'].includes(symB);
 
@@ -137,7 +138,37 @@ function getBondType(symA, symB, valenceInfo) {
     };
   }
 
-  // Double bond scenarios
+  if (overrideOrder === 'triple') {
+    return {
+      type: "triple",
+      label: "Triple (≡ 6 e⁻)",
+      fullExplanation: `${symA} shares 3 e⁻ ≡ ${symB} shares 3 e⁻ (6 e⁻ Triple Bond)`,
+      isDouble: false,
+      isTriple: true
+    };
+  }
+
+  if (overrideOrder === 'double') {
+    return {
+      type: "double",
+      label: "Double (═ 4 e⁻)",
+      fullExplanation: `${symA} shares 2 e⁻ ═ ${symB} shares 2 e⁻ (4 e⁻ Double Bond)`,
+      isDouble: true,
+      isTriple: false
+    };
+  }
+
+  if (overrideOrder === 'single') {
+    return {
+      type: "single",
+      label: "Single (─ 2 e⁻)",
+      fullExplanation: `${symA} shares 1 e⁻ ─ ${symB} shares 1 e⁻ (2 e⁻ Shared Pair)`,
+      isDouble: false,
+      isTriple: false
+    };
+  }
+
+  // Double bond scenarios by chemistry
   const isCO2Bond = (symA === 'C' && symB === 'O') || (symA === 'O' && symB === 'C');
   const isEthylene = symA === 'C' && symB === 'C' && valenceInfo.balanced;
   if (isCO2Bond || isEthylene) {
@@ -174,47 +205,38 @@ function getBondType(symA, symB, valenceInfo) {
 
 /**
  * Calculates initial 2D layout coordinates for recognized molecular geometries.
+ * Uses 2D spatial arrangement (organic Lewis geometry) so atoms never collapse into a 1D line.
  */
 function getInitialMolecularLayout(molecularSequence, key, spacing) {
   const N = molecularSequence.length;
 
-  // Bent V-shape for H2O: [H, O, H]
+  // Bent V-shape for H2O: [O, H, H]
   if (key === 'H2_O1' && N === 3) {
     return [
-      { x: -75, y: -30 }, // Left H
-      { x: 0, y: 25 },    // Center O
-      { x: 75, y: -30 },  // Right H
+      { x: 0, y: 22 },    // Center O
+      { x: -75, y: -26 }, // Left H
+      { x: 75, y: -26 },  // Right H
     ];
   }
 
-  // Tripod for NH3: [H, N, H, H]
+  // Tripod for NH3: [N, H, H, H]
   if (key === 'H3_N1' && N === 4) {
     return [
-      { x: -70, y: -35 }, // Left H
-      { x: 0, y: 25 },    // Center N
-      { x: 0, y: -45 },   // Top H
-      { x: 70, y: -35 },  // Right H
+      { x: 0, y: -10 },   // Center N
+      { x: -70, y: 40 },  // Left H
+      { x: 0, y: -65 },   // Top H
+      { x: 70, y: 40 },   // Right H
     ];
   }
 
-  // Cross for CH4: [H, H, C, H, H]
+  // Tetrahedral cross for CH4: [C, H, H, H, H]
   if (key === 'C1_H4' && N === 5) {
     return [
-      { x: -70, y: 0 },   // Left H
-      { x: 0, y: -60 },   // Top H
       { x: 0, y: 0 },     // Center C
-      { x: 70, y: 0 },    // Right H
-      { x: 0, y: 60 },    // Bottom H
-    ];
-  }
-
-  // H2O2: [H, O, O, H] slightly staggered
-  if (key === 'H2_O2' && N === 4) {
-    return [
-      { x: -110, y: -20 }, // Left H
-      { x: -38, y: 12 },   // Left O
-      { x: 38, y: -12 },   // Right O
-      { x: 110, y: 20 },   // Right H
+      { x: 0, y: -65 },   // Top H
+      { x: -75, y: 0 },   // Left H
+      { x: 75, y: 0 },    // Right H
+      { x: 0, y: 65 },    // Bottom H
     ];
   }
 
@@ -227,56 +249,284 @@ function getInitialMolecularLayout(molecularSequence, key, spacing) {
     ];
   }
 
-  // Linear default spacing
-  return molecularSequence.map((_, idx) => ({
-    x: (idx - (N - 1) / 2) * spacing,
-    y: 0
-  }));
+  // H2O2: [H, O, O, H] slightly staggered
+  if (key === 'H2_O2' && N === 4) {
+    return [
+      { x: -110, y: -22 }, // Left H
+      { x: -40, y: 15 },   // Left O
+      { x: 40, y: -15 },   // Right O
+      { x: 110, y: 22 },   // Right H
+    ];
+  }
+
+  // Formaldehyde CH2O: [C, O, H, H]
+  if (key === 'C1_H2_O1' && N === 4) {
+    return [
+      { x: 0, y: 12 },    // Center C
+      { x: 0, y: -58 },   // Carbonyl O
+      { x: -65, y: 56 },  // Left H
+      { x: 65, y: 56 },   // Right H
+    ];
+  }
+
+  // Formic Acid CH2O2: [C, O, H, O, H]
+  if (key === 'C1_H2_O2' && N === 5) {
+    return [
+      { x: -15, y: 5 },   // Center C
+      { x: -15, y: -58 }, // Carbonyl O
+      { x: -75, y: 22 },  // Formyl H
+      { x: 48, y: 15 },   // Hydroxyl O
+      { x: 105, y: -12 }, // Hydroxyl H
+    ];
+  }
+
+  // Urea CH4N2O: [C, O, N, H, H, N, H, H] (all 8 atoms preserved in true 2D Lewis geometry)
+  if (key === 'C1_H4_N2_O1' && N === 8) {
+    return [
+      { x: 0, y: 5 },       // 0: Center C
+      { x: 0, y: -62 },     // 1: Carbonyl O (top)
+      { x: -68, y: 15 },    // 2: Left N
+      { x: -118, y: -12 },  // 3: Left H1 (top-left)
+      { x: -85, y: 72 },    // 4: Left H2 (bottom-left)
+      { x: 68, y: 15 },     // 5: Right N
+      { x: 118, y: -12 },   // 6: Right H1 (top-right)
+      { x: 85, y: 72 },     // 7: Right H2 (bottom-right)
+    ];
+  }
+
+  // Acetic Acid C2H4O2: [C, H, H, H, C, O, O, H] (all 8 atoms)
+  if (key === 'C2_H4_O2' && N === 8) {
+    return [
+      { x: -50, y: 0 },    // 0: Methyl C1
+      { x: -50, y: -60 },  // 1: H1 top
+      { x: -108, y: 0 },   // 2: H2 left
+      { x: -50, y: 60 },   // 3: H3 bottom
+      { x: 28, y: 0 },     // 4: Carboxyl C2
+      { x: 62, y: -55 },   // 5: Carbonyl O1
+      { x: 74, y: 42 },    // 6: Hydroxyl O2
+      { x: 125, y: 44 },   // 7: Hydroxyl H4
+    ];
+  }
+
+  // Ethanol C2H6O: [C, H, H, H, C, H, H, O, H] (all 9 atoms)
+  if ((key === 'C2_H6_O1' || key === 'C2_H6_O') && N === 9) {
+    return [
+      { x: -70, y: 0 },    // 0: C1
+      { x: -70, y: -60 },  // 1: H1 top
+      { x: -126, y: 0 },   // 2: H2 left
+      { x: -70, y: 60 },   // 3: H3 bottom
+      { x: 0, y: 0 },      // 4: C2
+      { x: 0, y: -60 },    // 5: H4 top
+      { x: 0, y: 60 },     // 6: H5 bottom
+      { x: 65, y: 0 },     // 7: Hydroxyl O
+      { x: 116, y: -30 },  // 8: Hydroxyl H
+    ];
+  }
+
+  // Acetylene C2H2: [H, C, C, H] (4 atoms)
+  if (key === 'C2_H2' && N === 4) {
+    return [
+      { x: -105, y: 0 },
+      { x: -35, y: 0 },
+      { x: 35, y: 0 },
+      { x: 105, y: 0 }
+    ];
+  }
+
+  // Dynamic 2D Organic Star/Cluster Algorithm for ANY mixture >= 4 atoms
+  const cores = [];
+  const ligands = [];
+  molecularSequence.forEach((sym, idx) => {
+    if (['C', 'N', 'O', 'P', 'S', 'Mg'].includes(sym)) {
+      cores.push({ sym, idx });
+    } else {
+      ligands.push({ sym, idx });
+    }
+  });
+
+  const positions = new Array(N);
+
+  if (cores.length === 0) {
+    // 0 cores (e.g. all H, Na, Cl): 2 staggered balanced rows
+    const cols = Math.ceil(N / 2);
+    molecularSequence.forEach((_, idx) => {
+      const row = idx % 2 === 0 ? -32 : 32;
+      const col = Math.floor(idx / 2);
+      const x = Math.round((col - (cols - 1) / 2) * 75);
+      positions[idx] = { x, y: row };
+    });
+    return positions;
+  }
+
+  if (cores.length === 1) {
+    // Single core in center (0, 0), ligands placed radially around it
+    const coreIdx = cores[0].idx;
+    positions[coreIdx] = { x: 0, y: 0 };
+    const K = ligands.length;
+    ligands.forEach(({ idx }, i) => {
+      const angle = -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(1, K);
+      const r = Math.min(85, Math.max(65, 120 - K * 4));
+      positions[idx] = {
+        x: Math.round(Math.cos(angle) * r),
+        y: Math.round(Math.sin(angle) * r)
+      };
+    });
+    return positions;
+  }
+
+  // 2 or more cores: line up cores horizontally along y = 0
+  const numCores = cores.length;
+  const coreSpacing = Math.min(80, Math.max(55, Math.floor(220 / numCores)));
+  const corePositions = {};
+  cores.forEach(({ idx }, cIdx) => {
+    const x = Math.round((cIdx - (numCores - 1) / 2) * coreSpacing);
+    positions[idx] = { x, y: 0 };
+    corePositions[cIdx] = { x, y: 0, idx };
+  });
+
+  // Distribute ligands evenly to each core
+  const ligandsPerCore = Math.ceil(ligands.length / numCores);
+  ligands.forEach(({ idx }, lIdx) => {
+    const coreGroup = Math.min(numCores - 1, Math.floor(lIdx / ligandsPerCore));
+    const subIdx = lIdx % ligandsPerCore;
+    const parentCore = corePositions[coreGroup];
+    const angles = [-Math.PI / 2, Math.PI / 2, Math.PI, 0, -Math.PI / 4, Math.PI / 4];
+    const angle = angles[subIdx % angles.length];
+    const r = 62;
+    positions[idx] = {
+      x: parentCore.x + Math.round(Math.cos(angle) * r),
+      y: parentCore.y + Math.round(Math.sin(angle) * r)
+    };
+  });
+
+  return positions;
 }
 
 /**
  * Determines pair connectivity between atoms based on molecular topology.
+ * Connects atoms topologically according to 2D chemical structure rather than blind sequential chains.
  */
 function getMolecularBonds(atomNodes, key, valenceInfo) {
   const N = atomNodes.length;
   if (N <= 1) return [];
 
-  let pairs = [];
+  let pairsWithOrder = [];
 
   if (key === 'H2_O1' && N === 3) {
-    // Both H (indices 0 and 2) bond to center O (index 1)
-    pairs = [[0, 1], [1, 2]];
+    // Both H (indices 1 and 2) bond to center O (index 0)
+    pairsWithOrder = [[0, 1, 'single'], [0, 2, 'single']];
   } else if (key === 'H3_N1' && N === 4) {
-    // Left H (0), Top H (2), Right H (3) all bond to N (1)
-    pairs = [[0, 1], [2, 1], [3, 1]];
+    // All 3 H (1, 2, 3) bond to central N (0)
+    pairsWithOrder = [[0, 1, 'single'], [0, 2, 'single'], [0, 3, 'single']];
   } else if (key === 'C1_H4' && N === 5) {
-    // Left H (0), Top H (1), Right H (3), Bottom H (4) all bond to center C (2)
-    pairs = [[0, 2], [1, 2], [3, 2], [4, 2]];
+    // All 4 H (1, 2, 3, 4) bond to central C (0)
+    pairsWithOrder = [[0, 1, 'single'], [0, 2, 'single'], [0, 3, 'single'], [0, 4, 'single']];
   } else if (key === 'C1_O2' && N === 3) {
     // O (0) = C (1) = O (2)
-    pairs = [[0, 1], [1, 2]];
+    pairsWithOrder = [[0, 1, 'double'], [1, 2, 'double']];
   } else if (key === 'H2_O2' && N === 4) {
     // H (0) - O (1) - O (2) - H (3)
-    pairs = [[0, 1], [1, 2], [2, 3]];
+    pairsWithOrder = [[0, 1, 'single'], [1, 2, 'single'], [2, 3, 'single']];
+  } else if (key === 'C1_H2_O1' && N === 4) {
+    // Formaldehyde: C (0) = O (1), C-H (2, 3)
+    pairsWithOrder = [[0, 1, 'double'], [0, 2, 'single'], [0, 3, 'single']];
+  } else if (key === 'C1_H2_O2' && N === 5) {
+    // Formic Acid: C=O (0, 1), C-H (0, 2), C-O (0, 3), O-H (3, 4)
+    pairsWithOrder = [[0, 1, 'double'], [0, 2, 'single'], [0, 3, 'single'], [3, 4, 'single']];
+  } else if (key === 'C1_H4_N2_O1' && N === 8) {
+    // Urea: C=O (0, 1), C-N_left (0, 2), N-H (2, 3), N-H (2, 4), C-N_right (0, 5), N-H (5, 6), N-H (5, 7)
+    pairsWithOrder = [
+      [0, 1, 'double'],
+      [0, 2, 'single'],
+      [2, 3, 'single'],
+      [2, 4, 'single'],
+      [0, 5, 'single'],
+      [5, 6, 'single'],
+      [5, 7, 'single']
+    ];
+  } else if (key === 'C2_H4_O2' && N === 8) {
+    // Acetic Acid: C1-H (0, 1-3), C1-C2 (0, 4), C2=O1 (4, 5), C2-O2 (4, 6), O2-H4 (6, 7)
+    pairsWithOrder = [
+      [0, 1, 'single'],
+      [0, 2, 'single'],
+      [0, 3, 'single'],
+      [0, 4, 'single'],
+      [4, 5, 'double'],
+      [4, 6, 'single'],
+      [6, 7, 'single']
+    ];
+  } else if ((key === 'C2_H6_O1' || key === 'C2_H6_O') && N === 9) {
+    // Ethanol: C1-H (0, 1-3), C1-C2 (0, 4), C2-H (4, 5-6), C2-O (4, 7), O-H (7, 8)
+    pairsWithOrder = [
+      [0, 1, 'single'],
+      [0, 2, 'single'],
+      [0, 3, 'single'],
+      [0, 4, 'single'],
+      [4, 5, 'single'],
+      [4, 6, 'single'],
+      [4, 7, 'single'],
+      [7, 8, 'single']
+    ];
+  } else if (key === 'C2_H2' && N === 4) {
+    // Acetylene: H-C-C-H
+    pairsWithOrder = [
+      [0, 1, 'single'],
+      [1, 2, 'triple'],
+      [2, 3, 'single']
+    ];
   } else {
-    // Sequential chain by default
-    for (let i = 1; i < N; i++) {
-      pairs.push([i - 1, i]);
+    // Generic cluster bonding:
+    // Connect cores together, and connect each ligand to its closest core
+    const cores = [];
+    const ligands = [];
+    atomNodes.forEach(node => {
+      if (['C', 'N', 'O', 'P', 'S', 'Mg'].includes(node.symbol)) {
+        cores.push(node);
+      } else {
+        ligands.push(node);
+      }
+    });
+
+    if (cores.length === 0) {
+      for (let i = 1; i < N; i++) {
+        pairsWithOrder.push([i - 1, i, null]);
+      }
+    } else if (cores.length === 1) {
+      const coreIdx = cores[0].idx;
+      ligands.forEach(lig => {
+        pairsWithOrder.push([coreIdx, lig.idx, null]);
+      });
+    } else {
+      for (let i = 1; i < cores.length; i++) {
+        pairsWithOrder.push([cores[i - 1].idx, cores[i].idx, null]);
+      }
+      ligands.forEach(lig => {
+        let closestCore = cores[0];
+        let minDist = Infinity;
+        cores.forEach(c => {
+          const d = Math.hypot(lig.x - c.x, lig.y - c.y);
+          if (d < minDist) {
+            minDist = d;
+            closestCore = c;
+          }
+        });
+        pairsWithOrder.push([closestCore.idx, lig.idx, null]);
+      });
     }
   }
 
   const bonds = [];
-  pairs.forEach(([idxA, idxB]) => {
+  pairsWithOrder.forEach(([idxA, idxB, overrideOrder]) => {
     const prev = atomNodes[idxA];
     const curr = atomNodes[idxB];
     if (!prev || !curr) return;
 
-    const bondType = getBondType(prev.symbol, curr.symbol, valenceInfo);
+    const bondType = getBondType(prev.symbol, curr.symbol, valenceInfo, overrideOrder);
     const dx = curr.x - prev.x;
     const dy = curr.y - prev.y;
     const dist = Math.hypot(dx, dy);
     const angle = Math.atan2(dy, dx);
-    const r = 30; // Bohr nucleus radius
+    const r = 26; // Adjusted Bohr nucleus radius for clean bond clearance
     const x1 = prev.x + Math.cos(angle) * r;
     const y1 = prev.y + Math.sin(angle) * r;
     const x2 = curr.x - Math.cos(angle) * r;
@@ -663,7 +913,7 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
               const bonds = getMolecularBonds(atomNodes, key, valenceInfo);
 
               return (
-                <div className="relative w-full min-h-[220px] flex items-center justify-center overflow-visible select-none py-2">
+                <div className="relative w-full min-h-[260px] sm:min-h-[285px] flex items-center justify-center overflow-visible select-none py-2">
                   {/* SVG Dynamic Vector Bond Layer */}
                   <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-10">
                     <defs>
@@ -672,7 +922,7 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                       </filter>
                     </defs>
                     {bonds.map(b => {
-                      if (b.dist < 45) return null;
+                      if (b.dist < 42) return null;
                       const strokeColor = valenceInfo.balanced ? "#34d399" : "#06b6d4";
                       const isDouble = b.type.isDouble;
                       const isTriple = b.type.isTriple;
@@ -705,21 +955,34 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                   </svg>
 
                   {/* Floating Bond Labels at Dynamic Vector Midpoints */}
-                  {bonds.map(b => (
-                    <div
-                      key={`lbl_${b.id}`}
-                      style={{
-                        left: `calc(50% + ${b.mx}px)`,
-                        top: `calc(50% + ${b.my}px)`
-                      }}
-                      className="absolute -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto select-none transition-all duration-75"
-                      title={b.type.fullExplanation || b.type.label}
-                    >
-                      <span className="font-mono text-[7px] sm:text-[7.5px] text-cyan-200 font-bold whitespace-nowrap bg-slate-950/95 border border-cyan/40 px-1.5 py-0.2 rounded-full shadow-md">
-                        {b.type.label}
-                      </span>
-                    </div>
-                  ))}
+                  {bonds.map(b => {
+                    const isCompact = bonds.length > 4 && !b.type.isDouble && !b.type.isTriple;
+                    return (
+                      <div
+                        key={`lbl_${b.id}`}
+                        style={{
+                          left: `calc(50% + ${b.mx}px)`,
+                          top: `calc(50% + ${b.my}px)`
+                        }}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto select-none transition-all duration-75"
+                        title={b.type.fullExplanation || b.type.label}
+                      >
+                        <span className={`font-mono font-bold whitespace-nowrap shadow-md cursor-help ${
+                          b.type.isTriple
+                            ? 'text-[8.5px] text-amber-200 bg-amber-950/95 border border-amber-500/70 px-2 py-0.5 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.35)]'
+                            : b.type.isDouble
+                            ? 'text-[8.5px] text-fuchsia-200 bg-fuchsia-950/95 border border-fuchsia-500/70 px-2 py-0.5 rounded-full shadow-[0_0_12px_rgba(217,70,239,0.35)]'
+                            : b.type.type === 'ionic'
+                            ? 'text-[7.5px] text-emerald-200 bg-emerald-950/95 border border-emerald-500/60 px-1.5 py-0.5 rounded-full'
+                            : isCompact
+                            ? 'text-[7px] text-cyan-200/90 bg-slate-950/90 border border-cyan/40 px-1 py-0.2 rounded-full hover:bg-slate-900'
+                            : 'text-[7.5px] text-cyan-200 bg-slate-950/95 border border-cyan/40 px-1.5 py-0.5 rounded-full'
+                        }`}>
+                          {isCompact ? '─ 2 e⁻' : b.type.label}
+                        </span>
+                      </div>
+                    );
+                  })}
 
                   {/* Individually Draggable Bohr Atom Nodes */}
                   {atomNodes.map(node => (
@@ -741,11 +1004,11 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
                         showEmptySeats={!valenceInfo.balanced}
                       />
                       {node.detail.isFull ? (
-                        <span className="font-mono text-[8px] font-bold text-emerald-300 mt-0.5 pointer-events-none whitespace-nowrap">
+                        <span className="font-mono text-[8px] font-bold text-emerald-300 mt-1 pointer-events-none whitespace-nowrap bg-slate-950/90 px-1.5 py-0.2 rounded-full border border-emerald-500/50 shadow-sm">
                           {node.symbol === "H" ? "Duet Full ✓" : "Octet Full ✓"}
                         </span>
                       ) : node.detail.role ? (
-                        <span className="font-mono text-[7.5px] text-slate-400 mt-0.5 pointer-events-none whitespace-nowrap">
+                        <span className="font-mono text-[7.5px] text-slate-300 mt-1 pointer-events-none whitespace-nowrap bg-slate-950/90 px-1.5 py-0.2 rounded-full border border-slate-700/80 shadow-sm">
                           {node.detail.role}
                         </span>
                       ) : null}

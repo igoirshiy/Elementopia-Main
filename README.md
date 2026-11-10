@@ -10,7 +10,7 @@
 > **Cebu Institute of Technology – University | College of Computer Studies**  
 > **Course / Section:** Bachelor of Science in Information Technology / `2627-sem1-it411-53` (formerly `2526-sem2-it332-53`)  
 > **Capstone Adviser:** Engr. Ralph P. Laviste  
-> **Live Staging Application:** [https://elementopia-game.vercel.app](https://elementopia-game.vercel.app)  
+> **Live Staging Application:** [https://elementopia-frontend.vercel.app/](https://elementopia-frontend.vercel.app/)  
 > **Repository:** [https://github.com/igoirshiy/Elementopia-Main](https://github.com/igoirshiy/Elementopia-Main)
 
 ---
@@ -264,7 +264,7 @@ For convenience on Windows workstations, double-click the bundled shortcut scrip
 ## 9. Deployment Information
 
 ### Live Staging Environments
-* **Frontend Application:** [https://elementopia-game.vercel.app](https://elementopia-game.vercel.app)
+* **Frontend Application:** [https://elementopia-frontend.vercel.app/](https://elementopia-frontend.vercel.app/)
 * **GitHub Repository:** [https://github.com/igoirshiy/Elementopia-Main](https://github.com/igoirshiy/Elementopia-Main)
 
 ---

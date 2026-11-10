@@ -191,7 +191,7 @@ export async function upsertProgress(row) {
 
   if (lastSessionIdx >= 0) {
     const s = p.sessions[lastSessionIdx];
-    s.stage = row.stage || s.stage || 1;
+    s.stage = Math.max(s.stage || 1, row.stage || 1);
     s.cleared = s.cleared || Boolean(row.completed);
     s.attempts = totalAttempts;
     s.correct = correctCount;

@@ -354,21 +354,58 @@ export async function advanceToNextRound(roomId) {
   }
 }
 
-export async function forfeitMatch(roomId, winningTeam) {
-  const { data, error } = await supabase
+export async function forfeitMatch(roomId, winningTeam, forfeitingSessionId, reason = "Opponent surrendered or exited the match.") {
+  const { data: room } = await supabase.from("rooms").select("*").eq("id", roomId).maybeSingle();
+  if (!room || room.status === "finished") return;
+
+  const puzzleMeta = { ...(room.puzzle || {}) };
+  puzzleMeta.forfeitReason = reason;
+  if (!puzzleMeta.scores) puzzleMeta.scores = { A: 0, B: 0 };
+  if (winningTeam === "A") puzzleMeta.scores.A = Math.max(puzzleMeta.scores.A, 1);
+  if (winningTeam === "B") puzzleMeta.scores.B = Math.max(puzzleMeta.scores.B, 1);
+
+  if (forfeitingSessionId) {
+    try {
+      await supabase
+        .from("room_players")
+        .delete()
+        .eq("room_id", roomId)
+        .eq("session_id", forfeitingSessionId);
+    } catch (e) {
+      console.warn("Failed to delete forfeiting player row:", e);
+    }
+  }
+
+  await supabase
     .from("rooms")
     .update({
       winning_team: winningTeam,
       status: "finished",
-      finished_at: new Date().toISOString()
+      puzzle: puzzleMeta,
     })
-    .eq("id", roomId)
-    .select()
-    .single();
+    .eq("id", roomId);
+}
 
-  if (error) {
-    console.error("Failed to execute forfeit:", error);
-    throw error;
+export async function leaveRoom(roomId, sessionId, currentStatus, currentTeam) {
+  if (currentStatus === "countdown" || currentStatus === "active") {
+    const winningTeam = currentTeam === "A" ? "B" : "A";
+    await forfeitMatch(roomId, winningTeam, sessionId, "Opponent exited the match.");
+  } else {
+    await supabase
+      .from("room_players")
+      .delete()
+      .eq("room_id", roomId)
+      .eq("session_id", sessionId);
+
+    const { data: remaining } = await supabase
+      .from("room_players")
+      .select("id, is_host")
+      .eq("room_id", roomId);
+
+    if (!remaining || remaining.length === 0) {
+      await supabase.from("rooms").delete().eq("id", roomId);
+    } else if (!remaining.some(r => r.is_host)) {
+      await supabase.from("room_players").update({ is_host: true }).eq("id", remaining[0].id);
+    }
   }
-  return data;
 }

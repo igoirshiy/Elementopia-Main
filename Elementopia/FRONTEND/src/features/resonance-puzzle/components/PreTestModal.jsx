@@ -156,7 +156,7 @@ export function PreTestModal({ nickname, onComplete, onCancel, existingData }) {
                   Dr. Atom · Pre-Game Knowledge Check
                 </h2>
                 <p className="font-mono text-xs text-slate-400 mt-1">
-                  Answer these 3 quick chemistry questions to establish your baseline before entering the caverns!
+                  Answer these 5 chemistry questions to establish your baseline before entering the caverns!
                 </p>
               </div>
               <div className="flex items-center gap-2">
