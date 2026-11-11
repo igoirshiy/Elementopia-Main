@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Modal } from "@mui/material";
 import compoundElements from "@/features/resonance-puzzle/data/compound-elements.json";
-import { getSessionId } from "@/features/auth-user/lib/session";
+import { getSessionId, getStoredNickname, setStoredNickname, autoNickname } from "@/features/auth-user/lib/session";
 import {
   advanceToNextRound,
   bumpErrors,
@@ -15,13 +15,13 @@ import {
   updateRoomSettings,
   forfeitMatch,
   leaveRoom,
+  joinRoom,
 } from "@/features/multiplayer-challenge/lib/room";
-import { recordMatch } from "@/features/mastery-dashboard/lib/progress";
 import { elementInfo } from "@/features/resonance-puzzle/lib/puzzles";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight } from "lucide-react";
+import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight, Lock, LogIn, AlertTriangle, LogOut } from "lucide-react";
 import Confetti from "react-confetti";
 import { API_BASE_URL } from "@/config/apiConfig";
 import { BohrAtomVisualizer } from "@/features/resonance-puzzle/components/BohrAtomVisualizer";
@@ -38,7 +38,18 @@ export default function ChallengeMatch() {
   const channelRef = useRef(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(15);
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
   const lastOpponentPingRef = useRef({});
+  const isChannelSubscribedRef = useRef(false);
+  const playersRef = useRef(players);
+  playersRef.current = players;
+  const meRef = useRef(null);
+
+  // Private Match Gate state for users navigating directly via link without having joined
+  const [joinPromptCode, setJoinPromptCode] = useState("");
+  const [joinPromptNick, setJoinPromptNick] = useState(() => getStoredNickname() || autoNickname());
+  const [joinPromptError, setJoinPromptError] = useState("");
+  const [joinPromptLoading, setJoinPromptLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -53,7 +64,12 @@ export default function ChallengeMatch() {
       setLoading(false);
     })();
     const channel = supabase
-      .channel(`room:${code}`)
+      .channel(`room:${code}`, {
+        config: {
+          broadcast: { ack: false, self: false },
+          presence: { key: sessionId }
+        }
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "rooms", filter: `code=eq.${code}` },
         (payload) => {
           const next = (payload.new ?? null);
@@ -66,63 +82,96 @@ export default function ChallengeMatch() {
         })
       .on("postgres_changes", { event: "*", schema: "public", table: "room_players" },
         (payload) => {
-          if (payload.eventType === "DELETE") {
-            const oldId = payload.old?.id;
-            setPlayers(prev => prev.filter(p => p.id !== oldId));
-          } else {
-            const next = payload.new;
-            if (next) {
-              setPlayers(prev => {
-                if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a, b) => new Date(a.joined_at) - new Date(b.joined_at));
-                return prev.map(p => p.id === next.id ? next : p);
-              });
-            }
+          const next = payload.new;
+          if (next) {
+            setPlayers(prev => {
+              if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a, b) => new Date(a.joined_at) - new Date(b.joined_at));
+              return prev.map(p => p.id === next.id ? next : p);
+            });
           }
         })
       .on("broadcast", { event: "presence_heartbeat" }, ({ payload }) => {
-        if (payload && payload.sessionId !== sessionId) {
+        if (payload && payload.sessionId && payload.sessionId !== sessionId) {
           lastOpponentPingRef.current[payload.sessionId] = Date.now();
         }
       })
-      .subscribe();
+      .on("presence", { event: "leave" }, ({ leftPresences }) => {
+        if (leftPresences && leftPresences.some(p => p.key && p.key !== sessionId)) {
+          console.log("[Presence] Remote opponent client disconnected.");
+          leftPresences.forEach(lp => {
+            if (lp.key && lp.key !== sessionId) {
+              // Immediately flag silence so the reconnection modal pops up on the next 1s tick
+              lastOpponentPingRef.current[lp.key] = Date.now() - 10000;
+            }
+          });
+        }
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          isChannelSubscribedRef.current = true;
+          channel.track({ sessionId, joinedAt: Date.now() }).catch(() => { });
+        } else {
+          isChannelSubscribedRef.current = false;
+        }
+      });
     channelRef.current = channel;
-    return () => { active = false; supabase.removeChannel(channel); };
+    return () => {
+      active = false;
+      isChannelSubscribedRef.current = false;
+      supabase.removeChannel(channel);
+    };
   }, [code, sessionId]);
 
   const me = useMemo(() => players.find((p) => p.session_id === sessionId) ?? null, [players, sessionId]);
+  meRef.current = me;
   const isHost = !!me?.is_host;
 
-  // 3-Second Heartbeat Broadcast (Active Match)
+  // 2.5-Second Heartbeat Broadcast (Active Match)
   useEffect(() => {
     if (room?.status !== "active" || !channelRef.current || !me) return;
 
     const pingInterval = setInterval(() => {
-      channelRef.current.send({
-        type: "broadcast",
-        event: "presence_heartbeat",
-        payload: { sessionId, team: me.team, timestamp: Date.now() }
-      }).catch(() => { });
-    }, 3000);
+      if (channelRef.current && isChannelSubscribedRef.current) {
+        channelRef.current.send({
+          type: "broadcast",
+          event: "presence_heartbeat",
+          payload: { sessionId, team: me.team, timestamp: Date.now() }
+        }).catch(() => { });
+      }
+    }, 2500);
 
     return () => clearInterval(pingInterval);
   }, [room?.status, me, sessionId]);
 
-  // 8-Second Silence Detector & 15-Second Forfeit Watchdog
+  // Decoupled 8-Second Silence Detector & 15-Second Forfeit Watchdog
+  // Uses playersRef to prevent interval resets on board tile movements or step counters
   useEffect(() => {
-    if (room?.status !== "active" || !me) return;
+    if (room?.status !== "active") {
+      setOpponentDisconnected(false);
+      setDisconnectCountdown(15);
+      return;
+    }
 
-    const opponents = players.filter((p) => p.team !== me.team);
-    if (opponents.length === 0) return;
+    const currentMe = meRef.current;
+    if (!currentMe) return;
 
-    opponents.forEach((opp) => {
+    // Seed active opponent timestamps at round start
+    const initialOpponents = playersRef.current.filter((p) => p.team !== currentMe.team);
+    initialOpponents.forEach((opp) => {
       if (!lastOpponentPingRef.current[opp.session_id]) {
         lastOpponentPingRef.current[opp.session_id] = Date.now();
       }
     });
 
     const watchdog = setInterval(() => {
+      const activeMe = meRef.current;
+      if (!activeMe) return;
+
+      const currentOpponents = playersRef.current.filter((p) => p.team !== activeMe.team);
+      if (currentOpponents.length === 0) return;
+
       const now = Date.now();
-      const anyOpponentSilent = opponents.some((opp) => {
+      const anyOpponentSilent = currentOpponents.some((opp) => {
         const lastPing = lastOpponentPingRef.current[opp.session_id] || now;
         return (now - lastPing) > 8000;
       });
@@ -132,7 +181,7 @@ export default function ChallengeMatch() {
         setDisconnectCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(watchdog);
-            forfeitMatch(room.id, me.team).catch(console.error);
+            forfeitMatch(room.id, activeMe.team, null, "Opponent lost network connection (heartbeat timeout).").catch(console.error);
             return 0;
           }
           return prev - 1;
@@ -144,7 +193,7 @@ export default function ChallengeMatch() {
     }, 1000);
 
     return () => clearInterval(watchdog);
-  }, [room?.status, room?.id, players, me]);
+  }, [room?.status, room?.id]);
 
   // Watchdog: If an active match is underway and all opponents on the other team have left/forfeited, grant immediate victory!
   useEffect(() => {
@@ -162,12 +211,17 @@ export default function ChallengeMatch() {
   }, [room?.status, room?.id, players, me]);
 
   // Safe Exit / Forfeit Handler
-  const handleExit = async () => {
+  const handleExit = () => {
+    if (room && me && (room.status === "active" || room.status === "countdown")) {
+      setShowExitConfirmModal(true);
+      return;
+    }
+    confirmExitAndForfeit();
+  };
+
+  const confirmExitAndForfeit = async () => {
+    setShowExitConfirmModal(false);
     if (room && me) {
-      if (room.status === "active" || room.status === "countdown") {
-        const confirmed = window.confirm("Are you sure you want to exit? Leaving an active match will forfeit the game and award the victory to the other team.");
-        if (!confirmed) return;
-      }
       try {
         await leaveRoom(room.id, me.session_id, room.status, me.team);
       } catch (err) {
@@ -197,6 +251,124 @@ export default function ChallengeMatch() {
         <p className="mb-4 text-white/50">Room <span className="font-mono text-white">{code}</span> not found.</p>
         <Button onClick={() => navigate("/")}><ArrowLeft className="mr-2 h-4 w-4" />Go home</Button>
       </FullCenter>
+    );
+  }
+
+  // Gatekeeper: Prevent anyone from entering or spectating a room without inputting and verifying the 5-digit room code
+  if (!me) {
+    const isFull = players.length >= room.team_size * 2;
+    const isMatchStarted = room.status !== "lobby";
+
+    const handleJoinSubmit = async (e) => {
+      e.preventDefault();
+      setJoinPromptError("");
+      const entered = joinPromptCode.trim().toUpperCase();
+      if (entered !== code.toUpperCase()) {
+        setJoinPromptError("Incorrect room code. Please enter the valid 5-character access code.");
+        return;
+      }
+      if (isFull) {
+        setJoinPromptError(`Room has reached maximum capacity (${players.length}/${room.team_size * 2} players).`);
+        return;
+      }
+      if (isMatchStarted) {
+        setJoinPromptError("This match is already in progress and cannot accept new players.");
+        return;
+      }
+      setJoinPromptLoading(true);
+      try {
+        setStoredNickname(joinPromptNick);
+        await joinRoom(entered, joinPromptNick);
+        // Refresh players immediately
+        const { data: ps } = await supabase.from("room_players").select("*").eq("room_id", room.id).order("joined_at");
+        setPlayers(ps ?? []);
+      } catch (err) {
+        setJoinPromptError(err.message || "Failed to join room");
+      } finally {
+        setJoinPromptLoading(false);
+      }
+    };
+
+    return (
+      <div className="elementopia-scope min-h-screen bg-gradient-hero text-foreground flex items-center justify-center p-4">
+        <Toaster theme="dark" position="top-center" />
+        <div className="max-w-md w-full rounded-3xl border border-magenta/40 bg-slate-950/95 p-6 sm:p-8 text-center shadow-[0_0_50px_rgba(236,72,153,0.25)] animate-fade-in relative">
+          <div className="w-16 h-16 rounded-full bg-magenta/20 border-2 border-magenta flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(236,72,153,0.4)]">
+            <Lock className="w-8 h-8 text-magenta" />
+          </div>
+
+          <h2 className="font-pixel text-2xl text-white font-bold mb-1">
+            Private Match Gate
+          </h2>
+          <p className="text-xs font-mono text-slate-400 mb-6">
+            Enter the 5-digit room access code from your host to enter this {room.team_size}v{room.team_size} match.
+          </p>
+
+          {isMatchStarted ? (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-xs mb-6">
+              ⚠️ This match is already in progress or has concluded and cannot accept new players.
+            </div>
+          ) : isFull ? (
+            <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/30 text-destructive font-mono text-xs mb-6">
+              ⚠️ This room has reached maximum capacity ({players.length}/{room.team_size * 2} players).
+            </div>
+          ) : (
+            <form onSubmit={handleJoinSubmit} className="space-y-4 text-left mb-6">
+              <div>
+                <label className="text-[10px] font-mono tracking-widest text-slate-400 uppercase block mb-1.5">
+                  Your Nickname
+                </label>
+                <input
+                  type="text"
+                  value={joinPromptNick}
+                  onChange={(e) => setJoinPromptNick(e.target.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 15))}
+                  placeholder="Enter nickname..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono text-sm outline-none focus:border-magenta transition"
+                  disabled={joinPromptLoading}
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-mono tracking-widest text-slate-400 uppercase block mb-1.5">
+                  5-Digit Room Code
+                </label>
+                <input
+                  type="text"
+                  value={joinPromptCode}
+                  onChange={(e) => setJoinPromptCode(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 5))}
+                  placeholder="00000"
+                  className="w-full bg-black/60 border border-slate-700 rounded-xl px-4 py-3 text-center font-mono text-magenta text-xl tracking-[0.3em] outline-none focus:border-magenta transition uppercase"
+                  disabled={joinPromptLoading}
+                  autoFocus
+                />
+              </div>
+
+              {joinPromptError && (
+                <div className="text-xs text-rose-400 font-mono text-center bg-rose-950/40 border border-rose-500/30 p-2 rounded-lg">
+                  {joinPromptError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={joinPromptLoading || joinPromptCode.length !== 5}
+                className="w-full rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-6 py-3 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.4)] transition hover:scale-105 uppercase tracking-wider disabled:opacity-50 disabled:scale-100 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>{joinPromptLoading ? "Verifying..." : "Verify Code & Join Match"}</span>
+              </button>
+            </form>
+          )}
+
+          <button
+            type="button"
+            onClick={() => navigate("/challenge")}
+            className="w-full text-center text-xs font-mono text-slate-500 hover:text-white transition py-2 cursor-pointer"
+          >
+            ← Return to Challenge Lobby
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -237,6 +409,40 @@ export default function ChallengeMatch() {
             <p className="text-[11px] font-mono text-slate-400">
               If the opponent fails to reconnect within the countdown, victory is automatically awarded to your team.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* In-Platform Exit & Forfeit Confirmation Modal */}
+      {showExitConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in">
+          <div className="max-w-md w-full rounded-3xl border border-rose-500/50 bg-slate-950 p-6 sm:p-8 text-center shadow-[0_0_50px_rgba(244,63,94,0.3)] relative">
+            <div className="w-16 h-16 rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-8 h-8 text-rose-500 animate-pulse" />
+            </div>
+            <h3 className="font-pixel text-xl sm:text-2xl text-rose-400 font-bold mb-2">
+              Forfeit & Exit Match?
+            </h3>
+            <p className="text-sm text-slate-300 font-sans leading-relaxed mb-6">
+              You are currently in an active challenge. Leaving the match will forfeit the game and immediately award victory to the opposing team.
+            </p>
+            <div className="flex flex-col-reverse sm:flex-row gap-3 justify-center">
+              <button
+                type="button"
+                onClick={() => setShowExitConfirmModal(false)}
+                className="rounded-full border border-slate-700 bg-slate-900/90 px-6 py-2.5 font-mono text-xs uppercase tracking-wider text-slate-300 hover:text-white hover:border-slate-500 transition cursor-pointer"
+              >
+                Cancel & Resume
+              </button>
+              <button
+                type="button"
+                onClick={confirmExitAndForfeit}
+                className="rounded-full bg-gradient-to-r from-rose-600 to-red-500 px-6 py-2.5 font-mono font-bold text-xs uppercase tracking-wider text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] transition hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Yes, Forfeit Match</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -704,11 +910,8 @@ function Result({ room, players, me, isHost }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const recordedRef = useRef(false);
-
   useEffect(() => {
-    if (!me || !winning || recordedRef.current) return;
-    recordedRef.current = true;
+    if (!me || !winning) return;
     const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
     const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
 
@@ -722,17 +925,12 @@ function Result({ room, players, me, isHost }) {
         reactionPathEfficiency: efficiency
       }
     });
-
-    // Record locally in progress manager for immediate Dashboard win count / ELO rating update
-    const oppTeam = me.team === "A" ? "B" : "A";
-    const opponent = players.find(p => p.team === oppTeam)?.nickname || "Opponent";
-    recordMatch(opponent, draw ? "draw" : youWon ? "win" : "loss", 60000, me.errors || 0);
-  }, [me, winning, draw, youWon, players]);
+  }, [me, winning, draw, youWon]);
 
   return (
     <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)] flex flex-col justify-center relative overflow-hidden">
       {room.puzzle?.forfeitReason && (
-        <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-cyan/40 bg-cyan/10 px-4 py-1.5 font-mono text-xs text-cyan">
+        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-cyan/40 bg-cyan/10 px-4 py-1.5 font-mono text-xs text-cyan">
           <Zap className="w-3.5 h-3.5 text-cyan animate-pulse" />
           <span>{room.puzzle.forfeitReason}</span>
         </div>

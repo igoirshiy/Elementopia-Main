@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import {
   DndContext,
   useDroppable,
@@ -187,6 +188,7 @@ export default function AtomChallengeCore({ challenge, onChallengeComplete }) {
     neutrons: 0,
     electrons: 0
   });
+  const [feedbackModal, setFeedbackModal] = useState(null);
 
   useEffect(() => {
     const generatedParticles = {};
@@ -264,12 +266,17 @@ export default function AtomChallengeCore({ challenge, onChallengeComplete }) {
                    particleCounts.electrons === challenge.electrons;
 
     if (correct) {
-      setTimeout(() => {
-        alert(`✅ Correct! You built ${challenge.name}!`);
-        onChallengeComplete();
-      }, 300);
+      setFeedbackModal({
+        success: true,
+        title: "Structure Verified!",
+        message: `Excellent synthesis! You successfully constructed ${challenge.name} with stable subatomic orbital equilibrium.`
+      });
     } else {
-      alert("❌ Not quite right! Try again.");
+      setFeedbackModal({
+        success: false,
+        title: "Configuration Mismatch",
+        message: "The subatomic particle configuration does not match the target element's atomic structure. Verify proton, neutron, and electron counts and try again!"
+      });
     }
   };
 
@@ -388,6 +395,38 @@ export default function AtomChallengeCore({ challenge, onChallengeComplete }) {
           </div>
         )}
       </DragOverlay>
+
+      {/* In-Platform Feedback Modal */}
+      {feedbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in">
+          <div className={`max-w-md w-full rounded-3xl border ${feedbackModal.success ? 'border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.3)]' : 'border-rose-500/50 shadow-[0_0_50px_rgba(244,63,94,0.3)]'} bg-slate-950 p-6 sm:p-8 text-center relative`}>
+            <div className={`w-16 h-16 rounded-full ${feedbackModal.success ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400' : 'bg-rose-500/20 border-rose-500 text-rose-500'} border-2 flex items-center justify-center mx-auto mb-4`}>
+              {feedbackModal.success ? (
+                <CheckCircle2 className="w-8 h-8 animate-bounce" />
+              ) : (
+                <AlertTriangle className="w-8 h-8 animate-pulse" />
+              )}
+            </div>
+            <h3 className={`font-pixel text-xl sm:text-2xl font-bold mb-2 ${feedbackModal.success ? 'text-cyan-400' : 'text-rose-400'}`}>
+              {feedbackModal.title}
+            </h3>
+            <p className="text-sm text-slate-300 font-sans leading-relaxed mb-6">
+              {feedbackModal.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                const wasSuccess = feedbackModal.success;
+                setFeedbackModal(null);
+                if (wasSuccess) onChallengeComplete();
+              }}
+              className={`rounded-full px-8 py-2.5 font-mono font-bold text-xs uppercase tracking-wider text-white transition hover:scale-105 cursor-pointer ${feedbackModal.success ? 'bg-gradient-to-r from-teal-500 to-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.4)]' : 'bg-gradient-to-r from-rose-600 to-red-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]'}`}
+            >
+              {feedbackModal.success ? 'Continue' : 'Adjust Configuration'}
+            </button>
+          </div>
+        </div>
+      )}
     </DndContext>
   );
 }

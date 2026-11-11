@@ -92,37 +92,36 @@ export async function joinRoom(code, nickname) {
     .maybeSingle();
   if (existing) return room;
 
-  // Reconnection fallback by nickname
-  const { data: dropped } = await supabase
-    .from("room_players")
-    .select("*")
-    .eq("room_id", room.id)
-    .eq("nickname", nick)
-    .maybeSingle();
-
-  if (dropped) {
-    await supabase.from("room_players").update({ session_id: sessionId }).eq("id", dropped.id);
-    return room;
-  }
-
   if (room.status !== "lobby") throw new Error("Match already in progress");
 
   const { data: players } = await supabase
     .from("room_players")
-    .select("team")
+    .select("team, nickname, session_id")
     .eq("room_id", room.id);
-  const teamA = (players ?? []).filter((p) => p.team === "A").length;
-  const teamB = (players ?? []).filter((p) => p.team === "B").length;
-  if (teamA >= room.team_size && teamB >= room.team_size) {
-    throw new Error("Room is full");
+
+  const existingPlayers = players ?? [];
+  const teamA = existingPlayers.filter((p) => p.team === "A").length;
+  const teamB = existingPlayers.filter((p) => p.team === "B").length;
+  const maxCapacity = room.team_size * 2;
+
+  if (existingPlayers.length >= maxCapacity || (teamA >= room.team_size && teamB >= room.team_size)) {
+    throw new Error(`Room is full (maximum ${maxCapacity} players)`);
   }
+
+  // Ensure nickname uniqueness within the room so players don't collide
+  let finalNick = nick;
+  const nickExists = existingPlayers.some(p => p.nickname.toLowerCase() === nick.toLowerCase());
+  if (nickExists) {
+    finalNick = `${nick.slice(0, 14)}_${Math.floor(Math.random() * 89 + 10)}`;
+  }
+
   // Auto-balance: fill team B first until equal, then balance.
   const team = teamB < room.team_size && teamB <= teamA ? "B" : "A";
 
   const { error: insErr } = await supabase.from("room_players").insert({
     room_id: room.id,
     session_id: sessionId,
-    nickname: nick,
+    nickname: finalNick,
     team,
     is_host: false,
   });
@@ -376,14 +375,22 @@ export async function forfeitMatch(roomId, winningTeam, forfeitingSessionId, rea
     }
   }
 
-  await supabase
+  const { data, error } = await supabase
     .from("rooms")
     .update({
       winning_team: winningTeam,
       status: "finished",
       puzzle: puzzleMeta,
     })
-    .eq("id", roomId);
+    .eq("id", roomId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to execute forfeit:", error);
+    throw error;
+  }
+  return data;
 }
 
 export async function leaveRoom(roomId, sessionId, currentStatus, currentTeam) {
