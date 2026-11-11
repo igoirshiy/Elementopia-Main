@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Elementopia - GitHub Repository & Codebase Verification Document</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      font-size: 10pt;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      border-bottom: 2px solid #800000;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-left h1 {
+      margin: 0;
+      color: #800000;
+      font-size: 18pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .header-left h2 {
+      margin: 4px 0 0 0;
+      color: #475569;
+      font-size: 11pt;
+      font-weight: 600;
+    }
+    .header-right {
+      text-align: right;
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+    .badge-bar {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0 16px 0;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-maroon { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-blue { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    .badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+    .links-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+    }
+    .link-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 9.5pt;
+    }
+    .link-row:last-child { margin-bottom: 0; }
+    .link-label {
+      width: 170px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .link-val a {
+      color: #0284c7;
+      text-decoration: underline;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    h3 {
+      color: #800000;
+      font-size: 11.5pt;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin: 16px 0 8px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+      font-size: 8.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 8px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td {
+      background: #fafafa;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .card h4 {
+      margin: 0 0 6px 0;
+      font-size: 9.5pt;
+      color: #0f172a;
+    }
+    .card ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 8.5pt;
+      color: #334155;
+    }
+    .card li { margin-bottom: 4px; }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 8pt;
+      font-family: Consolas, "Courier New", monospace;
+      overflow-x: auto;
+      margin: 6px 0 12px 0;
+      line-height: 1.4;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Elementopia 2.0</h1>
+      <h2>Interactive Gamified Chemistry Learning Platform</h2>
+      <div style="font-size: 8.5pt; color: #64748b; margin-top: 2px;">
+        Cebu Institute of Technology – University | College of Computer Studies
+      </div>
+    </div>
+    <div class="header-right">
+      <strong>Course / Section:</strong> BSIT / 2627-sem1-it411-53<br>
+      <strong>Adviser:</strong> Engr. Ralph P. Laviste / Dr. Patrick L. Bacalso<br>
+      <strong>Document:</strong> Official Codebase & Repository Verification
+    </div>
+  </div>
+
+  <div class="badge-bar">
+    <span class="badge badge-maroon">CIT-U Capstone</span>
+    <span class="badge badge-blue">React 19 & Vite</span>
+    <span class="badge badge-green">Spring Boot 3 (Java 17)</span>
+    <span class="badge badge-purple">Supabase PostgreSQL 15</span>
+    <span class="badge badge-blue">DepEd Grade 9 Aligned</span>
+  </div>
+
+  <div class="links-box">
+    <div class="link-row">
+      <span class="link-label">Official GitHub Repository:</span>
+      <span class="link-val"><a href="https://github.com/igoirshiy/Elementopia-Main" target="_blank">https://github.com/igoirshiy/Elementopia-Main</a></span>
+    </div>
+    <div class="link-row">
+      <span class="link-label">Live Staging Application:</span>
+      <span class="link-val"><a href="https://elementopia-game.vercel.app" target="_blank">https://elementopia-game.vercel.app</a></span>
+    </div>
+    <div class="link-row">
+      <span class="link-label">Repository Visibility & Branch:</span>
+      <span class="link-val"><strong>Public</strong> &bull; Primary Branch: <code>main</code></span>
+    </div>
+  </div>
+
+  <h3>1. Project Development Team (Group 53)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 28%;">Team Member</th>
+        <th style="width: 25%;">Primary Role</th>
+        <th>Core Engineering Responsibilities</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Danielle Maxine P. Ocampo</strong></td>
+        <td>Project Manager & Lead Dev</td>
+        <td>Architectural coordination, sprint milestones, synthesis workflow integration.</td>
+      </tr>
+      <tr>
+        <td><strong>Clyde C. Benolirao</strong></td>
+        <td>Full Stack & Gameplay Engineer</td>
+        <td>Resonance puzzle engine, 1v1 matchmaking lobby, interactive workbench controls.</td>
+      </tr>
+      <tr>
+        <td><strong>Jian Marc Ceniza</strong></td>
+        <td>Backend & Database Architect</td>
+        <td>Spring Boot 3 REST controllers, Supabase schemas, HikariCP database pooling.</td>
+      </tr>
+      <tr>
+        <td><strong>Erica Y. Dabalos</strong></td>
+        <td>Frontend & UI/UX Specialist</td>
+        <td>Responsive design, Dr. Atom modals, styling systems, accessible mobile touch bounds.</td>
+      </tr>
+      <tr>
+        <td><strong>Wayne Kenji B. Dibdib</strong></td>
+        <td>QA & Telemetry Specialist</td>
+        <td>Pre-test cloud sync verification, telemetry schema testing, regression test suite.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2. Technology Architecture</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">Tier / Layer</th>
+        <th style="width: 25%;">Technology</th>
+        <th>Role & Specifications</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Presentation (Client)</strong></td>
+        <td>React 19, Vite 6, TailwindCSS v4</td>
+        <td>High-performance reactive UI, touch drag-and-drop (@dnd-kit), canvas animation (Konva).</td>
+      </tr>
+      <tr>
+        <td><strong>Logic & Validation</strong></td>
+        <td>Spring Boot 3.x, Java 17 (Maven)</td>
+        <td>Reaction controller, stoichiometry validation, Hazmat sliding-window engine.</td>
+      </tr>
+      <tr>
+        <td><strong>Data Persistence</strong></td>
+        <td>Supabase (PostgreSQL 15)</td>
+        <td>Cloud database for session telemetry, diagnostic pre-tests, and compound blueprints.</td>
+      </tr>
+      <tr>
+        <td><strong>Realtime Network</strong></td>
+        <td>Supabase Realtime (WebSockets)</td>
+        <td>Sub-second peer synchronization, 3-sec heartbeats, and graceful disconnect engine.</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment & CI/CD</strong></td>
+        <td>Vercel (Edge) & Render (Docker)</td>
+        <td>Automated continuous deployment for SPA client and containerized backend API.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3. Repository Directory Structure</h3>
+  <pre>
+Elementopia-Main/
+├── .github/                   # Automated GitHub Actions CI/CD workflows
+├── Documents/                 # Capstone Documentation (SRS v2.0, SDD v2.0, STD, MVP Validation)
+│   ├── Refactored_Elementopia_SRS.pdf
+│   ├── Refactored_Elementopia_SDD.pdf
+│   └── MVP Validation Findings & Refactoring Priorities.pdf
+├── Elementopia/
+│   ├── BACKEND/               # Spring Boot 3 + Java 17 REST API Service
+│   │   ├── src/main/java/     # Controllers, Models, Services, Progression logic
+│   │   ├── Dockerfile         # Container deployment configuration for Render
+│   │   └── pom.xml            # Maven build configuration and dependencies
+│   ├── FRONTEND/              # React 19 + Vite Web Application
+│   │   ├── src/features/      # resonance-puzzle, 1v1-challenge, mastery-dashboard
+│   │   ├── vercel.json        # Production SPA rewrite routing configuration
+│   │   └── package.json       # Node package manager dependencies & scripts
+│   ├── start-backend.bat      # Windows one-click backend development launcher
+│   └── start-frontend.bat     # Windows one-click frontend development launcher
+└── README.md                  # Comprehensive open-source documentation
+  </pre>
+
+  <div class="page-break"></div>
+
+  <h3>4. Core Modules & Refactored Capabilities (v2.0)</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4>Module 1: Elemental Resonance Puzzle</h4>
+      <ul>
+        <li><strong>Stoichiometric Synthesis:</strong> Drag-and-drop valence electron pairing to form ionic and covalent bonds.</li>
+        <li><strong>Meaningful Byproduct Feedback:</strong> Real-time diagnostic alerts when an invalid mix yields real chemical compounds.</li>
+        <li><strong>Hazmat Protocol Anti-Guessing:</strong> Sliding-window algorithm that temporarily locks workbench upon rapid spam clicking.</li>
+        <li><strong>Two-Tier Educational Debrief:</strong> Explicit milestone reviews explaining polar/nonpolar covalent vs ionic transfer.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Module 2: Assessment & Progress</h4>
+      <ul>
+        <li><strong>Automated Telemetry Sync:</strong> Asynchronous dispatch of pre-test baselines directly to Supabase cloud within &lt; 2s.</li>
+        <li><strong>Learning Gain Tracking:</strong> Automated calculation of Hake's normalized learning gain (g &ge; 0.40).</li>
+        <li><strong>Visual Mastery Dashboard:</strong> Radar charts and progress indicators tracking student mastery of DepEd competencies.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Module 3: 1v1 Opponent Challenge</h4>
+      <ul>
+        <li><strong>5-Digit Room Matchmaking:</strong> Fast peer connection in &lt; 5 seconds via WebSocket channels.</li>
+        <li><strong>Synchronized Synthesis Race:</strong> Live sub-second race to synthesize target chemical compounds.</li>
+        <li><strong>Heartbeat Disconnect Engine:</strong> 3s ping + 8s silence detector triggers 15s grace modal and clean forfeit win resolution.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Non-Functional Usability Standards</h4>
+      <ul>
+        <li><strong>Mobile Touch Target Standards:</strong> Enforces &ge; 48px &times; 48px interactive boundaries across 360px–768px viewports.</li>
+        <li><strong>Zero-Friction Access:</strong> Instant guest nickname onboarding without requiring email registration.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>5. Local Development Quick-Start</h3>
+  <pre>
+# 1. Clone the verified repository:
+git clone https://github.com/igoirshiy/Elementopia-Main.git
+cd Elementopia-Main
+
+# 2. Run the Frontend (React 19 + Vite):
+cd Elementopia/FRONTEND
+npm install
+npm run dev                  # Serves on http://localhost:5173
+
+# 3. Run the Backend (Spring Boot 3 + Java 17):
+cd ../BACKEND
+.\mvnw.cmd clean spring-boot:run   # Serves on http://localhost:8080
+  </pre>
+
+  <div class="footer">
+    &copy; 2026 Team Elementopia (Group 53) &bull; College of Computer Studies, Cebu Institute of Technology – University.<br>
+    All code and research documentation verified under Academic Open Evaluation.
+  </div>
+
+</body>
+</html>
+
