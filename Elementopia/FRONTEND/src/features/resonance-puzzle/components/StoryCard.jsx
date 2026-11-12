@@ -1,6 +1,6 @@
 import React from "react";
 import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
-import { Target, BookOpen, Layers, X, ArrowRight, LayoutDashboard, FlaskConical } from "lucide-react";
+import { Target, BookOpen, Layers, X, ArrowRight, LayoutDashboard } from "lucide-react";
 
 export function StoryCard({ domain, currentStage = 1, onEnter, onCancel }) {
   const hasStages = Boolean(domain?.stages);
@@ -49,26 +49,6 @@ export function StoryCard({ domain, currentStage = 1, onEnter, onCancel }) {
             </div>
 
             <div className="lg:col-span-5 flex flex-col justify-between gap-3.5 h-full">
-              {requiredCompounds.length > 0 && (
-                <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan uppercase mb-2">
-                    <FlaskConical className="w-4 h-4 text-cyan" /> Target Synthesis Formulas ({requiredCompounds.length})
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {requiredCompounds.map((comp, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-950 border border-cyan/30 text-xs font-mono text-slate-200"
-                        title={comp.clue || comp.name}
-                      >
-                        <span className="font-bold text-cyan">{comp.formula}</span>
-                        <span className="text-[11px] text-muted-foreground">({comp.name})</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex-1 flex flex-col justify-center">
                 <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan uppercase mb-2">
                   <Target className="w-4 h-4 text-cyan" /> Stage Objectives
