@@ -7,7 +7,7 @@ import DiscoveryService from "@/features/student-discovery/services/DiscoverySer
 import UserService from "@/features/auth-user";
 import { AlertTriangle, FlaskConical, Sparkles, X, Trash2, RotateCcw, Target, CheckCircle2, Lightbulb, ChevronDown, ChevronUp, BookOpen, Lock } from "lucide-react";
 import { DoctorAtomAssistant } from "./DoctorAtomAssistant";
-import { StageTransitionModal } from "./StageTransitionModal";
+import { DebriefingModal } from "./DebriefingModal";
 import { DoctorAtomTutorialModal } from "./DoctorAtomTutorialModal";
 import { MolecularBondVisualizer } from "./MolecularBondVisualizer";
 import { BohrAtomVisualizer } from "./BohrAtomVisualizer";
@@ -31,6 +31,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [showFailsafeModal, setShowFailsafeModal] = useState(false);
   const [currentStage, setCurrentStage] = useState(() => initialStage || 1);
   const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [stageClearPayload, setStageClearPayload] = useState(null);
   const [showTutorialModal, setShowTutorialModal] = useState(true);
   const [discoveryVideo, setDiscoveryVideo] = useState(null);
   const [pendingClear, setPendingClear] = useState(null);
@@ -298,16 +299,26 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
           persist({ stage: nextStageNum, attempts: newAttempts, correct: newCorrect, completed: doneAll });
 
           if (doneStage) {
+            const currentStageCompounds = domain?.stages?.[currentStage]?.required || [matchedCompound].filter(Boolean);
+            const finalMinutes = Math.floor(elapsed / 60);
+            const finalSeconds = elapsed % 60;
+            const formattedTime = `${String(finalMinutes).padStart(2, '0')}:${String(finalSeconds).padStart(2, '0')}`;
+            const finalAccuracy = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 100;
+
+            const stagePayload = {
+              accuracy: finalAccuracy,
+              time: formattedTime,
+              compounds: currentStageCompounds,
+              compoundCount: currentStageCompounds.length
+            };
+            setStageClearPayload(stagePayload);
+
             if (currentStage < maxStages) {
               setTimeout(() => setStageModalOpen(true), 1200);
             } else {
               const allDomainCompounds = domain?.stages
                 ? Object.values(domain.stages).flatMap(s => s.required || [])
                 : (domain?.required || []);
-              const finalMinutes = Math.floor(elapsed / 60);
-              const finalSeconds = elapsed % 60;
-              const formattedTime = `${String(finalMinutes).padStart(2, '0')}:${String(finalSeconds).padStart(2, '0')}`;
-              const finalAccuracy = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 100;
 
               const clearPayload = {
                 accuracy: finalAccuracy,
@@ -876,12 +887,18 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
         </div>
       )}
       {stageModalOpen && (
-        <StageTransitionModal
-          currentStage={currentStage}
-          maxStages={maxStages}
+        <DebriefingModal
           domain={domain}
+          stage={currentStage}
+          maxStages={maxStages}
           nextStageData={domain.stages?.[currentStage + 1]}
+          stats={stageClearPayload || {
+            accuracy: attempts > 0 ? Math.round((correct / attempts) * 100) : 100,
+            time: `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`,
+            compounds: domain.stages?.[currentStage]?.required || []
+          }}
           onAdvanceStage={handleAdvanceStage}
+          onContinue={handleAdvanceStage}
           onReturnHome={() => {
             const nextStageNum = Math.min(maxStages, currentStage + 1);
             persist({ stage: nextStageNum });
