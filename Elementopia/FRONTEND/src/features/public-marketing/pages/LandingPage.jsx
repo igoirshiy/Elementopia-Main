@@ -17,8 +17,12 @@ function LandingPage() {
       <div className="landingpage-container">
           {/* Custom Navigation Bar matching the Screenshot */}
           <nav className="custom-navbar">
-            <a className="custom-logo" href="/">
-              ELEMENTOPIA
+            <a className="custom-logo flex items-center transition-all hover:scale-105" href="/">
+              <img
+                src="/header-logo.png"
+                alt="Elementopia"
+                className="h-14 sm:h-18 md:h-20 w-auto object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.7)] group-hover:brightness-110 transition-all duration-300"
+              />
             </a>
           </nav>
 

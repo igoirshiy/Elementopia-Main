@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { DoctorAtomAssistant } from './DoctorAtomAssistant';
-import { Trophy, CheckCircle, ArrowRight, RotateCcw, Sparkles, Film, Atom, Layers, LayoutDashboard, X } from 'lucide-react';
-
+import { Trophy, CheckCircle, CheckCircle2, ArrowRight, ArrowLeft, RotateCcw, Sparkles, Film, Atom, Layers, LayoutDashboard, X, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 const BOND_THEORY_METADATA = {
 	"H₂O": {
 		bondType: "Polar Covalent",
@@ -17,7 +16,7 @@ const BOND_THEORY_METADATA = {
 		lewis: "O-O single bond bridge with 2 O-H single bonds",
 		theory: "Unstable peroxide bridge ready to oxidize microbial walls upon contact.",
 		utility: "Topical antiseptic disinfectant and industrial bleaching agent.",
-		video: "/videos/water.mp4"
+		video: null
 	},
 	"NH₃": {
 		bondType: "Polar Covalent",
@@ -57,7 +56,7 @@ const BOND_THEORY_METADATA = {
 		lewis: "Planar C=O double bond, C-H single bond, and C-O-H single bonds",
 		theory: "Carboxylic acid resonance where negative charge delocalizes between both oxygen atoms.",
 		utility: "Organic etching agent and defense compound in ant venom.",
-		video: "/videos/carbon_dioxide.mp4"
+		video: null
 	},
 	"HCN": {
 		bondType: "Polar Covalent",
@@ -73,7 +72,7 @@ const BOND_THEORY_METADATA = {
 		lewis: "N=N=O with resonance contributor N≡N-O",
 		theory: "Resonance-stabilized linear dipole molecule with octet satisfaction across all 3 atoms.",
 		utility: "Medical anesthetic laughing gas and performance rocket oxidizer.",
-		video: "/videos/nitrogen_oxide.mp4"
+		video: null
 	},
 	"C₂H₄O₂": {
 		bondType: "Polar Covalent",
@@ -81,7 +80,7 @@ const BOND_THEORY_METADATA = {
 		lewis: "CH₃ group bonded to carbonyl (C=O) and hydroxyl (O-H)",
 		theory: "Carboxylic acid dimerization via intermolecular hydrogen bonding networks.",
 		utility: "Main acid component of culinary vinegar (suka) and industrial solvent.",
-		video: "/videos/ethyne.mp4"
+		video: null
 	},
 	"C₂H₆O": {
 		bondType: "Polar Covalent",
@@ -89,7 +88,7 @@ const BOND_THEORY_METADATA = {
 		lewis: "Ethyl backbone C-C single bond with terminal -OH alcohol group",
 		theory: "Hydroxyl group induces hydrogen bonding, allowing complete water miscibility.",
 		utility: "Hospital medical disinfectant (70% rubbing alcohol) and renewable biofuel.",
-		video: "/videos/methanol.mp4"
+		video: null
 	},
 	"CH₄N₂O": {
 		bondType: "Polar Covalent",
@@ -130,6 +129,46 @@ const BOND_THEORY_METADATA = {
 		theory: "Dual bonding: metal-to-polyatomic ionic attraction combined with internal covalent sharing.",
 		utility: "Industrial drain opener and soap saponification base.",
 		video: "/videos/sodium_hydroxide.mp4"
+	},
+	"MgCl₂": {
+		bondType: "Ionic Bond",
+		typeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+		lewis: "Mg²⁺ [2,8] cation electrostatically surrounded by two Cl⁻ [2,8,8] anions",
+		theory: "Magnesium surrenders 2 valence electrons (one to each chlorine atom) to form an ionic halide lattice.",
+		utility: "De-icing sub-zero roads, tofu coagulant, and dust control.",
+		video: "/videos/magnesium chloride.mp4"
+	},
+	"Mg(OH)₂": {
+		bondType: "Ionic + Covalent",
+		typeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+		lewis: "Mg²⁺ cation balanced by two [O-H]⁻ polyatomic hydroxide anions",
+		theory: "Divalent magnesium cation coordinates two covalently bonded hydroxide groups.",
+		utility: "Milk of Magnesia suspension for stomach hyperacidity and flame retardant.",
+		video: "/videos/magnesium_hydroxide.mp4"
+	},
+	"Na₂CO₃": {
+		bondType: "Ionic + Covalent",
+		typeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+		lewis: "Two Na⁺ cations electrostatically balancing a resonance-stabilized [CO₃]²⁻ anion",
+		theory: "Two sodium atoms surrender electrons to a trigonal planar carbonate ion with delocalized pi bonding.",
+		utility: "Soda ash in commercial glass blowing and water-softening laundry detergents.",
+		video: "/videos/sodium_carbonate.mp4"
+	},
+	"MgCO₃": {
+		bondType: "Ionic + Covalent",
+		typeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+		lewis: "Mg²⁺ cation bound to planar [CO₃]²⁻ carbonate polyatomic ion",
+		theory: "Magnesium's 2+ charge directly neutralizes the 2- charge of the carbonate polyatomic ion.",
+		utility: "Gymnastics climbing grip chalk and geological dolomite rock formations.",
+		video: "/videos/magnesium_carbonate.mp4"
+	},
+	"HNO₃": {
+		bondType: "Polar Covalent",
+		typeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+		lewis: "Planar nitrate [NO₃] group coordinated to a single hydrogen proton",
+		theory: "Strong mineral acid characterized by resonance delocalization of negative charge across three oxygens.",
+		utility: "Synthesis of agricultural ammonium nitrate fertilizers and industrial etching.",
+		video: "/videos/nitric acid.mp4"
 	},
 	"C₂H₂": {
 		bondType: "Nonpolar Covalent",
@@ -190,10 +229,16 @@ export function DebriefingModal({
 	const compoundCount = stats?.compoundCount ?? compoundsCreated.length;
 	const accuracy = stats?.accuracy ?? 95;
 	const timeTaken = stats?.time ?? "01:45";
+	const [activePage, setActivePage] = useState(0);
 	const [selectedIdx, setSelectedIdx] = useState(0);
 	const activeCompound = compoundsCreated[selectedIdx] || compoundsCreated[0];
 	const activeFormula = typeof activeCompound === 'string' ? activeCompound : activeCompound?.formula || "H₂O";
 	const activeName = typeof activeCompound === 'string' ? '' : activeCompound?.name || "";
+
+	const rewardHint = React.useMemo(() => {
+		if (!nextStageData?.required || nextStageData.required.length === 0) return null;
+		return nextStageData.required[0];
+	}, [nextStageData]);
 
 	const theoryInfo = BOND_THEORY_METADATA[activeFormula] || {
 		bondType: domain?.id === "covalent" ? "Covalent Bond" : "Ionic Bond",
@@ -201,7 +246,7 @@ export function DebriefingModal({
 		lewis: "Valence electrons paired to satisfy the stable octet configuration.",
 		theory: domain?.story || "Atoms bond to achieve outer shell stability.",
 		utility: activeCompound?.missionRole || "Essential chemical compound.",
-		video: activeCompound?.localVideo || "/videos/water.mp4"
+		video: activeCompound?.localVideo || null
 	};
 
 	return (
@@ -252,129 +297,232 @@ export function DebriefingModal({
 					</div>
 				</div>
 
-				{/* Doctor Atom Assistant Speech */}
-				<div className="mb-4">
-					<DoctorAtomAssistant
-						title={`Doctor Atom · ${isInterStage ? `Stage ${stage} Lab Analysis` : "Domain Mastery"}`}
-						message={
-							isInterStage
-								? `Outstanding reasoning! You have successfully mastered Stage ${stage} of ${domain?.name || "the cavern"}.\n\n💡 Review the chemical reaction playback and Lewis dot structure below before advancing to Stage ${stage + 1}.`
-								: `Terrific synthesis! You formed all ${compoundCount} target compounds and unlocked complete domain resonance for ${domain?.name}.\n\n💡 Examine the reaction playback and Lewis dot structure below before proceeding.`
-						}
-						isTalking={false}
-					/>
-				</div>
+				{/* 2-Page Navigation Tab Bar */}
+				<div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 mb-4">
+					<div className="flex items-center gap-1 sm:gap-2 flex-1">
+						<button
+							type="button"
+							onClick={() => setActivePage(0)}
+							className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
+								activePage === 0
+									? "bg-cyan-500/20 text-cyan border border-cyan/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]"
+									: "text-slate-400 hover:text-white hover:bg-slate-800/60"
+							}`}
+						>
+							<Layers className="w-3.5 h-3.5" />
+							<span>1. Progress &amp; Blueprint</span>
+						</button>
 
-				{/* 2-Column Main Debriefing Stage */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-					{/* Left Column: Reaction Video Clip + Compound Switcher */}
-					<div className="flex flex-col gap-3">
-						<div className="rounded-2xl border border-slate-800 bg-black overflow-hidden relative aspect-video flex items-center justify-center shadow-inner">
-							{theoryInfo.video ? (
-								<video
-									key={theoryInfo.video}
-									src={theoryInfo.video}
-									autoPlay
-									loop
-									muted
-									playsInline
-									className="w-full h-full object-cover"
-								/>
-							) : (
-								<div className="text-center p-4 text-slate-500 font-mono text-xs flex flex-col items-center gap-1.5">
-									<Film className="w-6 h-6 text-slate-600" />
-									<span>Reaction Animation Completed</span>
-								</div>
-							)}
-							<div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 border border-white/10 font-mono text-[9px] text-cyan flex items-center gap-1">
-								<Film className="w-3 h-3" /> Live Synthesis Clip
-							</div>
-						</div>
-
-						<div className="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
-							<span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block mb-2 font-bold">
-								Synthesized Compounds (Tap to Inspect):
-							</span>
-							<div className="flex flex-wrap gap-1.5 max-h-[85px] overflow-y-auto pr-1">
-								{compoundsCreated.map((c, i) => {
-									const formula = typeof c === 'string' ? c : c.formula;
-									const name = typeof c === 'string' ? '' : c.name;
-									const isSelected = i === selectedIdx;
-									return (
-										<button
-											key={i}
-											type="button"
-											onClick={() => setSelectedIdx(i)}
-											className={`min-h-[36px] sm:min-h-[38px] px-3 py-1.5 rounded-xl border font-mono text-xs transition cursor-pointer flex items-center gap-1.5 ${isSelected
-												? "bg-cyan-500/25 border-cyan-400 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-												: "bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700"
-												}`}
-										>
-											<span className="font-bold text-cyan">{formula}</span>
-											{name && <span className="text-[10px] text-slate-400">({name})</span>}
-										</button>
-									);
-								})}
-							</div>
-						</div>
+						<button
+							type="button"
+							onClick={() => setActivePage(1)}
+							className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
+								activePage === 1
+									? "bg-cyan-500/20 text-cyan border border-cyan/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]"
+									: "text-slate-400 hover:text-white hover:bg-slate-800/60"
+							}`}
+						>
+							<Film className="w-3.5 h-3.5" />
+							<span>2. Reaction &amp; Bonding Theory</span>
+						</button>
 					</div>
 
-					{/* Right Column: Chemical Bonding Theory & Lewis Dot Card */}
-					<div className="p-4 rounded-2xl bg-slate-900/90 border border-cyan/30 flex flex-col justify-between">
-						<div>
-							<div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800 mb-2.5">
-								<div className="flex items-center gap-1.5">
-									<Atom className="w-4 h-4 text-cyan shrink-0" />
-									<span className="font-mono font-bold text-white text-sm">
-										{activeFormula} {activeName && `— ${activeName}`}
-									</span>
-								</div>
-								<span className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${theoryInfo.typeColor}`}>
-									{theoryInfo.bondType}
-								</span>
-							</div>
+					{/* Chevrons to slide between pages */}
+					<div className="flex items-center gap-1 pl-2 border-l border-slate-800">
+						<button
+							type="button"
+							onClick={() => setActivePage(prev => (prev === 0 ? 1 : 0))}
+							className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+							title={activePage === 0 ? "Next: Bonding Theory" : "Previous: Mastery Progress"}
+						>
+							{activePage === 0 ? <ChevronRight className="w-4 h-4 text-cyan" /> : <ChevronLeft className="w-4 h-4 text-cyan" />}
+						</button>
+					</div>
+				</div>
 
-							<div className="space-y-2.5 text-xs font-mono">
-								<div>
-									<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Lewis Dot Structure:</span>
-									<div className="text-slate-200 bg-slate-950 p-2 rounded-xl border border-slate-800/80 text-[11px]">
-										{theoryInfo.lewis}
+				{/* PAGE 1: Stage Progress, Masteries & Discovered Blueprint (Matches Screenshot) */}
+				{activePage === 0 && (
+					<div className="space-y-4 mb-4 animate-fade-in">
+						{/* Doctor Atom Debrief Speech */}
+						<DoctorAtomAssistant
+							title={`Doctor Atom · ${isInterStage ? `Stage ${stage} Debrief` : "Domain Mastery"}`}
+							message={
+								isInterStage
+									? `Outstanding reasoning! You have successfully mastered Stage ${stage} of ${domain?.name || "the cavern"}. Here is what you achieved:`
+									: `Terrific synthesis! You formed all ${compoundCount} target compounds and unlocked complete domain resonance for ${domain?.name}.`
+							}
+							isTalking={false}
+						/>
+
+						{/* Stage Masteries Unlocked Card */}
+						<div className="p-4 rounded-2xl bg-slate-900/80 border border-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+							<div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan uppercase mb-2">
+								<CheckCircle2 className="w-4 h-4 text-cyan" /> Stage {stage || 1} Masteries Unlocked
+							</div>
+							<ul className="text-xs sm:text-sm text-slate-200 space-y-1.5 font-mono list-disc list-inside">
+								{stage === 1 && (
+									<>
+										<li>Mastered 2-element binary electron sharing &amp; octet balance</li>
+										<li>Deducted valence electron ratios for neutral molecules</li>
+									</>
+								)}
+								{stage === 2 && (
+									<>
+										<li>Mastered 3-element ternary bonding &amp; multiple shared electron pairs</li>
+										<li>Deducted valence octet stability rules across polyatomic centers</li>
+									</>
+								)}
+								{(stage === 3 || !stage) && (
+									<>
+										<li>Mastered complex multi-element polyatomic macromolecular backbones</li>
+										<li>Achieved complete domain resonance across all synthesized targets</li>
+									</>
+								)}
+							</ul>
+						</div>
+
+						{/* Split Row: Next Focus + Blueprint Discovered */}
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-stretch">
+							{nextStageData ? (
+								<div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+									<div>
+										<div className="flex items-center gap-1.5 text-xs font-mono font-bold text-magenta uppercase mb-1.5">
+											<Sparkles className="w-3.5 h-3.5 text-magenta" /> Next Focus: Stage {stage + 1}
+										</div>
+										<div className="text-sm font-bold text-white mb-1.5 leading-tight font-pixel">
+											{nextStageData.title}
+										</div>
+										<div className="text-xs text-slate-300 leading-relaxed font-sans line-clamp-4">
+											{nextStageData.story}
+										</div>
 									</div>
 								</div>
-								<div>
-									<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Bonding Mechanism & Octet:</span>
-									<p className="text-slate-300 font-sans text-[11px] leading-relaxed">
-										{theoryInfo.theory}
-									</p>
+							) : (
+								<div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+									<div className="text-xs font-mono text-cyan uppercase mb-1">Domain Status</div>
+									<div className="text-sm font-bold text-white font-pixel">All Domain Stages Complete!</div>
+									<div className="text-xs text-slate-300 font-sans mt-1">You have mastered all core chemical competencies in this cavern.</div>
 								</div>
-								<div>
-									<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Real-World Utility:</span>
-									<p className="text-emerald-300 font-sans text-[11px] leading-relaxed">
-										{theoryInfo.utility}
-									</p>
-								</div>
-							</div>
-						</div>
+							)}
 
-						<div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center gap-1.5 font-mono text-[10px] text-cyan">
-							<CheckCircle className="w-3.5 h-3.5 text-cyan" />
-							<span>Octet Stability Verified for Grade 9 DepEd Competency</span>
+							{rewardHint && (
+								<div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-700/5 border border-amber-500/40 relative overflow-hidden group flex flex-col justify-between">
+									<div className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-400 uppercase mb-2 relative z-10">
+										<Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" /> Blueprint Discovered
+									</div>
+									<div className="bg-slate-950/70 p-3.5 rounded-xl border border-amber-500/30 relative z-10 backdrop-blur-sm">
+										<div className="text-[10px] text-amber-400/80 font-mono uppercase tracking-widest mb-1">Upcoming Target</div>
+										<div className="text-base sm:text-lg font-bold text-amber-300 font-pixel tracking-wide">{rewardHint.name}</div>
+										<div className="text-xs text-amber-100/80 font-mono mt-2 flex items-center gap-1.5">
+											<span className="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold">
+												{Object.keys(rewardHint.recipe).join(', ')}
+											</span>
+											<span>Required elements</span>
+										</div>
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
-				</div>
+				)}
 
-				{/* Upcoming Stage Focus Preview (For Inter-Stage Debriefings) */}
-				{isInterStage && nextStageData && (
-					<div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-						<div>
-							<div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-magenta uppercase mb-0.5">
-								<Sparkles className="w-3.5 h-3.5 text-magenta" /> Upcoming Target: Stage {stage + 1}
+				{/* PAGE 2: Live Reaction Synthesis Video & Lewis Bonding Theory Card */}
+				{activePage === 1 && (
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 animate-fade-in">
+						{/* Left Column: Reaction Video Clip + Compound Switcher */}
+						<div className="flex flex-col gap-3">
+							<div className="rounded-2xl border border-slate-800 bg-black overflow-hidden relative aspect-video flex items-center justify-center shadow-inner">
+								{theoryInfo.video ? (
+									<video
+										key={theoryInfo.video}
+										src={theoryInfo.video}
+										autoPlay
+										loop
+										muted
+										playsInline
+										className="w-full h-full object-cover"
+									/>
+								) : (
+									<div className="text-center p-6 text-slate-400 font-mono text-xs flex flex-col items-center justify-center gap-2 h-full bg-gradient-to-br from-slate-950 via-slate-900 to-black">
+										<Atom className="w-8 h-8 text-cyan/70 animate-pulse" />
+										<span className="font-bold text-white text-sm tracking-wider font-pixel">{activeFormula} Synthesized</span>
+										<span className="text-[10px] text-cyan/80 bg-cyan/10 px-2.5 py-0.5 rounded-full border border-cyan/30">Valence Octet Resonated · See Theory Card</span>
+									</div>
+								)}
+								<div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 border border-white/10 font-mono text-[9px] text-cyan flex items-center gap-1">
+									<Film className="w-3 h-3" /> Live Synthesis Clip
+								</div>
 							</div>
-							<div className="text-sm font-bold text-white font-pixel">
-								{nextStageData.title}
+
+							<div className="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+								<span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block mb-2 font-bold">
+									Synthesized Compounds (Tap to Inspect):
+								</span>
+								<div className="flex flex-wrap gap-1.5 max-h-[85px] overflow-y-auto pr-1">
+									{compoundsCreated.map((c, i) => {
+										const formula = typeof c === 'string' ? c : c.formula;
+										const name = typeof c === 'string' ? '' : c.name;
+										const isSelected = i === selectedIdx;
+										return (
+											<button
+												key={i}
+												type="button"
+												onClick={() => setSelectedIdx(i)}
+												className={`min-h-[36px] sm:min-h-[38px] px-3 py-1.5 rounded-xl border font-mono text-xs transition cursor-pointer flex items-center gap-1.5 ${
+													isSelected
+														? "bg-cyan-500/25 border-cyan-400 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+														: "bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700"
+												}`}
+											>
+												<span className="font-bold text-cyan">{formula}</span>
+												{name && <span className="text-[10px] text-slate-400">({name})</span>}
+											</button>
+										);
+									})}
+								</div>
 							</div>
-							<div className="text-xs text-slate-300 font-sans line-clamp-2 mt-0.5">
-								{nextStageData.story}
+						</div>
+
+						{/* Right Column: Chemical Bonding Theory & Lewis Dot Card */}
+						<div className="p-4 rounded-2xl bg-slate-900/90 border border-cyan/30 flex flex-col justify-between">
+							<div>
+								<div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800 mb-2.5">
+									<div className="flex items-center gap-1.5">
+										<Atom className="w-4 h-4 text-cyan shrink-0" />
+										<span className="font-mono font-bold text-white text-sm">
+											{activeFormula} {activeName && `— ${activeName}`}
+										</span>
+									</div>
+									<span className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${theoryInfo.typeColor}`}>
+										{theoryInfo.bondType}
+									</span>
+								</div>
+
+								<div className="space-y-2.5 text-xs font-mono">
+									<div>
+										<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Lewis Dot Structure:</span>
+										<div className="text-slate-200 bg-slate-950 p-2 rounded-xl border border-slate-800/80 text-[11px]">
+											{theoryInfo.lewis}
+										</div>
+									</div>
+									<div>
+										<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Bonding Mechanism &amp; Octet:</span>
+										<p className="text-slate-300 font-sans text-[11px] leading-relaxed">
+											{theoryInfo.theory}
+										</p>
+									</div>
+									<div>
+										<span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Real-World Utility:</span>
+										<p className="text-emerald-300 font-sans text-[11px] leading-relaxed">
+											{theoryInfo.utility}
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center gap-1.5 font-mono text-[10px] text-cyan">
+								<CheckCircle className="w-3.5 h-3.5 text-cyan" />
+								<span>Octet Stability Verified for Grade 9 DepEd Competency</span>
 							</div>
 						</div>
 					</div>

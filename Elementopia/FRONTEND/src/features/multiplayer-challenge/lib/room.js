@@ -12,7 +12,7 @@ function genCode(len = 5) {
 export async function createRoom(nickname, teamSize, difficulty = "medium", maxQuestions = 3) {
   const sessionId = getSessionId();
   const host = (nickname.trim() || autoNickname()).slice(0, 20);
-  const size = Math.min(5, Math.max(1, Math.floor(teamSize)));
+  const size = 1;
 
   for (let i = 0; i < 5; i++) {
     const code = genCode();
@@ -102,10 +102,10 @@ export async function joinRoom(code, nickname) {
   const existingPlayers = players ?? [];
   const teamA = existingPlayers.filter((p) => p.team === "A").length;
   const teamB = existingPlayers.filter((p) => p.team === "B").length;
-  const maxCapacity = room.team_size * 2;
+  const maxCapacity = 2;
 
-  if (existingPlayers.length >= maxCapacity || (teamA >= room.team_size && teamB >= room.team_size)) {
-    throw new Error(`Room is full (maximum ${maxCapacity} players)`);
+  if (existingPlayers.length >= maxCapacity || (teamA >= 1 && teamB >= 1)) {
+    throw new Error("Room is full! 1v1 duel already has 2 participants.");
   }
 
   // Ensure nickname uniqueness within the room so players don't collide

@@ -69,7 +69,7 @@ export default function ChallengeLobby() {
             <div className="card-glass rounded-2xl p-8 border border-white/10 hover:border-cyan/50 transition-colors flex flex-col justify-between group shadow-none hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]">
               <div>
                 <div className="font-pixel text-cyan text-sm drop-shadow-[0_0_10px_rgba(6,182,212,0.8)] transition-colors">CREATE ROOM</div>
-                <p className="text-white/60 text-sm mt-4 leading-relaxed">Generate a 5-digit access code and configure your 1v1 up to 3v3 team duel.</p>
+                <p className="text-white/60 text-sm mt-4 leading-relaxed">Generate a private 5-digit access code and challenge a peer to an instant 1v1 Speed-to-Compound race.</p>
               </div>
               <button onClick={handleCreateRoom} className="mt-8 w-full rounded-full bg-gradient-to-br from-indigo-500 to-magenta px-6 py-3.5 font-mono font-bold text-xs text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap">Configure &amp; share code</button>
             </div>
