@@ -112,14 +112,13 @@ export function SiteHeader({ view, setView }) {
                   setView("home");
                 }
               }}
-              className="flex items-center"
+              className="flex items-center transition-all hover:scale-105 cursor-pointer group"
             >
-              <h1
-                className="font-pixel text-sm sm:text-base font-bold uppercase transition-all hover:scale-105 cursor-pointer"
-                style={{ color: '#ec4899', letterSpacing: '1px', textShadow: '0 0 10px rgba(236,72,153,0.6)' }}
-              >
-                ELEMENTOPIA
-              </h1>
+              <img
+                src="/header-logo.png"
+                alt="Elementopia"
+                className="h-11 sm:h-14 md:h-15 w-auto object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.6)] group-hover:brightness-110 transition-all duration-300"
+              />
             </a>
           </div>
 
@@ -163,7 +162,10 @@ export function SiteHeader({ view, setView }) {
           }`}
       >
         <div className="flex justify-between items-center mb-8">
-          <h2 className="font-pixel text-lg font-bold text-white uppercase" style={{ color: '#ec4899' }}>Menu</h2>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="Elementopia Logo" className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
+            <h2 className="font-pixel text-lg font-bold text-white uppercase" style={{ color: '#ec4899' }}>Menu</h2>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"

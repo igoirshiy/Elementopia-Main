@@ -17,7 +17,7 @@ import { elementInfo } from "@/features/resonance-puzzle/lib/puzzles";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight, WifiOff, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Copy, Trophy, Frown, Minus, Zap, X, Check, ArrowLeftRight, WifiOff, AlertTriangle, BookOpen, Atom } from "lucide-react";
 import Confetti from "react-confetti";
 import { API_BASE_URL } from "@/config/apiConfig";
 import { BohrAtomVisualizer } from "@/features/resonance-puzzle/components/BohrAtomVisualizer";
@@ -29,16 +29,12 @@ export default function ChallengeMatch() {
   const [room, setRoom] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
-
-  // TC-14: Realtime Heartbeat Disconnect & Auto-Forfeit Engine State
   const channelRef = useRef(null);
   const lastPeerHeartbeatRef = useRef(Date.now());
   const [disconnectGrace, setDisconnectGrace] = useState(false);
   const [graceSecondsLeft, setGraceSecondsLeft] = useState(15);
   const [forfeited, setForfeited] = useState(false);
 
-  // Load + subscribe
   useEffect(() => {
     let active = true;
     (async () => {
@@ -68,8 +64,8 @@ export default function ChallengeMatch() {
           const next = payload.new;
           if (next) {
             setPlayers(prev => {
-               if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at));
-               return prev.map(p => p.id === next.id ? next : p);
+              if (!prev.find(p => p.id === next.id)) return [...prev, next].sort((a, b) => new Date(a.joined_at) - new Date(b.joined_at));
+              return prev.map(p => p.id === next.id ? next : p);
             });
           }
         })
@@ -95,7 +91,6 @@ export default function ChallengeMatch() {
   const isHost = !!me?.is_host;
   const isMatchLive = (room?.status === "countdown" || room?.status === "active") && !!room?.started_at;
 
-  // TC-14: Heartbeat Emitter every 3 seconds during live match
   useEffect(() => {
     if (!isMatchLive || !me) return;
     lastPeerHeartbeatRef.current = Date.now();
@@ -108,14 +103,13 @@ export default function ChallengeMatch() {
             event: "heartbeat",
             payload: { sessionId, team: me.team }
           });
-        } catch (e) {}
+        } catch (e) { }
       }
     }, 3000);
 
     return () => clearInterval(pingInterval);
   }, [isMatchLive, me, sessionId]);
 
-  // TC-14: 8-Second Silence Detector
   useEffect(() => {
     if (!isMatchLive || !me || players.length < 2 || forfeited) return;
 
@@ -130,7 +124,6 @@ export default function ChallengeMatch() {
     return () => clearInterval(checkSilence);
   }, [isMatchLive, me, players.length, forfeited, disconnectGrace]);
 
-  // TC-14: 15-Second Disconnection Forfeit Countdown
   useEffect(() => {
     if (!disconnectGrace || forfeited) return;
 
@@ -184,61 +177,60 @@ export default function ChallengeMatch() {
         </button>
 
         {room.status === "lobby" && <Lobby room={room} players={players} me={me} isHost={isHost} />}
-        {(room.status === "countdown" || room.status === "active" || (room.status === "finished" && showDiscoveryModal)) && <Match room={room} players={players} me={me} showDiscoveryModal={showDiscoveryModal} setShowDiscoveryModal={setShowDiscoveryModal} />}
-        {room.status === "finished" && !showDiscoveryModal && <Result room={room} players={players} me={me} isHost={isHost} />}
+        {(room.status === "countdown" || room.status === "active") && <Match room={room} players={players} me={me} />}
+        {room.status === "finished" && <Result room={room} players={players} me={me} isHost={isHost} />}
 
-        {/* TC-14: Realtime Heartbeat Disconnect & 15-Second Auto-Forfeit Modal */}
-        <Modal open={disconnectGrace && !showDiscoveryModal} onClose={() => {}}>
-          <div className="flex min-h-screen items-center justify-center p-4">
-            <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-rose-500/50 bg-[#0f172a]/95 p-8 text-center shadow-[0_0_50px_rgba(239,68,68,0.4)] backdrop-blur-xl">
-              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-rose-500/20 text-rose-400 animate-pulse">
-                <WifiOff className="h-8 w-8" />
+          <Modal open={disconnectGrace} onClose={() => { }}>
+            <div className="flex min-h-screen items-center justify-center p-4">
+              <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-rose-500/50 bg-[#0f172a]/95 p-8 text-center shadow-[0_0_50px_rgba(239,68,68,0.4)] backdrop-blur-xl">
+                <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-rose-500/20 text-rose-400 animate-pulse">
+                  <WifiOff className="h-8 w-8" />
+                </div>
+
+                <span className="inline-block rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-rose-400 mb-2">
+                  Heartbeat Silence Detected (&gt; 8s)
+                </span>
+
+                <h3 className="text-2xl font-bold text-white font-mono">
+                  {forfeited ? "🏆 FORFEIT VICTORY!" : "⚠️ OPPONENT DISCONNECTED"}
+                </h3>
+
+                <p className="mt-3 text-sm text-slate-300">
+                  {forfeited
+                    ? "Opponent failed to restore connection within 15 seconds. Forfeit victory awarded!"
+                    : "Peer WebSocket heartbeat silent. Match inputs paused. Waiting for opponent to reconnect..."}
+                </p>
+
+                {!forfeited ? (
+                  <div className="my-6 rounded-2xl border border-white/10 bg-black/50 p-4">
+                    <span className="block font-mono text-xs uppercase tracking-widest text-slate-400">
+                      Auto-Forfeit Victory in:
+                    </span>
+                    <span className="block font-pixel text-5xl font-bold text-rose-400 mt-1 animate-pulse">
+                      {graceSecondsLeft}s
+                    </span>
+                  </div>
+                ) : (
+                  <div className="my-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                    <span className="block font-mono text-xs uppercase tracking-widest text-emerald-400 font-bold">
+                      Database commit uncorrupted &bull; Clean Match Resolution
+                    </span>
+                  </div>
+                )}
+
+                {forfeited && (
+                  <button
+                    onClick={() => {
+                      setDisconnectGrace(false);
+                    }}
+                    className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3 font-mono text-sm font-bold uppercase tracking-wider text-white shadow-lg transition hover:scale-105"
+                  >
+                    Claim Victory & View Results
+                  </button>
+                )}
               </div>
-
-              <span className="inline-block rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-rose-400 mb-2">
-                Heartbeat Silence Detected (&gt; 8s)
-              </span>
-
-              <h3 className="text-2xl font-bold text-white font-mono">
-                {forfeited ? "🏆 FORFEIT VICTORY!" : "⚠️ OPPONENT DISCONNECTED"}
-              </h3>
-
-              <p className="mt-3 text-sm text-slate-300">
-                {forfeited
-                  ? "Opponent failed to restore connection within 15 seconds. Forfeit victory awarded!"
-                  : "Peer WebSocket heartbeat silent. Match inputs paused. Waiting for opponent to reconnect..."}
-              </p>
-
-              {!forfeited ? (
-                <div className="my-6 rounded-2xl border border-white/10 bg-black/50 p-4">
-                  <span className="block font-mono text-xs uppercase tracking-widest text-slate-400">
-                    Auto-Forfeit Victory in:
-                  </span>
-                  <span className="block font-pixel text-5xl font-bold text-rose-400 mt-1 animate-pulse">
-                    {graceSecondsLeft}s
-                  </span>
-                </div>
-              ) : (
-                <div className="my-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-                  <span className="block font-mono text-xs uppercase tracking-widest text-emerald-400 font-bold">
-                    Database commit uncorrupted &bull; Clean Match Resolution
-                  </span>
-                </div>
-              )}
-
-              {forfeited && (
-                <button
-                  onClick={() => {
-                    setDisconnectGrace(false);
-                  }}
-                  className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3 font-mono text-sm font-bold uppercase tracking-wider text-white shadow-lg transition hover:scale-105"
-                >
-                  Claim Victory & View Results
-                </button>
-              )}
             </div>
-          </div>
-        </Modal>
+          </Modal>
       </div>
     </div>
   );
@@ -277,7 +269,7 @@ function Lobby({ room, players, me, isHost }) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-white/50">Pre-match lobby</p>
-          <h1 className="mt-2 text-3xl md:text-4xl text-white font-pixel uppercase text-glow-magenta">{room.team_size}v{room.team_size} duel</h1>
+          <h1 className="mt-2 text-3xl md:text-4xl text-white font-pixel uppercase text-glow-magenta">1v1 Chemistry Duel</h1>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3">
           <p className="text-[10px] uppercase tracking-widest text-white/50">Share code</p>
@@ -305,8 +297,8 @@ function Lobby({ room, players, me, isHost }) {
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <TeamColumn label="Team A" team="A" players={teamA} size={room.team_size} me={me} onSwitch={() => swap("A")} accent="primary" />
-        <TeamColumn label="Team B" team="B" players={teamB} size={room.team_size} me={me} onSwitch={() => swap("B")} accent="defeat" />
+        <TeamColumn label="Player 1 (Host)" team="A" players={teamA} size={1} me={me} onSwitch={() => swap("A")} accent="primary" />
+        <TeamColumn label="Player 2 (Challenger)" team="B" players={teamB} size={1} me={me} onSwitch={() => swap("B")} accent="defeat" />
       </div>
 
       {isHost ? (
@@ -315,7 +307,7 @@ function Lobby({ room, players, me, isHost }) {
           disabled={!ready}
           className="mt-8 w-full rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-10 py-4 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider whitespace-nowrap disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_15px_rgba(236,72,153,0.3)] md:w-auto"
         >
-          {ready ? "Start Match" : `Waiting (${teamA.length + teamB.length}/${room.team_size * 2})…`}
+          {ready ? "Start 1v1 Match" : `Waiting for Opponent (${teamA.length + teamB.length}/2)…`}
         </button>
       ) : (
         <p className="mt-8 text-sm text-white/50">Waiting for host to start the match…</p>
@@ -365,422 +357,461 @@ function TeamColumn({ label, team, players, size, me, onSwitch, accent }) {
 /* ----------------------- MATCH ----------------------- */
 const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
 
-function Match({ room, players, me, showDiscoveryModal, setShowDiscoveryModal }) {
-  const puzzle = room.puzzle?.questions ? room.puzzle.questions[room.puzzle.currentQuestionIndex] : room.puzzle;
-  const [countdownLeft, setCountdownLeft] = useState(3);
-  const [unlocked, setUnlocked] = useState(false);
-  const [progress, setProgress] = useState([]);
-  const [errors, setErrors] = useState(0);
+  function Match({ room, players, me }) {
+    const puzzle = room.puzzle?.questions ? room.puzzle.questions[room.puzzle.currentQuestionIndex] : room.puzzle;
+    const [countdownLeft, setCountdownLeft] = useState(3);
+    const [unlocked, setUnlocked] = useState(false);
+    const [progress, setProgress] = useState([]);
+    const [errors, setErrors] = useState(0);
 
-  useEffect(() => {
-    if (me && progress.length === 0 && me.steps?.length > 0) {
-       setProgress(me.steps);
-    }
-    if (me && errors === 0 && (me.errors || 0) > 0) {
-       setErrors(me.errors);
-    }
-  }, [me]);
-  const [solved, setSolved] = useState(false);
-  const [flash, setFlash] = useState(null);
-  const [solvedPuzzle, setSolvedPuzzle] = useState(null);
-  const lastErrSync = useRef(0);
-  const [usedIndices, setUsedIndices] = useState([]);
-  const discoveredCompoundInfo = useMemo(() => {
-    const targetPuzzle = solvedPuzzle || puzzle;
-    if (!targetPuzzle) return null;
+    useEffect(() => {
+      if (me && progress.length === 0 && me.steps?.length > 0) {
+        setProgress(me.steps);
+      }
+      if (me && errors === 0 && (me.errors || 0) > 0) {
+        setErrors(me.errors);
+      }
+    }, [me]);
+    const [solved, setSolved] = useState(false);
+    const [flash, setFlash] = useState(null);
+    const lastErrSync = useRef(0);
+    const [usedIndices, setUsedIndices] = useState([]);
 
-    const targetNameMap = {
-      "Salt": "Sodium Chloride"
-    };
-    const lookupName = targetNameMap[targetPuzzle.targetName] || targetPuzzle.targetName;
-
-    const elementsArray = Array.isArray(compoundElements) ? compoundElements : (compoundElements.default || []);
-    const found = elementsArray.find(c => c.NAME?.toLowerCase() === lookupName.toLowerCase());
-
-    if (!found) {
-      return {
-        name: targetPuzzle.targetName,
-        symbol: targetPuzzle.target,
-        description: "A specialized molecular compound synthesized in the Elementopia laboratories.",
-        uses: "Various classified applications.",
-        elements: targetPuzzle.sequence?.join(", ") || "Unknown"
+    useEffect(() => {
+      if (!room.started_at) return;
+      const targetMs = new Date(room.started_at).getTime();
+      let raf = 0;
+      const tick = () => {
+        const offset = window.__serverTimeOffset || 0;
+        const currentMs = Date.now() + offset;
+        const remain = Math.max(0, targetMs - currentMs);
+        const secs = Math.ceil(remain / 1000);
+        setCountdownLeft(secs);
+        if (remain <= 0) setUnlocked(true);
+        else raf = requestAnimationFrame(tick);
       };
+      tick();
+      return () => cancelAnimationFrame(raf);
+    }, [room.started_at]);
+
+    // Reset on new match or next question
+    useEffect(() => {
+      setProgress([]);
+      setErrors(0);
+      setSolved(false);
+      setUsedIndices([]);
+      setShowDiscoveryModal(false);
+      setSolvedPuzzle(null);
+    }, [room.started_at, room.puzzle?.currentQuestionIndex]);
+
+
+    const teamA = players.filter((p) => p.team === "A");
+    const teamB = players.filter((p) => p.team === "B");
+    const myTeam = me?.team ?? null;
+    const oppTeam = myTeam === "A" ? "B" : "A";
+    const oppDoneCount = players.filter((p) => p.team === oppTeam && p.finished_at).length;
+    const oppSize = room.team_size;
+    const oppAllDone = oppDoneCount > 0 && oppDoneCount === oppSize;
+
+    // Lock if opponent team finished first
+    useEffect(() => {
+      if (oppAllDone && !solved) setUnlocked(false);
+    }, [oppAllDone, solved]);
+
+    if (!puzzle) {
+      return <section className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur"><p className="text-white/50">Loading puzzle data…</p></section>;
     }
 
-    return {
-      name: found.NAME,
-      symbol: found.Symbol,
-      description: found.Description,
-      uses: Array.isArray(found.Uses) ? found.Uses.join(", ") : found.Uses,
-      elements: Array.isArray(found.Elements) ? found.Elements.join(", ") : found.Elements
+    const targetSeq = puzzle.sequence;
+    const isSpectator = !me;
+
+    const handleTile = (sym, cardIndex) => {
+      if (!unlocked || solved || isSpectator || !me) return;
+      if (usedIndices.includes(cardIndex)) return;
+      const nextIndex = progress.length;
+      if (sym === targetSeq[nextIndex]) {
+        const np = [...progress, sym];
+        setProgress(np);
+        setUsedIndices((prev) => [...prev, cardIndex]);
+        setFlash("ok");
+        setTimeout(() => setFlash(null), 200);
+
+        // Sync step progress live to other players
+        bumpSteps(room.id, me.session_id, np.length).catch(() => { });
+
+        if (np.length === targetSeq.length) {
+          setSolved(true);
+          setUnlocked(false);
+          toast.success(`🎯 Synthesized ${puzzle.target}! Waiting for round referee...`);
+          submitSolved(room.id, me.session_id, np.length, errors).catch(console.error);
+        }
+      } else {
+        const ne = errors + 1;
+        setErrors(ne);
+        setFlash("err");
+        setTimeout(() => setFlash(null), 250);
+        const now = Date.now();
+        if (now - lastErrSync.current > 300) {
+          lastErrSync.current = now;
+          bumpErrors(room.id, me.session_id, ne).catch(() => { });
+        }
+      }
     };
-  }, [solvedPuzzle, puzzle]);
 
-  useEffect(() => {
-    if (!room.started_at) return;
-    const targetMs = new Date(room.started_at).getTime();
-    let raf = 0;
-    const tick = () => {
-      const offset = window.__serverTimeOffset || 0;
-      const currentMs = Date.now() + offset;
-      const remain = Math.max(0, targetMs - currentMs);
-      const secs = Math.ceil(remain / 1000);
-      setCountdownLeft(secs);
-      if (remain <= 0) setUnlocked(true);
-      else raf = requestAnimationFrame(tick);
-    };
-    tick();
-    return () => cancelAnimationFrame(raf);
-  }, [room.started_at]);
+    return (
+      <section className="space-y-4">
+        {/* Match HUD Scoreboard Header */}
+        <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur shadow-[0_0_30px_rgba(236,72,153,0.15)]">
+          <div className="text-left">
+            <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">ROUND</p>
+            <h3 className="text-lg font-bold text-white font-mono">
+              {room.puzzle?.questions ? `${room.puzzle.currentQuestionIndex + 1} of ${room.puzzle.maxQuestions}` : "1 of 1"}
+            </h3>
+            <p className="text-[9px] text-white/40 font-mono capitalize">Difficulty: {room.puzzle?.difficulty || "medium"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">TARGET COMPOUND</p>
+            <h2 className="text-2xl font-bold text-white text-glow-magenta">{puzzle.target}</h2>
+            <p className="text-[9px] text-white/40 font-mono">{puzzle.targetName} · {puzzle.optimalSteps} steps</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">SCOREBOARD</p>
+            <div className="flex justify-end items-center gap-2 mt-1">
+              <span className="h-2 w-2 rounded-full bg-[#a855f7] glow-[#a855f7]" />
+              <span className="text-base font-bold text-white font-mono">
+                {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}
+              </span>
+              <span className="h-2 w-2 rounded-full bg-[#ec4899] glow-[#ec4899]" />
+            </div>
+            <p className="text-[9px] text-white/40 font-mono">Team A vs Team B</p>
+          </div>
+        </div>
 
-  // Reset on new match or next question
-  useEffect(() => {
-    setProgress([]);
-    setErrors(0);
-    setSolved(false);
-    setUsedIndices([]);
-    setShowDiscoveryModal(false);
-    setSolvedPuzzle(null);
-  }, [room.started_at, room.puzzle?.currentQuestionIndex]);
+        {!unlocked && !solved && !oppAllDone && (
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur flex flex-col justify-center items-center">
+            <p className="text-xs uppercase tracking-widest text-white/50 font-mono tracking-[0.2em]">
+              {room.puzzle?.questions ? `PREPARING ROUND ${room.puzzle.currentQuestionIndex + 1}...` : "SYNCHRONIZING..."}
+            </p>
+            <div key={countdownLeft} className="mt-4 animate-countdown bg-gradient-primary bg-clip-text text-8xl font-bold text-transparent font-pixel">
+              {countdownLeft > 0 ? countdownLeft : "GO!"}
+            </div>
+            {room.puzzle?.currentQuestionIndex > 0 && (
+              <p className="text-sm text-victory font-mono mt-4 animate-pulse">
+                Current Standings: Team A ({room.puzzle.scores?.A}) - Team B ({room.puzzle.scores?.B})
+              </p>
+            )}
+          </div>
+        )}
+
+        {(unlocked || solved || oppAllDone) && (
+          <div className={`relative rounded-3xl border bg-black/40 p-4 backdrop-blur transition ${flash === "ok" ? "border-magenta shadow-glow" : flash === "err" ? "border-defeat" : "border-white/10"
+            }`}>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              {targetSeq.map((sym, i) => {
+                const filled = i < progress.length;
+                const info = elementInfo(sym);
+                return (
+                  <div key={i} className={`grid h-10 w-10 place-items-center rounded-xl border-2 font-mono font-bold transition ${filled ? "border-magenta bg-magenta/20 text-white" : "border-dashed border-white/20 text-white/30"
+                    }`}>
+                    {filled ? info.symbol : "?"}
+                  </div>
+                );
+              })}
+              <div className="ml-auto flex items-center gap-3 text-sm">
+                <span className="flex items-center gap-1 text-defeat"><X className="h-4 w-4" />{errors}</span>
+                <span className="flex items-center gap-1 text-victory"><Check className="h-4 w-4" />{progress.length}/{targetSeq.length}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-3">
+              {puzzle.inventory.map((sym, i) => {
+                const info = elementInfo(sym);
+                const isUsed = usedIndices.includes(i);
+                const disabled = !unlocked || solved || isSpectator || isUsed;
+                const themeColor = THEME_COLORS[i % 3];
+                return (
+                  <button
+                    key={i}
+                    disabled={disabled}
+                    onClick={() => handleTile(sym, i)}
+                    className={`group relative h-[100px] overflow-hidden rounded-2xl border p-2 text-left transition ${isUsed
+                      ? "border-white/5 bg-white/[0.02] opacity-20 cursor-not-allowed"
+                      : "border-white/10 bg-white/5 hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+                      }`}
+                  >
+                    <span className="relative z-10 block font-mono text-[10px] text-white/40">#{i + 1}</span>
+
+                    <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 grid place-items-center pointer-events-none transition-opacity ${isUsed ? "opacity-10" : "opacity-40 group-hover:opacity-100"}`}>
+                      <div className="scale-[0.8] origin-center flex items-center justify-center">
+                        <BohrAtomVisualizer symbol={sym} size="md" showNucleus={false} animated={!isUsed} themeColor={themeColor} />
+                      </div>
+                    </div>
+
+                    <span
+                      className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 font-display text-2xl font-bold ${isUsed ? "line-through opacity-30" : ""}`}
+                      style={{ color: isUsed ? "#64748b" : themeColor, textShadow: isUsed ? "none" : `0 0 10px ${themeColor}` }}
+                    >
+                      {info.symbol}
+                    </span>
+                    <span className="absolute bottom-2 right-2 z-10 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
+                  </button>
+                );
+              })}
+            </div>
 
 
-  const teamA = players.filter((p) => p.team === "A");
-  const teamB = players.filter((p) => p.team === "B");
-  const myTeam = me?.team ?? null;
-  const oppTeam = myTeam === "A" ? "B" : "A";
-  const oppDoneCount = players.filter((p) => p.team === oppTeam && p.finished_at).length;
-  const oppSize = room.team_size;
-  const oppAllDone = oppDoneCount > 0 && oppDoneCount === oppSize;
-
-  // Lock if opponent team finished first
-  useEffect(() => {
-    if (oppAllDone && !solved) setUnlocked(false);
-  }, [oppAllDone, solved]);
-
-  if (!puzzle) {
-    return <section className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur"><p className="text-white/50">Loading puzzle data…</p></section>;
+            {solved && !oppAllDone && (
+              <div className="mt-6 rounded-2xl bg-victory/15 border border-victory/30 p-4 text-center text-sm text-victory">
+                <Zap className="mr-2 inline h-4 w-4" />
+                You finished — waiting for teammates…
+              </div>
+            )}
+            {oppAllDone && !solved && (
+              <div className="mt-6 rounded-2xl bg-defeat/15 border border-defeat/30 p-4 text-center text-sm text-defeat">
+                Opponent team finished first. Interface locked.
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    );
   }
 
-  const targetSeq = puzzle.sequence;
-  const isSpectator = !me;
+  /* ----------------------- RESULT ----------------------- */
+  function Result({ room, players, me, isHost }) {
+    const winning = room.winning_team;
+    const youWon = !!me && winning === me.team;
+    const draw = winning === "draw";
 
-  const handleTile = (sym, cardIndex) => {
-    if (!unlocked || solved || isSpectator || !me) return;
-    if (usedIndices.includes(cardIndex)) return;
-    const nextIndex = progress.length;
-    if (sym === targetSeq[nextIndex]) {
-      const np = [...progress, sym];
-      setProgress(np);
-      setUsedIndices((prev) => [...prev, cardIndex]);
-      setFlash("ok");
-      setTimeout(() => setFlash(null), 200);
+    const teamA = players.filter((p) => p.team === "A");
+    const teamB = players.filter((p) => p.team === "B");
 
-      // Sync step progress live to other players
-      bumpSteps(room.id, me.session_id, np.length).catch(() => {});
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [activeReviewIdx, setActiveReviewIdx] = useState(0);
 
-      if (np.length === targetSeq.length) {
-        setSolved(true);
-        setUnlocked(false);
-        setSolvedPuzzle(puzzle);
-        setShowDiscoveryModal(true);
-        submitSolved(room.id, me.session_id, np.length, errors).catch(console.error);
-      }
-    } else {
-      const ne = errors + 1;
-      setErrors(ne);
-      setFlash("err");
-      setTimeout(() => setFlash(null), 250);
-      const now = Date.now();
-      if (now - lastErrSync.current > 300) {
-        lastErrSync.current = now;
-        bumpErrors(room.id, me.session_id, ne).catch(() => { });
-      }
-    }
-  };
+    const [windowSize, setWindowSize] = useState({
+      width: typeof window !== 'undefined' ? window.innerWidth : 800,
+      height: typeof window !== 'undefined' ? window.innerHeight : 600,
+    });
 
-  return (
-    <section className="space-y-4">
-      {/* Match HUD Scoreboard Header */}
-      <div className="grid grid-cols-3 items-center rounded-3xl border border-white/10 bg-black/40 py-4 px-6 text-center backdrop-blur shadow-[0_0_30px_rgba(236,72,153,0.15)]">
-        <div className="text-left">
-          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">ROUND</p>
-          <h3 className="text-lg font-bold text-white font-mono">
-            {room.puzzle?.questions ? `${room.puzzle.currentQuestionIndex + 1} of ${room.puzzle.maxQuestions}` : "1 of 1"}
-          </h3>
-          <p className="text-[9px] text-white/40 font-mono capitalize">Difficulty: {room.puzzle?.difficulty || "medium"}</p>
+    useEffect(() => {
+      const handleResize = () => {
+        setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+      if (!me || !winning) return;
+      const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
+      const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
+
+      fetch(`${API_BASE_URL}/api/features/match-consolidation/record-result`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionNickname: me.nickname,
+          matchResult,
+          reactionPathEfficiency: efficiency
+        })
+      }).catch(console.error);
+    }, [me, winning, draw, youWon]);
+
+    // Map all compounds answered across rounds in this match
+    const matchQuestions = room.puzzle?.questions || [];
+    const reviewedCompounds = useMemo(() => {
+      return matchQuestions.map((q, idx) => {
+        const formula = q.target;
+        const comp = compoundElements.find(
+          (c) => c.Symbol.toLowerCase() === formula.toLowerCase() || c.NAME.toLowerCase() === q.targetName?.toLowerCase()
+        );
+        return {
+          round: idx + 1,
+          name: comp?.NAME || q.targetName,
+          symbol: comp?.Symbol || q.target,
+          bondType: comp?.BondType || "Covalent Bond",
+          description: comp?.Description || "Stable chemical compound formed under stoichiometric valence balance.",
+          uses: Array.isArray(comp?.Uses) ? comp.Uses.join(", ") : (comp?.Uses || "Essential biochemical and industrial applications."),
+          elements: comp?.Elements ? comp.Elements.join(", ") : q.sequence.join(", "),
+          realWorld: comp?.RealWorldApplication || "Demonstrates core octet rule and electron pairing in real-world environments."
+        };
+      });
+    }, [matchQuestions]);
+
+    const activeCompound = reviewedCompounds[activeReviewIdx] || reviewedCompounds[0];
+
+    return (
+      <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)] flex flex-col justify-center relative overflow-hidden">
+        {draw ? (
+          <>
+            <Minus className="mx-auto h-12 w-12 text-white/50" />
+            <h1 className="mt-4 text-4xl font-bold text-white font-pixel">Draw</h1>
+            <p className="mt-2 text-white/50">Equal points: {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}</p>
+          </>
+        ) : youWon ? (
+          <>
+            {youWon && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={300} />}
+            <Trophy className="mx-auto h-12 w-12 text-victory" />
+            <h1 className="mt-4 text-5xl font-bold text-victory font-pixel tracking-widest text-glow-victory">VICTORY</h1>
+            <p className="mt-2 text-white/50">Your team won the match {room.puzzle?.scores ? `(${room.puzzle.scores[me.team]} to ${room.puzzle.scores[me.team === "A" ? "B" : "A"]})` : ""}!</p>
+          </>
+        ) : winning ? (
+          <>
+            <Frown className="mx-auto h-12 w-12 text-defeat" />
+            <h1 className="mt-4 text-5xl font-bold text-defeat font-pixel tracking-widest text-glow-yellow">DEFEAT</h1>
+            <p className="mt-2 text-white/50">Team {winning} won the match {room.puzzle?.scores ? `(${room.puzzle.scores[winning]} to ${room.puzzle.scores[winning === "A" ? "B" : "A"]})` : ""}!</p>
+          </>
+        ) : (
+          <h1 className="text-2xl text-white">Match ended.</h1>
+        )}
+
+        <div className="mx-auto mt-8 grid max-w-3xl gap-4 md:grid-cols-2">
+          <TeamStats label="Team A" players={teamA} startedAt={room.started_at} winner={winning === "A"} />
+          <TeamStats label="Team B" players={teamB} startedAt={room.started_at} winner={winning === "B"} />
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">TARGET COMPOUND</p>
-          <h2 className="text-2xl font-bold text-white text-glow-magenta">{puzzle.target}</h2>
-          <p className="text-[9px] text-white/40 font-mono">{puzzle.targetName} · {puzzle.optimalSteps} steps</p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">SCOREBOARD</p>
-          <div className="flex justify-end items-center gap-2 mt-1">
-            <span className="h-2 w-2 rounded-full bg-[#a855f7] glow-[#a855f7]" />
-            <span className="text-base font-bold text-white font-mono">
-              {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}
-            </span>
-            <span className="h-2 w-2 rounded-full bg-[#ec4899] glow-[#ec4899]" />
-          </div>
-          <p className="text-[9px] text-white/40 font-mono">Team A vs Team B</p>
-        </div>
-      </div>
 
-      {!unlocked && !solved && !oppAllDone && (
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-12 text-center backdrop-blur flex flex-col justify-center items-center">
-          <p className="text-xs uppercase tracking-widest text-white/50 font-mono tracking-[0.2em]">
-            {room.puzzle?.questions ? `PREPARING ROUND ${room.puzzle.currentQuestionIndex + 1}...` : "SYNCHRONIZING..."}
-          </p>
-          <div key={countdownLeft} className="mt-4 animate-countdown bg-gradient-primary bg-clip-text text-8xl font-bold text-transparent font-pixel">
-            {countdownLeft > 0 ? countdownLeft : "GO!"}
-          </div>
-          {room.puzzle?.currentQuestionIndex > 0 && (
-            <p className="text-sm text-victory font-mono mt-4 animate-pulse">
-              Current Standings: Team A ({room.puzzle.scores?.A}) - Team B ({room.puzzle.scores?.B})
-            </p>
+        {/* Bottom Action Controls */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          {reviewedCompounds.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveReviewIdx(0);
+                setShowReviewModal(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-cyan/50 bg-cyan/10 hover:bg-cyan/20 px-8 py-3.5 font-mono font-bold text-xs sm:text-sm text-cyan shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:scale-105 cursor-pointer uppercase tracking-wider"
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Review Match Discoveries ({reviewedCompounds.length})</span>
+            </button>
+          )}
+
+          {isHost && (
+            <button
+              onClick={() => returnToLobby(room.code)}
+              className="inline-block rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-8 py-3.5 font-mono font-bold text-xs sm:text-sm text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all hover:scale-105 uppercase tracking-wider cursor-pointer"
+            >
+              Back to lobby
+            </button>
           )}
         </div>
-      )}
 
-      {(unlocked || solved || oppAllDone) && (
-        <div className={`relative rounded-3xl border bg-black/40 p-4 backdrop-blur transition ${flash === "ok" ? "border-magenta shadow-glow" : flash === "err" ? "border-defeat" : "border-white/10"
-          }`}>
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            {targetSeq.map((sym, i) => {
-              const filled = i < progress.length;
-              const info = elementInfo(sym);
-              return (
-                <div key={i} className={`grid h-10 w-10 place-items-center rounded-xl border-2 font-mono font-bold transition ${filled ? "border-magenta bg-magenta/20 text-white" : "border-dashed border-white/20 text-white/30"
-                  }`}>
-                  {filled ? info.symbol : "?"}
+        {/* Post-Match Discoveries Review Modal */}
+        <Modal open={showReviewModal} onClose={() => setShowReviewModal(false)}>
+          <div className="elementopia-scope fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onClick={() => setShowReviewModal(false)} />
+            <div className="relative w-full max-w-2xl rounded-3xl border border-cyan/40 bg-slate-950/95 p-6 sm:p-8 shadow-[0_0_50px_rgba(6,182,212,0.25)] max-h-[92vh] overflow-y-auto text-left z-10">
+
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-cyan/20 text-cyan border border-cyan/40">
+                    <Atom className="w-5 h-5 text-cyan" />
+                  </div>
+                  <div>
+                    <span className="font-mono text-[10px] text-cyan uppercase tracking-widest block">Match Laboratory Debrief</span>
+                    <h3 className="font-pixel text-lg sm:text-xl font-bold text-white">Synthesized Compounds Review</h3>
+                  </div>
                 </div>
-              );
-            })}
-            <div className="ml-auto flex items-center gap-3 text-sm">
-              <span className="flex items-center gap-1 text-defeat"><X className="h-4 w-4" />{errors}</span>
-              <span className="flex items-center gap-1 text-victory"><Check className="h-4 w-4" />{progress.length}/{targetSeq.length}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-3">
-            {puzzle.inventory.map((sym, i) => {
-              const info = elementInfo(sym);
-              const isUsed = usedIndices.includes(i);
-              const disabled = !unlocked || solved || isSpectator || isUsed;
-              const themeColor = THEME_COLORS[i % 3];
-              return (
                 <button
-                  key={i}
-                  disabled={disabled}
-                  onClick={() => handleTile(sym, i)}
-                  className={`group relative h-[100px] overflow-hidden rounded-2xl border p-2 text-left transition ${isUsed
-                    ? "border-white/5 bg-white/[0.02] opacity-20 cursor-not-allowed"
-                    : "border-white/10 bg-white/5 hover:-translate-y-1 hover:border-magenta disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
-                    }`}
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
                 >
-                  <span className="relative z-10 block font-mono text-[10px] text-white/40">#{i + 1}</span>
-                  
-                  <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 grid place-items-center pointer-events-none transition-opacity ${isUsed ? "opacity-10" : "opacity-40 group-hover:opacity-100"}`}>
-                    <div className="scale-[0.8] origin-center flex items-center justify-center">
-                      <BohrAtomVisualizer symbol={sym} size="md" showNucleus={false} animated={!isUsed} themeColor={themeColor} />
-                    </div>
-                  </div>
-
-                  <span
-                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 font-display text-2xl font-bold ${isUsed ? "line-through opacity-30" : ""}`}
-                    style={{ color: isUsed ? "#64748b" : themeColor, textShadow: isUsed ? "none" : `0 0 10px ${themeColor}` }}
-                  >
-                    {info.symbol}
-                  </span>
-                  <span className="absolute bottom-2 right-2 z-10 text-[9px] uppercase tracking-wider text-white/40">{info.name}</span>
+                  <X className="w-5 h-5" />
                 </button>
-              );
-            })}
-          </div>
-
-
-          {solved && !oppAllDone && (
-            <div className="mt-6 rounded-2xl bg-victory/15 border border-victory/30 p-4 text-center text-sm text-victory">
-              <Zap className="mr-2 inline h-4 w-4" />
-              You finished — waiting for teammates…
-            </div>
-          )}
-          {oppAllDone && !solved && (
-            <div className="mt-6 rounded-2xl bg-defeat/15 border border-defeat/30 p-4 text-center text-sm text-defeat">
-              Opponent team finished first. Interface locked.
-            </div>
-          )}
-        </div>
-      )}
-
-      <Modal
-        open={showDiscoveryModal}
-        onClose={() => {
-          setShowDiscoveryModal(false);
-          setSolvedPuzzle(null);
-        }}
-      >
-        <div
-          className="elementopia-scope absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] max-w-[95vw] max-h-[90vh] outline-none focus:outline-none focus-visible:outline-none border-none ring-0 flex flex-col text-foreground"
-          style={{ minHeight: 'auto', background: 'transparent' }}
-        >
-          <div className="relative bg-[#0a0c14] border border-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col max-h-full">
-            <div className="flex-1 pr-2 text-left">
-              <div className="mb-6 inline-flex rounded-xl bg-gradient-cyan glow-cyan px-3 py-1 text-xs font-mono uppercase tracking-[0.25em] text-primary-foreground">
-                Laboratory Record
               </div>
-              <h2 className="font-pixel text-2xl font-bold sm:text-4xl text-glow-magenta mb-2">
-                {discoveredCompoundInfo?.name}
-              </h2>
-              <p className="mt-2 font-mono text-sm text-cyan mb-8">
-                Formula: {discoveredCompoundInfo?.symbol}
-              </p>
-              {discoveredCompoundInfo && (
-                <div className="space-y-6">
-                  <div className="text-sm text-muted-foreground/80 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar text-left">
-                    {discoveredCompoundInfo.description}
+
+              {/* Round Switcher Pills */}
+              <div className="flex flex-wrap gap-2 mb-5">
+                {reviewedCompounds.map((c, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveReviewIdx(i)}
+                    className={`px-3 py-1.5 rounded-xl border font-mono text-xs transition cursor-pointer flex items-center gap-1.5 ${i === activeReviewIdx
+                        ? "bg-cyan-500/25 border-cyan-400 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+                        : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                  >
+                    <span className="text-[10px] text-slate-400">R{c.round}:</span>
+                    <span className="font-bold text-cyan">{c.symbol}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Compound Details Card */}
+              {activeCompound && (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Compound Name & Formula</span>
+                      <h2 className="text-2xl font-bold text-white font-pixel text-glow-magenta">{activeCompound.name}</h2>
+                      <span className="font-mono text-cyan text-sm font-bold">{activeCompound.symbol}</span>
+                    </div>
+                    <span className="px-3 py-1 rounded-full border border-cyan/40 bg-cyan/10 font-mono text-xs text-cyan font-bold">
+                      {activeCompound.bondType}
+                    </span>
                   </div>
-                  <div className="border-t border-border pt-6 text-left">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-                          Primary Applications
-                        </h4>
-                        <p className="text-sm font-bold text-white/90">
-                          {discoveredCompoundInfo.uses}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
-                          Elemental Composition
-                        </h4>
-                        <p className="text-sm font-bold text-cyan">
-                          {discoveredCompoundInfo.elements}
-                        </p>
-                      </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3 font-mono text-xs">
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-1">Elemental Sequence:</span>
+                      <span className="text-cyan font-bold bg-black/50 px-3 py-1 rounded-lg border border-slate-800 inline-block">
+                        {activeCompound.elements}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-1">Chemical Characteristics:</span>
+                      <p className="text-slate-300 font-sans text-xs leading-relaxed">{activeCompound.description}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase tracking-wider mb-1">Primary Real-World Applications:</span>
+                      <p className="text-emerald-300 font-sans text-xs leading-relaxed">{activeCompound.uses}</p>
                     </div>
                   </div>
                 </div>
               )}
+
+              {/* Footer Close Button */}
+              <div className="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 font-mono text-xs uppercase tracking-wider transition cursor-pointer"
+                >
+                  Close Review
+                </button>
+              </div>
             </div>
-            <button
-              onClick={async () => {
-                setShowDiscoveryModal(false);
-                setSolvedPuzzle(null);
-                if (room.status === "active") {
-                  await advanceToNextRound(room.id);
-                }
-              }}
-              className="mt-8 w-full rounded-2xl bg-gradient-cyan px-6 py-4 font-mono text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-glow-cyan transition-all hover:scale-[1.02] hover:shadow-glow-cyan-lg"
-            >
-              Continue
-            </button>
           </div>
+        </Modal>
+      </section>
+    );
+  }
+
+  function TeamStats({ label, players, startedAt, winner }) {
+    const totalErr = players.reduce((s, p) => s + (p.errors ?? 0), 0);
+    return (
+      <div className={`rounded-2xl border p-5 text-left ${winner ? "border-magenta bg-magenta/10 shadow-glow" : "border-white/10 bg-white/5"}`}>
+        <div className="flex items-center justify-between">
+          <p className="text-xs uppercase tracking-widest text-white/50">{label}</p>
+          <span className="text-xs text-white/50">{totalErr} total errors</span>
         </div>
-      </Modal>
-    </section>
-  );
-}
-
-/* ----------------------- RESULT ----------------------- */
-function Result({ room, players, me, isHost }) {
-  const winning = room.winning_team;
-  const youWon = !!me && winning === me.team;
-  const draw = winning === "draw";
-
-  const teamA = players.filter((p) => p.team === "A");
-  const teamB = players.filter((p) => p.team === "B");
-
-  const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 800,
-    height: typeof window !== 'undefined' ? window.innerHeight : 600,
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (!me || !winning) return;
-    const matchResult = draw ? "DRAW" : youWon ? "WIN" : "LOSS";
-    const efficiency = Math.max(0, 100 - (me.errors || 0) * 5);
-
-    fetch(`${API_BASE_URL}/api/features/match-consolidation/record-result`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionNickname: me.nickname,
-        matchResult,
-        reactionPathEfficiency: efficiency
-      })
-    }).catch(console.error);
-  }, [me, winning, draw, youWon]);
-
-  return (
-    <section className="rounded-3xl border border-white/10 bg-black/40 p-10 text-center backdrop-blur md:p-14 shadow-[0_0_50px_rgba(236,72,153,0.15)] flex flex-col justify-center relative overflow-hidden">
-      {draw ? (
-        <>
-          <Minus className="mx-auto h-12 w-12 text-white/50" />
-          <h1 className="mt-4 text-4xl font-bold text-white font-pixel">Draw</h1>
-          <p className="mt-2 text-white/50">Equal points: {room.puzzle?.scores ? `${room.puzzle.scores.A} - ${room.puzzle.scores.B}` : "0 - 0"}</p>
-        </>
-      ) : youWon ? (
-        <>
-          {youWon && <Confetti width={windowSize.width} height={windowSize.height} recycle={false} numberOfPieces={300} />}
-          <Trophy className="mx-auto h-12 w-12 text-victory" />
-          <h1 className="mt-4 text-5xl font-bold text-victory font-pixel tracking-widest text-glow-victory">VICTORY</h1>
-          <p className="mt-2 text-white/50">Your team won the match {room.puzzle?.scores ? `(${room.puzzle.scores[me.team]} to ${room.puzzle.scores[me.team === "A" ? "B" : "A"]})` : ""}!</p>
-        </>
-      ) : winning ? (
-        <>
-          <Frown className="mx-auto h-12 w-12 text-defeat" />
-          <h1 className="mt-4 text-5xl font-bold text-defeat font-pixel tracking-widest text-glow-yellow">DEFEAT</h1>
-          <p className="mt-2 text-white/50">Team {winning} won the match {room.puzzle?.scores ? `(${room.puzzle.scores[winning]} to ${room.puzzle.scores[winning === "A" ? "B" : "A"]})` : ""}!</p>
-        </>
-      ) : (
-        <h1 className="text-2xl text-white">Match ended.</h1>
-      )}
-
-      <div className="mx-auto mt-8 grid max-w-3xl gap-4 md:grid-cols-2">
-        <TeamStats label="Team A" players={teamA} startedAt={room.started_at} winner={winning === "A"} />
-        <TeamStats label="Team B" players={teamB} startedAt={room.started_at} winner={winning === "B"} />
+        <ul className="mt-3 space-y-2">
+          {players.map((p) => {
+            const ms = p.finished_at && startedAt ? Math.max(0, new Date(p.finished_at).getTime() - new Date(startedAt).getTime()) : null;
+            return (
+              <li key={p.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white">
+                <span>{p.nickname}</span>
+                <span className="font-mono text-xs text-white/60">
+                  {ms != null ? `${(ms / 1000).toFixed(2)}s` : "—"} · {p.errors ?? 0} err
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-
-      {isHost && (
-        <button onClick={() => returnToLobby(room.code)} className="mt-10 inline-block rounded-full bg-gradient-to-br from-[#a855f7] to-[#ec4899] px-10 py-3 font-['Montserrat',sans-serif] font-[800] text-[0.9rem] text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] uppercase tracking-wider">
-          Back to lobby
-        </button>
-      )}
-    </section>
-  );
-}
-
-function TeamStats({ label, players, startedAt, winner }) {
-  const totalErr = players.reduce((s, p) => s + (p.errors ?? 0), 0);
-  return (
-    <div className={`rounded-2xl border p-5 text-left ${winner ? "border-magenta bg-magenta/10 shadow-glow" : "border-white/10 bg-white/5"}`}>
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-widest text-white/50">{label}</p>
-        <span className="text-xs text-white/50">{totalErr} total errors</span>
-      </div>
-      <ul className="mt-3 space-y-2">
-        {players.map((p) => {
-          const ms = p.finished_at && startedAt ? Math.max(0, new Date(p.finished_at).getTime() - new Date(startedAt).getTime()) : null;
-          return (
-            <li key={p.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white">
-              <span>{p.nickname}</span>
-              <span className="font-mono text-xs text-white/60">
-                {ms != null ? `${(ms / 1000).toFixed(2)}s` : "—"} · {p.errors ?? 0} err
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
+    );
+  }

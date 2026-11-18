@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import com.elementopia.backend.features.match_consolidation.ProficiencyRepository;
 import com.elementopia.backend.features.match_consolidation.StudentProficiencyEntity;
 

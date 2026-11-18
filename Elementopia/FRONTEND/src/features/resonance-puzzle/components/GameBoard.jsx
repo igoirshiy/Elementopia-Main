@@ -33,8 +33,6 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [stageClearPayload, setStageClearPayload] = useState(null);
   const [showTutorialModal, setShowTutorialModal] = useState(true);
-  const [discoveryVideo, setDiscoveryVideo] = useState(null);
-  const [pendingClear, setPendingClear] = useState(null);
   const [inspectedElement, setInspectedElement] = useState(null);
   const [identifiedTarget, setIdentifiedTarget] = useState(null);
   const [wrongChoiceClicked, setWrongChoiceClicked] = useState(null);
@@ -278,10 +276,6 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
               };
               DiscoveryService.createDiscovery(userId, discoveryData).catch(e => console.warn("Discovery save failed:", e));
             }).catch(e => console.warn("Failed to get user:", e));
-
-            if (matchedCompound.localVideo) {
-              setDiscoveryVideo(matchedCompound);
-            }
           }
 
           setConsecutiveFailures(0);
@@ -327,11 +321,7 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                 compoundCount: allDomainCompounds.length
               };
 
-              if (matchedCompound?.localVideo) {
-                setPendingClear(clearPayload);
-              } else {
-                setTimeout(() => onCleared(clearPayload), 1500);
-              }
+              setTimeout(() => onCleared(clearPayload), 1200);
             }
           }
 
@@ -391,14 +381,6 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const accuracy = attempts === 0 ? 0 : Math.round((correct / attempts) * 100);
   const progressPct = (solved.length / requiredOrder.length) * 100;
-
-  const handleCloseDiscoveryVideo = () => {
-    setDiscoveryVideo(null);
-    if (pendingClear) {
-      onCleared(pendingClear);
-      setPendingClear(null);
-    }
-  };
 
   return (
     <div className="mx-auto grid max-w-[1600px] gap-3 px-2 sm:px-4 py-2.5 lg:grid-cols-[260px_1fr_270px] items-start">
@@ -905,45 +887,6 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             onExit();
           }}
         />
-      )}
-
-
-
-      {discoveryVideo && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-4xl bg-slate-950 border border-cyan/50 rounded-3xl shadow-[0_0_60px_rgba(6,182,212,0.4)] overflow-hidden">
-            <div className="p-5 border-b border-slate-800/80 flex justify-between items-center bg-slate-900/40">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-cyan animate-pulse" />
-                <h3 className="font-pixel text-2xl text-white tracking-wider">{discoveryVideo.name} Synthesized!</h3>
-              </div>
-              <button onClick={handleCloseDiscoveryVideo} className="text-slate-400 hover:text-white transition bg-slate-800/50 hover:bg-slate-700 p-2 rounded-xl">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="relative aspect-video bg-black flex items-center justify-center">
-              <video
-                key={discoveryVideo.localVideo}
-                src={discoveryVideo.localVideo}
-                controls
-                autoPlay
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-contain"
-              />
-            </div>
-            <div className="p-5 bg-slate-900/60 flex justify-between items-center border-t border-slate-800/80">
-              <div className="text-sm font-mono text-cyan/70">
-                Educational Broadcast • {discoveryVideo.formula}
-              </div>
-              <button
-                onClick={handleCloseDiscoveryVideo}
-                className="px-8 py-3 bg-gradient-to-r from-cyan to-blue-500 text-white font-bold font-mono text-sm rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(6,182,212,0.5)] uppercase tracking-wider"
-              >
-                Got It
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

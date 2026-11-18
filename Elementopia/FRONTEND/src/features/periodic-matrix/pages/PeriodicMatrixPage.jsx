@@ -11,17 +11,48 @@ export function PeriodicMatrixPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedElement, setSelectedElement] = useState(null);
 
-  // Filter elements by family and search query
+  // Filter elements by family and search query with high-precision chemistry matching
   const isElementVisible = (el) => {
     if (!el) return false;
     const matchesFamily = activeFamily === "all" || el.family === activeFamily;
+    if (!searchQuery.trim()) return matchesFamily;
+
     const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      el.symbol.toLowerCase().includes(q) ||
-      el.name.toLowerCase().includes(q) ||
-      el.num.toString() === q;
-    return matchesFamily && matchesSearch;
+    const cleanNum = q.replace(/^#/, "").trim();
+
+    // 1. Atomic number match (e.g. "6", "#6", "118")
+    if (/^\d+$/.test(cleanNum)) {
+      return matchesFamily && el.num.toString() === cleanNum;
+    }
+
+    const sym = el.symbol.toLowerCase();
+    const name = el.name.toLowerCase();
+
+    // 2. Exact symbol match (e.g. "c" -> C, "fe" -> Fe, "na" -> Na, "he" -> He)
+    if (sym === q) {
+      return matchesFamily;
+    }
+
+    // 3. For 1-character query (e.g. "c", "h", "o", "n", "f", "k", "s", "p", "b", "i", "u", "v", "y", "w")
+    // Only match elements whose symbol or name begins with that letter.
+    // Prevents typing 'c' from highlighting Silicon, Nickel, Zinc, Lutetium, etc.
+    if (q.length === 1) {
+      const matches = sym.startsWith(q) || name.startsWith(q);
+      return matchesFamily && matches;
+    }
+
+    // 4. For 2-character query (e.g. "fe", "he", "na", "cl", "mg", "al", "si", "ca", "ti", "in")
+    // Match if symbol starts with query (exact symbol caught in #2) or name starts with query.
+    // Prevents typing 'in' from highlighting Platinum, Einsteinium, Nobelium, etc.
+    if (q.length === 2) {
+      const matches = sym.startsWith(q) || name.startsWith(q);
+      return matchesFamily && matches;
+    }
+
+    // 5. For 3+ characters:
+    // Match if symbol starts with query or element name contains query (e.g. "iron", "gold", "silver", "potassium")
+    const matches = sym.startsWith(q) || name.includes(q);
+    return matchesFamily && matches;
   };
 
   // 7 Periods x 18 Groups for main table grid

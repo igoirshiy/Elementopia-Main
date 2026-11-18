@@ -82,10 +82,12 @@ export function NicknameGate({ onSubmit }) {
         >
           <span className="text-[16px] font-bold pb-[2px]">&times;</span>
         </button>
-        <div className="mb-8 flex justify-center">
-          <h2 className="font-pixel text-xl sm:text-2xl font-bold uppercase tracking-wider text-[#ec4899] text-center drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]">
-            ELEMENTOPIA
-          </h2>
+        <div className="mb-6 flex justify-center">
+          <img
+            src="/header-logo.png"
+            alt="Elementopia"
+            className="h-14 sm:h-18 w-auto object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.8)]"
+          />
         </div>
         <p className="mb-8 font-['Montserrat',sans-serif] text-[0.95rem] leading-[1.6] text-white/65 text-justify">
           Enter a nickname to begin your chemical journey and track your mastery.

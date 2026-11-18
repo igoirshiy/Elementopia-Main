@@ -6,7 +6,9 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_discoveries")
+@Table(name = "user_discoveries", indexes = {
+    @Index(name = "idx_user_discoveries_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 public class UserDiscovery {
