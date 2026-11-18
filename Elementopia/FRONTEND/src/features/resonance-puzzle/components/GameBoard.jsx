@@ -241,6 +241,9 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
       switch (data.action) {
         case "UNLOCK_PATH": {
+          const targetToMatch = identifiedTarget || currentTarget;
+          const matchedCompound = matchCompound(workbench, domain, currentStage);
+
           if (!isCompoundInCurrentStage(workbench, domain, currentStage)) {
             const matchedAnywhere = matchCompound(workbench, domain, currentStage);
             const name = matchedAnywhere ? `${matchedAnywhere.name} (${matchedAnywhere.formula})` : elementList.join("");
@@ -253,13 +256,24 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
             break;
           }
 
+          // STRICT CHECK: The chosen compound and synthesized compound must be identical!
+          if (targetToMatch && matchedCompound && matchedCompound.formula !== targetToMatch.formula) {
+            setByproduct(`Dr. Atom: You chose ${targetToMatch.name} (${targetToMatch.formula}), but you assembled ${matchedCompound.name} (${matchedCompound.formula})! The chosen compound and synthesized compound must be the same. Please assemble ${targetToMatch.name}.`);
+            break;
+          }
+
+          if (targetToMatch && (!matchedCompound || matchedCompound.formula !== targetToMatch.formula)) {
+            setByproduct(`Dr. Atom: This combination does not form your chosen target ${targetToMatch.name} (${targetToMatch.formula}). Check the required elements and valence electron slots!`);
+            break;
+          }
+
           const newSolved = [...solved, sortedElementsStr];
           const newCorrect = correct + 1;
 
           setSolved(newSolved);
           setCorrect(newCorrect);
+          setIdentifiedTarget(null);
 
-          const matchedCompound = matchCompound(workbench, domain, currentStage);
           const displayName = matchedCompound ? `${matchedCompound.name} (${matchedCompound.formula})` : elementList.join(" + ");
           setSynthLog(l => [`✓ Resonance Achieved: ${displayName}`, ...l].slice(0, 12));
 
@@ -612,22 +626,36 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
                       const isSolved = solved.includes(reqKey);
 
                       return (
-                        <div
+                        <button
                           key={idx}
-                          className={`flex items-center justify-between p-1.5 rounded-lg text-xs font-sans ${
+                          type="button"
+                          disabled={isSolved}
+                          onClick={() => {
+                            if (!isSolved) {
+                              setIdentifiedTarget(req);
+                              setByproduct(null);
+                            }
+                          }}
+                          className={`flex items-center justify-between p-1.5 rounded-lg text-xs font-sans transition text-left w-full ${
                             isSolved
-                              ? "bg-emerald-950/30 border border-emerald-500/40 text-emerald-300"
-                              : "bg-slate-950/60 border border-slate-800/80 text-slate-400"
+                              ? "bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 opacity-80 cursor-default"
+                              : identifiedTarget?.name === req.name
+                              ? "bg-cyan/20 border border-cyan text-white shadow-[0_0_8px_rgba(6,182,212,0.3)] cursor-pointer"
+                              : "bg-slate-950/60 border border-slate-800/80 text-slate-400 hover:border-cyan/50 hover:text-slate-100 cursor-pointer"
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            {isSolved ? <CheckCircle2 className="size-3.5 text-emerald-400" /> : <span className="text-[10px] font-mono text-slate-500">#{idx + 1}</span>}
+                            {isSolved ? (
+                              <CheckCircle2 className="size-3.5 text-emerald-400" />
+                            ) : (
+                              <span className="text-[10px] font-mono text-cyan font-bold">#{idx + 1}</span>
+                            )}
                             <span className="font-pixel text-xs">{req.name}</span>
                           </div>
                           <span className="font-mono text-[10px] font-bold">
                             {isSolved ? `${req.formula} ✓` : Object.keys(req.recipe).join(" + ")}
                           </span>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>

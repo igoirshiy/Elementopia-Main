@@ -49,38 +49,11 @@ export function StageTransitionModal({ currentStage, maxStages, domain, nextStag
             {/* 1. Full-Width Doctor Atom Debrief */}
             <DoctorAtomAssistant
               title={`Doctor Atom · Stage ${currentStage} Debrief`}
-              message={`Outstanding reasoning! You have successfully mastered Stage ${currentStage} of ${domain?.name}. Here is what you achieved:`}
+              message={`Outstanding reasoning! You have successfully completed Stage ${currentStage} of ${domain?.name}. Review your next mission directive below:`}
               isTalking={true}
             />
 
-            {/* 2. Full-Width Masteries Unlocked */}
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-              <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan uppercase mb-2">
-                <CheckCircle2 className="w-4 h-4 text-cyan" /> Stage {currentStage} Masteries Unlocked
-              </div>
-              <ul className="text-xs sm:text-sm text-slate-200 space-y-1.5 font-mono list-disc list-inside">
-                {currentStage === 1 && (
-                  <>
-                    <li>Mastered 2-element binary electron sharing & octet balance</li>
-                    <li>Deducted valence electron ratios for neutral molecules</li>
-                  </>
-                )}
-                {currentStage === 2 && (
-                  <>
-                    <li>Mastered 3-element ternary bonding & multiple shared electron pairs</li>
-                    <li>Deducted balance rules for polyatomic ion structures</li>
-                  </>
-                )}
-                {currentStage === 3 && (
-                  <>
-                    <li>Mastered 3-to-4 element polyatomic macromolecular backbones</li>
-                    <li>Achieved complete domain resonance across all complex compounds</li>
-                  </>
-                )}
-              </ul>
-            </div>
-
-            {/* 3. Bottom Row: 2-Column Split for Next Focus & Blueprint */}
+            {/* 2. Top Row: 2-Column Split for Next Focus & Blueprint (Swapped above completed objectives) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-stretch">
               {nextStageData && (
                 <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
@@ -115,6 +88,33 @@ export function StageTransitionModal({ currentStage, maxStages, domain, nextStag
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* 3. Full-Width Objectives Completed */}
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan uppercase mb-2">
+                <CheckCircle2 className="w-4 h-4 text-cyan" /> Stage {currentStage} Objectives Completed
+              </div>
+              <ul className="text-xs sm:text-sm text-slate-200 space-y-1.5 font-mono list-disc list-inside">
+                {currentStage === 1 && (
+                  <>
+                    <li>Completed 2-element binary electron sharing & octet balance</li>
+                    <li>Deducted valence electron ratios for neutral molecules</li>
+                  </>
+                )}
+                {currentStage === 2 && (
+                  <>
+                    <li>Completed 3-element ternary bonding & multiple shared electron pairs</li>
+                    <li>Deducted balance rules for polyatomic ion structures</li>
+                  </>
+                )}
+                {currentStage === 3 && (
+                  <>
+                    <li>Completed 3-to-4 element polyatomic macromolecular backbones</li>
+                    <li>Achieved complete domain resonance across all complex compounds</li>
+                  </>
+                )}
+              </ul>
             </div>
           </div>
         </div>

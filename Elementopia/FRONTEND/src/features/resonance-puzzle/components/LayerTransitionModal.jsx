@@ -10,11 +10,11 @@ const DOMAIN_LAYER_BRIEFINGS = {
     },
     2: {
       title: "Deep Water Barrier Dissolved!",
-      message: "You've mastered peroxide covalent bonds!\n\n💡 Next Mission: Enter the Cavern Core where Nitrogen & Hydrogen combine to form Ammonia (NH₃).",
+      message: "You've completed peroxide covalent bonds!\n\n💡 Next Mission: Enter the Cavern Core where Nitrogen & Hydrogen combine to form Ammonia (NH₃).",
     },
     3: {
       title: "Water Cavern Core Cleared!",
-      message: "Covalent mastery achieved across all depth layers!",
+      message: "Covalent resonance completed across all depth layers!",
     }
   },
   salt: {
@@ -24,11 +24,11 @@ const DOMAIN_LAYER_BRIEFINGS = {
     },
     2: {
       title: "Alkali Barrier Dissolved!",
-      message: "Sodium Hydroxide mastered!\n\n💡 Next Mission: Descend to the Crystal Core to bond Magnesium with Chlorine (MgCl₂).",
+      message: "Sodium Hydroxide synthesis completed!\n\n💡 Next Mission: Descend to the Crystal Core to bond Magnesium with Chlorine (MgCl₂).",
     },
     3: {
       title: "Salt Flats Core Cleared!",
-      message: "Ionic lattice mastery achieved across all layers!",
+      message: "Ionic lattice resonance completed across all layers!",
     }
   },
   carbon: {
@@ -41,8 +41,8 @@ const DOMAIN_LAYER_BRIEFINGS = {
       message: "Methane synthesized!\n\n💡 Next Mission: Enter the Molten Core to synthesize complex Glucose (C₆H₁₂O₆).",
     },
     3: {
-      title: "Carbon Forge Core Mastered!",
-      message: "Organic carbon backbone mastery achieved!",
+      title: "Carbon Forge Core Completed!",
+      message: "Organic carbon backbone resonance completed!",
     }
   }
 };
