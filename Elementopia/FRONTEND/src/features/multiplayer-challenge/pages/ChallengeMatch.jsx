@@ -5,7 +5,6 @@ import { Modal } from "@mui/material";
 import compoundElements from "@/features/resonance-puzzle/data/compound-elements.json";
 import { getSessionId } from "@/features/auth-user/lib/session";
 import {
-  advanceToNextRound,
   bumpErrors,
   bumpSteps,
   returnToLobby,
@@ -103,7 +102,9 @@ export default function ChallengeMatch() {
             event: "heartbeat",
             payload: { sessionId, team: me.team }
           });
-        } catch (e) { }
+        } catch {
+          // Ignore heartbeat send errors
+        }
       }
     }, 3000);
 
@@ -400,12 +401,8 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
       setErrors(0);
       setSolved(false);
       setUsedIndices([]);
-      setSolvedPuzzle(null);
     }, [room.started_at, room.puzzle?.currentQuestionIndex]);
 
-
-    const teamA = players.filter((p) => p.team === "A");
-    const teamB = players.filter((p) => p.team === "B");
     const myTeam = me?.team ?? null;
     const oppTeam = myTeam === "A" ? "B" : "A";
     const oppDoneCount = players.filter((p) => p.team === oppTeam && p.finished_at).length;
