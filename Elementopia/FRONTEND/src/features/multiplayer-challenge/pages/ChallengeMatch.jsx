@@ -400,7 +400,6 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
       setErrors(0);
       setSolved(false);
       setUsedIndices([]);
-      setShowDiscoveryModal(false);
       setSolvedPuzzle(null);
     }, [room.started_at, room.puzzle?.currentQuestionIndex]);
 
