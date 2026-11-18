@@ -1,33 +1,40 @@
 package com.elementopia.backend.features.hazmat_failsafe;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Service
 public class SlidingWindowEvaluationService {
 
-    private final JdbcTemplate jdbcTemplate;
     private final FailsafeTelemetryService failsafeTelemetryService;
+    private final Map<String, Deque<Long>> recentFailures = new ConcurrentHashMap<>();
+    private static final long SLIDING_WINDOW_MS = 15_000L;
+    private static final int MAX_FAILURE_THRESHOLD = 5;
 
-    public SlidingWindowEvaluationService(JdbcTemplate jdbcTemplate,
-            FailsafeTelemetryService failsafeTelemetryService) {
-        this.jdbcTemplate = jdbcTemplate;
+    public SlidingWindowEvaluationService(FailsafeTelemetryService failsafeTelemetryService) {
         this.failsafeTelemetryService = failsafeTelemetryService;
     }
 
     public boolean evaluateAttempts(String nicknameWithTag) {
-        int slidingWindowSeconds = 15;
-        int maxFailureThreshold = 5;
+        if (nicknameWithTag == null || nicknameWithTag.trim().isEmpty()) {
+            return false;
+        }
 
-        LocalDateTime lookbackTime = LocalDateTime.now().minusSeconds(slidingWindowSeconds);
+        long now = System.currentTimeMillis();
+        long cutoff = now - SLIDING_WINDOW_MS;
 
-        String sql = "SELECT COUNT(*) FROM FAILED_ATTEMPT_LOG " +
-                "WHERE session_nickname = ? AND error_timestamp >= ?";
+        Deque<Long> queue = recentFailures.computeIfAbsent(nicknameWithTag, k -> new ConcurrentLinkedDeque<>());
+        queue.addLast(now);
 
-        Integer failedCount = jdbcTemplate.queryForObject(sql, Integer.class, nicknameWithTag, lookbackTime);
+        // Evict expired timestamps older than 15 seconds
+        while (!queue.isEmpty() && queue.peekFirst() < cutoff) {
+            queue.pollFirst();
+        }
 
-        if (failedCount != null && failedCount >= maxFailureThreshold) {
+        if (queue.size() >= MAX_FAILURE_THRESHOLD) {
             failsafeTelemetryService.logHazmatActivation(nicknameWithTag);
             return true;
         }
@@ -36,12 +43,8 @@ public class SlidingWindowEvaluationService {
     }
 
     public void clearFailedAttempts(String nicknameWithTag) {
-        try {
-            String sql = "DELETE FROM FAILED_ATTEMPT_LOG WHERE session_nickname = ?";
-            jdbcTemplate.update(sql, nicknameWithTag);
-        } catch (Exception e) {
-            System.err.println("Could not reset failed attempt log: " + e.getMessage());
+        if (nicknameWithTag != null) {
+            recentFailures.remove(nicknameWithTag);
         }
     }
-
 }

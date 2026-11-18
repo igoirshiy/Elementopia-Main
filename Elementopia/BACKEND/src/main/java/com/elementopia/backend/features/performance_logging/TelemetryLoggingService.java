@@ -1,5 +1,6 @@
 package com.elementopia.backend.features.performance_logging;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -14,6 +15,7 @@ public class TelemetryLoggingService {
         this.repository = repository;
     }
 
+    @Async
     public void processAndPersistPayload(Map<String, Object> payloadDTO) {
         // Isolate internal database commit speeds from external client network latency
         long startTime = System.currentTimeMillis();

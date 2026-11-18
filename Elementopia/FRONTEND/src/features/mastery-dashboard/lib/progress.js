@@ -219,41 +219,64 @@ export async function upsertProgress(row) {
   saveProgress(p);
 
   if (row.completed) {
-    try {
-      fetch(`${API_BASE_URL}/api/features/analytics/session/log`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionNickname: p.nickname,
-          domainId: row.domain,
-          completionSpeedSeconds: row.time_seconds || 0,
-          compoundAccuracyPercentage: row.attempts ? (row.correct / row.attempts) * 100 : 0
-        })
-      }).catch(e => console.warn("Telemetry log failed:", e));
+    const roomId = DOMAINS.findIndex(d => d.id === row.domain) + 1;
+    const speed = row.time_seconds || 0;
+    const accuracy = row.attempts ? (row.correct / row.attempts) * 100 : 0;
 
-      const roomId = DOMAINS.findIndex(d => d.id === row.domain) + 1;
-      fetch(`${API_BASE_URL}/api/features/progression/log-reaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionNickname: p.nickname,
-          roomId: roomId,
-          correctReactionCount: row.correct || 3
-        })
-      }).catch(e => console.warn("Progression log failed:", e));
+    // Sequence telemetry & room progression smoothly via offline-resilient syncOrEnqueue
+    (async () => {
+      try {
+        // 1. Session Analytics Logging (FIFO protected)
+        await syncOrEnqueue({
+          type: "SESSION_ANALYTICS",
+          url: `${API_BASE_URL}/api/features/analytics/session/log`,
+          method: "POST",
+          payload: {
+            sessionNickname: p.nickname,
+            domainId: row.domain,
+            completionSpeedSeconds: speed,
+            compoundAccuracyPercentage: accuracy
+          }
+        });
 
-    } catch (e) {
-      console.warn("Telemetry/Progression sync failed", e);
-    }
+        // 2. Room Reaction Progression Unlock (FIFO protected)
+        await syncOrEnqueue({
+          type: "PROGRESSION_REACTION",
+          url: `${API_BASE_URL}/api/features/progression/log-reaction`,
+          method: "POST",
+          payload: {
+            sessionNickname: p.nickname,
+            roomId: roomId,
+            correctReactionCount: row.correct || 3
+          }
+        });
+      } catch (e) {
+        console.warn("[Progress] Sequential telemetry/progression sync error:", e);
+      }
+    })();
   }
 }
 
-export async function syncProgressToCloud(p) {
-  if (!p.nickname || p.nickname === "Guest Alchemist") return;
-  await syncOrEnqueue({
-    type: "PROGRESS_SYNC",
-    url: BASE_URL,
-    method: "POST",
-    payload: p
-  });
+let syncDebounceTimer = null;
+
+export function syncProgressToCloud(p, immediate = false) {
+  if (!p || !p.nickname || p.nickname === "Guest Alchemist") return;
+
+  const performSync = () => {
+    syncOrEnqueue({
+      type: "PROGRESS_SYNC",
+      url: BASE_URL,
+      method: "POST",
+      payload: p
+    });
+  };
+
+  if (immediate) {
+    if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+    performSync();
+    return;
+  }
+
+  if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(performSync, 400);
 }

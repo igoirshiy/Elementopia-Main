@@ -1,6 +1,7 @@
 package com.elementopia.backend.features.hazmat_failsafe;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,6 +17,7 @@ public class FailsafeTelemetryService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Async
     public void logHazmatActivation(String nicknameWithTag) {
         long startTime = System.currentTimeMillis();
 
