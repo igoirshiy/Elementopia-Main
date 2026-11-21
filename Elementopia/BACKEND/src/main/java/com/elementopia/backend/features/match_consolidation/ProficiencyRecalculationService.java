@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
 @Service
+@SuppressWarnings("null")
 public class ProficiencyRecalculationService {
 
     private static final Logger logger = Logger.getLogger(ProficiencyRecalculationService.class.getName());

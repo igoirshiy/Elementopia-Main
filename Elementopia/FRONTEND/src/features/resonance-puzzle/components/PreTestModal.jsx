@@ -126,7 +126,7 @@ export function PreTestModal({ nickname, onComplete, onCancel, existingData }) {
           if (error) console.warn('Supabase direct pretest insert:', error.message);
         });
       }
-    } catch (err) {
+    } catch {
       // Ignored if table does not exist or user is offline
     }
 

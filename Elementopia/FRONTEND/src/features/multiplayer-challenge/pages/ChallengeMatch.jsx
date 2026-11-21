@@ -372,7 +372,7 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
       if (me && errors === 0 && (me.errors || 0) > 0) {
         setErrors(me.errors);
       }
-    }, [me]);
+    }, [me, errors, progress.length]);
     const [solved, setSolved] = useState(false);
     const [flash, setFlash] = useState(null);
     const lastErrSync = useRef(0);
@@ -615,8 +615,8 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
     }, [me, winning, draw, youWon]);
 
     // Map all compounds answered across rounds in this match
-    const matchQuestions = room.puzzle?.questions || [];
     const reviewedCompounds = useMemo(() => {
+      const matchQuestions = room.puzzle?.questions || [];
       return matchQuestions.map((q, idx) => {
         const formula = q.target;
         const comp = compoundElements.find(
@@ -633,7 +633,7 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
           realWorld: comp?.RealWorldApplication || "Demonstrates core octet rule and electron pairing in real-world environments."
         };
       });
-    }, [matchQuestions]);
+    }, [room.puzzle?.questions]);
 
     const activeCompound = reviewedCompounds[activeReviewIdx] || reviewedCompounds[0];
 

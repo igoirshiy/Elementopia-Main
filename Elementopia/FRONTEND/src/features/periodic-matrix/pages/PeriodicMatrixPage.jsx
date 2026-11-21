@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { SiteHeader } from "@/components/common/SiteHeader";
-import { ELEMENTS_DATA, getFamilyClasses } from "@/features/dr-atom-workshop";
+import { ELEMENTS_DATA } from "@/features/dr-atom-workshop";
 import { ElementTile } from "../components/ElementTile";
 import { FamilyFilterBar } from "../components/FamilyFilterBar";
 import { ElementModal } from "../components/ElementModal";

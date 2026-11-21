@@ -46,7 +46,9 @@ export default function ElementopiaGame() {
       try {
         const userStr = localStorage.getItem("elementopia_current_user");
         if (userStr) localUser = JSON.parse(userStr);
-      } catch (e) { }
+      } catch {
+        // Ignore local storage error
+      }
 
       const nick = localUser?.username;
       if (nick && nick !== "Guest" && nick !== "Guest Alchemist") {

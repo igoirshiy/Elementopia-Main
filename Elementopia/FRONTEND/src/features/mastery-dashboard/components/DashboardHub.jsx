@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Lock, Trophy, AlertCircle, Clock, FlaskConical, RotateCcw, ArrowRight, Play, Sparkles } from "lucide-react";
 import { DOMAINS } from "@/features/resonance-puzzle/lib/game-data";
 import { loadProgress, fetchProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -73,20 +73,24 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
     }
   }, [propRows]);
 
-  const reloadData = async () => {
+  const reloadData = useCallback(async () => {
     setIsRefreshing(true);
     let localUser = null;
     try {
       const userStr = localStorage.getItem("elementopia_current_user");
       if (userStr) localUser = JSON.parse(userStr);
-    } catch (e) { }
+    } catch {
+      // Ignore corrupted local storage
+    }
 
     const nick = propNickname || localUser?.username || progress.nickname;
 
     try {
       const stored = localStorage.getItem(`elementopia_pretest_${nick || 'guest'}`);
       if (stored) setPretestData(JSON.parse(stored));
-    } catch (e) { }
+    } catch {
+      // Ignore corrupted local storage
+    }
 
     if (nick && nick !== "Guest Alchemist") {
       try {
@@ -110,7 +114,7 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
       setProgress(loadProgress());
     }
     setIsRefreshing(false);
-  };
+  }, [propNickname, progress.nickname, propRows]);
 
   useEffect(() => {
     void reloadData();
@@ -125,7 +129,7 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
       window.removeEventListener("elementopia:user-changed", h);
       window.removeEventListener("focus", h);
     };
-  }, [propNickname]);
+  }, [reloadData]);
 
   const handleNicknameSubmit = async (nickname) => {
     await UserService.loginUser(nickname, "guest");
@@ -139,7 +143,9 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
         const map = new Map(data.metrics.map(m => [m.domainName, m]));
         setCloudMetrics(map);
       }
-    }).catch(() => { });
+    }).catch(() => {
+      // Ignore offline metrics error
+    });
 
     if (onRefresh) onRefresh();
     window.dispatchEvent(new CustomEvent("elementopia:user-changed", { detail: { username: nickname } }));
@@ -152,7 +158,9 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
       } else {
         setShowPreTest(true);
       }
-    } catch { }
+    } catch {
+      // Ignore local storage error
+    }
   };
 
   useEffect(() => {
@@ -161,7 +169,9 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
       try {
         const userStr = localStorage.getItem("elementopia_current_user");
         if (userStr) localUser = JSON.parse(userStr);
-      } catch { }
+      } catch {
+        // Ignore local storage error
+      }
       const nick = localUser?.username || progress.nickname;
       if (nick && nick !== "Guest Alchemist") {
         try {
@@ -171,7 +181,9 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
           } else {
             setShowPreTest(true);
           }
-        } catch { }
+        } catch {
+          // Ignore local storage error
+        }
       }
     }
   }, [showNicknameGate, progress.nickname]);
@@ -188,7 +200,9 @@ export function DashboardHub({ onPlayDomain, nickname: propNickname, rows: propR
   try {
     const userStr = localStorage.getItem("elementopia_current_user");
     if (userStr) localUser = JSON.parse(userStr);
-  } catch (e) { }
+  } catch {
+    // Ignore corrupted local storage
+  }
 
   const displayName = localUser?.username && localUser.username !== "Guest Alchemist"
     ? localUser.username

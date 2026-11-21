@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/discoveries")
+@SuppressWarnings("null")
 public class UserDiscoveryController {
 
     private final UserDiscoveryRepository discoveryRepository;

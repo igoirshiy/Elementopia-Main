@@ -1,6 +1,7 @@
 package com.elementopia.backend.features.realtime_sync;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -11,7 +12,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
+    public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         // "/topic" is the prefix for broadcasting messages back to the React clients
         config.enableSimpleBroker("/topic");
 
@@ -20,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
+    public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         // The initial handshake endpoint your React app connects to
         registry.addEndpoint("/api/ws/matchmaking")
                 .setAllowedOriginPatterns("*") // Prevents CORS blocks during the WebSocket handshake

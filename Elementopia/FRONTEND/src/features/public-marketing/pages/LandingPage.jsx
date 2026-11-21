@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import '@/assets/styles/legacy/landing-page.css';
 import '@/assets/styles/global/elementopia.css';
 import { useNavigate } from "react-router-dom";

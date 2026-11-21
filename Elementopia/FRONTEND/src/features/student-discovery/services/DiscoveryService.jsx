@@ -180,7 +180,7 @@ const DiscoveryService = {
             }
           }
         }
-      } catch (e) {
+      } catch {
         console.warn("Backend offline; discovery safely preserved in local storage.");
       }
     }

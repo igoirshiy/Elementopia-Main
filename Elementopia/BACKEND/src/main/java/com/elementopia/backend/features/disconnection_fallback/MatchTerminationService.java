@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
+@SuppressWarnings("null")
 public class MatchTerminationService {
 
     private static final Logger logger = Logger.getLogger(MatchTerminationService.class.getName());
