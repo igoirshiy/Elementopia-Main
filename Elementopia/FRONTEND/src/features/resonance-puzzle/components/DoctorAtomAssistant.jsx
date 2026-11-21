@@ -4,7 +4,6 @@ export function DoctorAtomAssistant({
     message,
     title = "Doctor Atom (Guide)",
     isTalking = true,
-    variant = "dialogue",
     className = ""
 }) {
     const avatarSrc = isTalking ? "/doctor_atom_talking.gif" : "/doctor_atom_idle.png";

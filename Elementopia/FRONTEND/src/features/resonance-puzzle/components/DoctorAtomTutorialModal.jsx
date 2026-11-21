@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BohrAtomVisualizer } from './BohrAtomVisualizer';
 import { Sparkles, CheckCircle2, ChevronRight, ChevronLeft, Lightbulb, Zap } from 'lucide-react';
 
-export function DoctorAtomTutorialModal({ domainId, currentStage, onClose }) {
+export function DoctorAtomTutorialModal({ domainId, onClose }) {
   const [step, setStep] = useState(1);
 
   // Dynamic 3-Step Interactive Bonding Tutorial based on Domain

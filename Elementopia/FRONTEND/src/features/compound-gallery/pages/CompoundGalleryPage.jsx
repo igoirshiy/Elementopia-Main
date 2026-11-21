@@ -95,7 +95,7 @@ export function CompoundGalleryPage() {
       if (isSingleChar) {
         const hasElement = elementsInRecipe.includes(q);
         const nameWordStarts = name
-          .split(/[\s&()\-]+/)
+          .split(/[\s&()-]+/)
           .some((w) => w.startsWith(q));
         return hasElement || nameWordStarts;
       }

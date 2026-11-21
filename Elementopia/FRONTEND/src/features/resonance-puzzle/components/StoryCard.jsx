@@ -6,7 +6,6 @@ export function StoryCard({ domain, currentStage = 1, onEnter, onCancel }) {
   const hasStages = Boolean(domain?.stages);
   const maxStages = hasStages ? Object.keys(domain.stages).length : 1;
   const activeStage = hasStages ? (domain.stages[currentStage] || domain.stages[1]) : domain;
-  const requiredCompounds = activeStage?.required || [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">

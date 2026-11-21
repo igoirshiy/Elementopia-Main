@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@SuppressWarnings("null")
 public class RoomManagerService {
 
     private final MatchSessionRepository sessionRepository;

@@ -11,9 +11,9 @@ import { getStoredNickname, setStoredNickname } from "@/features/auth-user/lib/s
 
 export default function ResonanceSetup() {
   const navigate = useNavigate();
-  const [mode] = useState("create");
+  const mode = "create";
   const [nickname, setNickname] = useState(getStoredNickname());
-  const [teamSize, setTeamSize] = useState(1);
+  const teamSize = 1;
   const [difficulty, setDifficulty] = useState("medium");
   const [maxQuestions, setMaxQuestions] = useState(3);
   const [loading, setLoading] = useState(false);

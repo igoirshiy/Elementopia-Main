@@ -9,15 +9,11 @@ const DEFAULT = {
   matches: [], rating: 1200
 };
 
-let memoryCache = null;
-
 export function loadProgress() {
   if (typeof window === "undefined") return DEFAULT;
   try {
     const raw = localStorage.getItem(KEY);
-    const parsed = raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
-    memoryCache = parsed;
-    return parsed;
+    return raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
   } catch { return DEFAULT; }
 }
 
@@ -50,7 +46,6 @@ export async function resetProgress(nickname) {
     }
   }
 
-  memoryCache = fresh;
   if (typeof window !== "undefined") {
     localStorage.removeItem(`elementopia_pretest_${nickname}`);
     localStorage.removeItem("elementopia.sessions.v1");
@@ -61,7 +56,6 @@ export async function resetProgress(nickname) {
 
 
 export function saveProgress(p) {
-  memoryCache = p;
   if (typeof window === "undefined") return;
   localStorage.setItem(KEY, JSON.stringify(p));
   window.dispatchEvent(new Event("elementopia:progress"));
@@ -140,7 +134,6 @@ export async function fetchProgress(nickname) {
           sessions: Array.from(sessionMap.values())
         };
 
-        memoryCache = p;
         localStorage.setItem(KEY, JSON.stringify(p));
       }
     } catch (e) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Stage, Layer, Circle, Text, Line, Group } from "react-konva";
 import { Sparkles, Maximize2, Minimize2, Beaker, Trash2, Zap, BookOpen, Lightbulb } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import ElementTable from "./ElementTable";
 import compoundElements from "../data/compound-elements.json";
 import DiscoveryService from '@/features/student-discovery/services/DiscoveryService';
@@ -48,8 +47,6 @@ const getElementStyle = (elementSymbol) => {
 		textFill: textHex
 	};
 };
-
-const definitionCache = {};
 
 const findElementData = (elementSymbol) => {
 	const symbol = (elementSymbol || "").toLowerCase();
@@ -98,7 +95,6 @@ const ChemSim = () => {
 	const [selectedElement, setSelectedElement] = useState("H");
 	const [selectedElementInfo, setSelectedElementInfo] = useState(null);
 	const [moleculeOutput, setMoleculeOutput] = useState("");
-	const [loadingDefinition, setLoadingDefinition] = useState(false);
 	const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
 	const [discoveredCompoundInfo, setDiscoveredCompoundInfo] = useState(null);
 	const [discoveredHistory, setDiscoveredHistory] = useState(new Set());
@@ -140,7 +136,9 @@ const ChemSim = () => {
 			if (layerRef.current) {
 				try {
 					layerRef.current.batchDraw();
-				} catch(e) {}
+				} catch {
+					// Ignore batchDraw race on unmount
+				}
 			}
 			animId = requestAnimationFrame(loop);
 		};
@@ -150,38 +148,12 @@ const ChemSim = () => {
 		};
 	}, []);
 
-	const navigate = useNavigate();
-
 	useEffect(() => {
 		if (selectedElement) {
 			const elementData = findElementData(selectedElement);
 			setSelectedElementInfo(elementData);
 		}
 	}, [selectedElement]);
-
-	const fetchDefinition = async (word) => {
-		if (definitionCache[word]) return definitionCache[word];
-
-		const apiKey = "76814e25-29c5-44de-983b-b978ece36d95";
-		const url = `https://www.dictionaryapi.com/api/v3/references/medical/json/${word}?key=${apiKey}`;
-		try {
-			setLoadingDefinition(true);
-			const response = await fetch(url);
-			const data = await response.json();
-			setLoadingDefinition(false);
-
-			if (Array.isArray(data) && data.length > 0 && data[0].shortdef) {
-				const definition = data[0].shortdef.slice(0, 2).join("; ");
-				definitionCache[word] = definition;
-				return definition;
-			}
-			return null;
-		} catch (error) {
-			console.error("Error fetching definition:", error);
-			setLoadingDefinition(false);
-			return null;
-		}
-	};
 
 	const saveDiscovery = async (compound) => {
 		let userId = "guest_id";

@@ -10,6 +10,7 @@ import com.elementopia.backend.features.match_consolidation.StudentProficiencyEn
 
 @RestController
 @RequestMapping("/api/progress")
+@SuppressWarnings("null")
 public class UserProgressController {
 
     private final UserProgressRepository progressRepository;

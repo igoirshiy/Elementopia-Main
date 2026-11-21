@@ -5,7 +5,6 @@ import { Modal } from "@mui/material";
 import compoundElements from "@/features/resonance-puzzle/data/compound-elements.json";
 import { getSessionId } from "@/features/auth-user/lib/session";
 import {
-  advanceToNextRound,
   bumpErrors,
   bumpSteps,
   returnToLobby,
@@ -103,7 +102,9 @@ export default function ChallengeMatch() {
             event: "heartbeat",
             payload: { sessionId, team: me.team }
           });
-        } catch (e) { }
+        } catch {
+          // Ignore heartbeat send errors
+        }
       }
     }, 3000);
 
@@ -371,7 +372,7 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
       if (me && errors === 0 && (me.errors || 0) > 0) {
         setErrors(me.errors);
       }
-    }, [me]);
+    }, [me, errors, progress.length]);
     const [solved, setSolved] = useState(false);
     const [flash, setFlash] = useState(null);
     const lastErrSync = useRef(0);
@@ -400,12 +401,8 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
       setErrors(0);
       setSolved(false);
       setUsedIndices([]);
-      setSolvedPuzzle(null);
     }, [room.started_at, room.puzzle?.currentQuestionIndex]);
 
-
-    const teamA = players.filter((p) => p.team === "A");
-    const teamB = players.filter((p) => p.team === "B");
     const myTeam = me?.team ?? null;
     const oppTeam = myTeam === "A" ? "B" : "A";
     const oppDoneCount = players.filter((p) => p.team === oppTeam && p.finished_at).length;
@@ -618,8 +615,8 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
     }, [me, winning, draw, youWon]);
 
     // Map all compounds answered across rounds in this match
-    const matchQuestions = room.puzzle?.questions || [];
     const reviewedCompounds = useMemo(() => {
+      const matchQuestions = room.puzzle?.questions || [];
       return matchQuestions.map((q, idx) => {
         const formula = q.target;
         const comp = compoundElements.find(
@@ -636,7 +633,7 @@ const THEME_COLORS = ["var(--cyan)", "var(--magenta)", "var(--violet)"];
           realWorld: comp?.RealWorldApplication || "Demonstrates core octet rule and electron pairing in real-world environments."
         };
       });
-    }, [matchQuestions]);
+    }, [room.puzzle?.questions]);
 
     const activeCompound = reviewedCompounds[activeReviewIdx] || reviewedCompounds[0];
 

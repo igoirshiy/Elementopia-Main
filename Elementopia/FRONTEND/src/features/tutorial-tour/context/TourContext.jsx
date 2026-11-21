@@ -40,7 +40,9 @@ export function TourProvider({ children }) {
     setHasCompleted(true);
     try {
       localStorage.setItem(STORAGE_KEY, "true");
-    } catch {}
+    } catch {
+      // Ignore storage error
+    }
     
     // Dispatch custom event in case components want to listen
     window.dispatchEvent(new CustomEvent("elementopia:tour-finished"));
@@ -51,7 +53,9 @@ export function TourProvider({ children }) {
     try {
       localStorage.setItem(STORAGE_KEY, "true");
       setHasCompleted(true);
-    } catch {}
+    } catch {
+      // Ignore storage error
+    }
   }, []);
 
   const nextStep = useCallback(() => {
@@ -92,7 +96,9 @@ export function TourProvider({ children }) {
     try {
       localStorage.removeItem(STORAGE_KEY);
       setHasCompleted(false);
-    } catch {}
+    } catch {
+      // Ignore storage error
+    }
     startTour(0);
   }, [startTour]);
 

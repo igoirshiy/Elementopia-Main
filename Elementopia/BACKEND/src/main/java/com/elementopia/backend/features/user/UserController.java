@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@SuppressWarnings("null")
 public class UserController {
 
     private final UserRepository userRepository;

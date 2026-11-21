@@ -207,7 +207,7 @@ function getBondType(symA, symB, valenceInfo, overrideOrder = null) {
  * Calculates initial 2D layout coordinates for recognized molecular geometries.
  * Uses 2D spatial arrangement (organic Lewis geometry) so atoms never collapse into a 1D line.
  */
-function getInitialMolecularLayout(molecularSequence, key, spacing) {
+function getInitialMolecularLayout(molecularSequence, key) {
   const N = molecularSequence.length;
 
   // Bent V-shape for H2O: [O, H, H]
@@ -896,7 +896,7 @@ export function MolecularBondVisualizer({ workbench = {}, target = null, onRemov
             {(() => {
               const N = molecularSequence.length;
               const spacing = Math.min(130, Math.max(90, Math.floor(460 / Math.max(1, N))));
-              const initialLayout = getInitialMolecularLayout(molecularSequence, key, spacing);
+              const initialLayout = getInitialMolecularLayout(molecularSequence, key);
 
               // Calculate 2D position for each atom
               const atomNodes = molecularSequence.map((symbol, idx) => {

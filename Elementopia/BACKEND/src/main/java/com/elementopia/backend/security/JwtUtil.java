@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
+@SuppressWarnings("null")
 public class JwtUtil {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final long EXPIRATION_TIME_MS = 86400000; // 24 hours

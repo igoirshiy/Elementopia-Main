@@ -42,9 +42,12 @@ export function SiteHeader({ view, setView }) {
       try {
         const userStr = localStorage.getItem("elementopia_current_user");
         if (userStr) localUser = JSON.parse(userStr);
-      } catch (e) { }
+      } catch {
+        // Ignore corrupted local storage
+      }
 
-      const nick = localUser?.username || progress.nickname;
+      const currentProg = loadProgress();
+      const nick = localUser?.username || currentProg?.nickname;
       if (nick && nick !== "Guest Alchemist") {
         await fetchProgress(nick);
       }
@@ -70,7 +73,9 @@ export function SiteHeader({ view, setView }) {
   try {
     const userStr = localStorage.getItem("elementopia_current_user");
     if (userStr) localUser = JSON.parse(userStr);
-  } catch (e) { }
+  } catch {
+    // Ignore corrupted local storage
+  }
 
   const displayName = localUser?.username && localUser.username !== "Guest Alchemist"
     ? localUser.username
@@ -81,7 +86,7 @@ export function SiteHeader({ view, setView }) {
     if (setView && isMainPage) {
       setView("home");
     } else {
-      window.location.href = "/student-home-page";
+      navigate("/student-home-page");
     }
     setSidebarOpen(false);
   };
@@ -180,8 +185,8 @@ export function SiteHeader({ view, setView }) {
               type="button"
               onClick={handleDashboardClick}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isDashboardActive
-                  ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                  : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
                 }`}
             >
               <LayoutDashboard className={`size-5 ${isDashboardActive ? "text-cyan-400" : ""}`} />
@@ -192,8 +197,8 @@ export function SiteHeader({ view, setView }) {
               to="/student-home-page"
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isDashboardActive
-                  ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                  : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
                 }`}
             >
               <LayoutDashboard className={`size-5 ${isDashboardActive ? "text-cyan-400" : ""}`} />
@@ -205,8 +210,8 @@ export function SiteHeader({ view, setView }) {
             to="/student/matrix"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isMatrixActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <Grid className={`size-5 ${isMatrixActive ? "text-cyan-400" : ""}`} />
@@ -217,8 +222,8 @@ export function SiteHeader({ view, setView }) {
             to="/student/workshop"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isWorkshopActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <Wrench className={`size-5 ${isWorkshopActive ? "text-cyan-400" : ""}`} />
@@ -229,8 +234,8 @@ export function SiteHeader({ view, setView }) {
             to="/student/gallery"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isGalleryActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <ImageIcon className={`size-5 ${isGalleryActive ? "text-cyan-400" : ""}`} />
@@ -241,8 +246,8 @@ export function SiteHeader({ view, setView }) {
             to="/student/Chem-Simulation"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isSandboxActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <FlaskConical className={`size-5 ${isSandboxActive ? "text-cyan-400" : ""}`} />
@@ -253,8 +258,8 @@ export function SiteHeader({ view, setView }) {
             to="/student/discovery"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isDiscoveryActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <Search className={`size-5 ${isDiscoveryActive ? "text-cyan-400" : ""}`} />
@@ -265,8 +270,8 @@ export function SiteHeader({ view, setView }) {
             to="/challenge"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-sans text-left w-full border-0 ${isChallengeActive
-                ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
+              ? "bg-slate-800/80 text-white font-semibold shadow-inner shadow-cyan-500/20"
+              : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
           >
             <Swords className={`size-5 ${isChallengeActive ? "text-cyan-400" : ""}`} />

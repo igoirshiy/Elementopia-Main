@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ELEMENTS, shuffle, liveCommentary, matchCompound, isCompoundInDomain, isCompoundInCurrentStage, explainFailure } from "@/features/resonance-puzzle/lib/game-data";
+import { ELEMENTS, shuffle, matchCompound, isCompoundInDomain, isCompoundInCurrentStage, explainFailure } from "@/features/resonance-puzzle/lib/game-data";
 import { ElementTile } from "./ElementTile";
 import { ObstacleGrid } from "./ObstacleGrid";
 import { upsertProgress, loadProgress } from "@/features/mastery-dashboard/lib/progress";
@@ -33,7 +33,6 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [stageClearPayload, setStageClearPayload] = useState(null);
   const [showTutorialModal, setShowTutorialModal] = useState(true);
-  const [inspectedElement, setInspectedElement] = useState(null);
   const [identifiedTarget, setIdentifiedTarget] = useState(null);
   const [wrongChoiceClicked, setWrongChoiceClicked] = useState(null);
 
@@ -56,7 +55,8 @@ export function GameBoard({ nickname, domain, initialStage = 1, onCleared, onExi
 
   const userProgress = useMemo(() => {
     try {
-      return loadProgress();
+      const currentDomainId = domain?.id;
+      return currentDomainId ? loadProgress() : loadProgress();
     } catch {
       return null;
     }
